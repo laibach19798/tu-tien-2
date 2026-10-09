@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cu21b2itbejya"
+
+[deps]
+
+files=["res://assets/_raw2/index.34.translation", "res://assets/_raw2/index.31.translation", "res://assets/_raw2/index.65.translation", "res://assets/_raw2/index.66.translation"]
+
+source_file="res://assets/_raw2/index.csv"
+dest_files=["res://assets/_raw2/index.34.translation", "res://assets/_raw2/index.31.translation", "res://assets/_raw2/index.65.translation", "res://assets/_raw2/index.66.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

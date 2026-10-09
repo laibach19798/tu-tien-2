@@ -1,0 +1,11 @@
+﻿.godot/
+backup/
+tools/Godot-*/
+tools/Tiled-*/
+PixelFarm/
+VoDanhCharacterLab/
+VoDanhTienMon/
+cf-observe/
+source/
+docs/
+*.tmp
