@@ -850,6 +850,10 @@ func _physics_process(delta: float) -> void:
 	if debug_inf_qi:
 		cult.qi = cult.qi_max()
 	_check_regions()
+	_theme_timer -= delta
+	if _theme_timer <= 0.0:
+		_theme_timer = 0.5
+		Sfx.set_theme(music_theme_at(player.position))
 	_update_prompt()
 	aura.active = meditating
 	aura.boosted = density > 1.0
@@ -860,10 +864,42 @@ func _physics_process(delta: float) -> void:
 		action = "run" if run else "walk"
 		direction = Dir.from_vector(v, direction)
 		var step := v * (RUN_SPEED if run else WALK_SPEED) * delta
+		var before := player.position
 		_move_axis(Vector2(step.x, 0.0))
 		_move_axis(Vector2(0.0, step.y))
+		_step_dist += player.position.distance_to(before)
+		if _step_dist >= (62.0 if run else 50.0):
+			_step_dist = 0.0
+			Sfx.step(surface_at(player.position), run)
 	player.set_motion(action, direction)
 	camera.position = player.position
+
+
+var _step_dist := 0.0
+var _theme_timer := 0.0
+
+
+## Loại mặt đất dưới chân (cho tiếng bước chân): rock = trong hang, stone = sân lát đá, còn lại là cỏ.
+func surface_at(p: Vector2) -> String:
+	if p.distance_to(WorldExpansion.CAVE) < 330.0:
+		return "rock"
+	if p.distance_to(Vector2(1280, 900)) < 330.0 or p.distance_to(WorldExpansion.SECT_C) < 330.0:
+		return "stone"
+	for c in [Vector2(1050, 1220), Vector2(1620, 1160), WorldExpansion.SECT_GATE]:
+		if p.distance_to(c) < 190.0:
+			return "stone"
+	return "grass"
+
+
+## Bản nhạc theo khu vực: hang, Kiếm Tông, Hắc Lâm (phía đông), còn lại là làng.
+func music_theme_at(p: Vector2) -> String:
+	if p.distance_to(WorldExpansion.CAVE) < 420.0:
+		return "cave"
+	if p.distance_to(WorldExpansion.SECT_C) < 520.0 or p.distance_to(WorldExpansion.SECT_GATE) < 260.0:
+		return "sect"
+	if p.x > 2640.0:
+		return "forest"
+	return "village"
 
 
 func _move_axis(step: Vector2) -> void:
