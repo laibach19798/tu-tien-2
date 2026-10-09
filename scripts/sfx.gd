@@ -16,9 +16,14 @@ static var music_on := true
 
 var _players: Array[AudioStreamPlayer] = []
 var _next := 0
-var _music: AudioStreamPlayer
-var _music_stream: AudioStreamWAV
-var _task := -1
+var _music: Array[AudioStreamPlayer] = []   # hai kênh để chuyển nhạc mượt (crossfade)
+var _tasks: Array = []
+var _want := "village"
+var _cur := ""
+var _front := 0
+var _fade: Tween
+
+const MUSIC_DB := -17.0
 
 
 static func setup(parent: Node) -> void:
@@ -40,28 +45,69 @@ func _ready() -> void:
 		p.volume_db = -4.0
 		add_child(p)
 		_players.append(p)
-	_music = AudioStreamPlayer.new()
-	_music.volume_db = -17.0
-	add_child(_music)
-	_task = WorkerThreadPool.add_task(_build_music)   # nhạc nền mất vài giây để dựng nên làm ở luồng phụ
+	for i in 2:
+		var m := AudioStreamPlayer.new()
+		m.volume_db = -80.0
+		add_child(m)
+		_music.append(m)
+	_built.clear()
+	for theme in THEMES:   # mỗi khu vực một bản nhạc, dựng song song ở luồng phụ (mỗi bản mất vài giây)
+		_tasks.append(WorkerThreadPool.add_task(_build_theme.bind(theme)))
 
 
 func _process(_dt: float) -> void:
-	if _task >= 0 and WorkerThreadPool.is_task_completed(_task):
-		WorkerThreadPool.wait_for_task_completion(_task)
-		_task = -1
-		_music.stream = _music_stream
-		_apply_music()
+	if not _tasks.is_empty():
+		for id in _tasks.duplicate():
+			if WorkerThreadPool.is_task_completed(id):
+				WorkerThreadPool.wait_for_task_completion(id)
+				_tasks.erase(id)
+	_switch_if_needed()
+
+
+func _has_theme(theme: String) -> bool:
+	_mutex.lock()
+	var ok := _built.has(theme)
+	_mutex.unlock()
+	return ok
+
+
+## Chuyển bản nhạc về khu vực đang đứng: kênh cũ nhỏ dần, kênh mới to dần trong 2,5 giây.
+func _switch_if_needed() -> void:
+	if not music_on:
+		for m in _music:
+			if m.playing:
+				m.stop()
+		_cur = ""
+		return
+	var theme := _want if _has_theme(_want) else ("village" if _cur == "" and _has_theme("village") else _cur)
+	if theme == "" or theme == _cur:
+		return
+	var old := _music[_front]
+	_front = 1 - _front
+	var nw := _music[_front]
+	_mutex.lock()
+	nw.stream = _built[theme]
+	_mutex.unlock()
+	nw.volume_db = -80.0
+	nw.play()
+	if _fade != null:
+		_fade.kill()
+	_fade = create_tween().set_parallel(true)
+	_fade.tween_property(nw, "volume_db", MUSIC_DB, 2.5)
+	if old.playing:
+		_fade.tween_property(old, "volume_db", -80.0, 2.5)
+		_fade.chain().tween_callback(old.stop)
+	_cur = theme
+
+
+static func set_theme(theme: String) -> void:
+	if _inst != null and THEMES.has(theme):
+		_inst._want = theme
 
 
 static func _apply_music() -> void:
-	if _inst == null or _inst._music.stream == null:
-		return
-	if music_on and not _inst._music.playing:
-		_inst._music.play()
-	elif not music_on:
-		_inst._music.stop()
-
+	if _inst != null:
+		_inst._cur = ""   # buộc _switch_if_needed dựng lại kênh (hoặc tắt hẳn)
 
 static func set_sfx(on: bool) -> void:
 	sfx_on = on
@@ -229,10 +275,26 @@ static func _make(id: String) -> AudioStreamWAV:
 		"craft":
 			return _gen(1.0, func(t, k):
 				return (_sine(1047.0, t) + 0.5 * _sine(1047.0 * 2.76, t) * exp(-t * 6.0)) * exp(-t * 5.0) * 0.4)
+		"step_grass":
+			return _gen(0.1, func(t, k):
+				st[0] += 0.22 * (_noise() - st[0])
+				return st[0] * 2.2 * exp(-t * 38.0) * minf(1.0, t * 400.0))
+		"step_stone":
+			return _gen(0.09, func(t, k):
+				return (_sine(1500.0, t) * 0.25 + _sine(620.0, t) * 0.35 + _noise() * 0.4 * exp(-t * 150.0)) * exp(-t * 55.0))
+		"step_rock":
+			return _gen(0.16, func(t, k):
+				st[0] += 0.35 * (_noise() - st[0])
+				return (_sine(210.0, t) * 0.55 + st[0] * 0.8 * exp(-t * 90.0)) * exp(-t * 22.0) + (_sine(210.0, t - 0.06) * 0.2 * exp(-(t - 0.06) * 25.0) if t > 0.06 else 0.0))
 		"meditate":
 			return _gen(1.2, func(t, k):
 				return (_sine(220.0, t) * 0.3 + _sine(330.0, t) * 0.2 + _sine(440.0, t) * 0.1) * sin(PI * k))
 	return null
+
+
+## Tiếng bước chân theo mặt đất: "grass" | "stone" | "rock"; chạy thì nhanh và to hơn một chút.
+static func step(surface: String, run: bool) -> void:
+	play("step_" + surface, randf_range(0.88, 1.12) * (1.08 if run else 1.0), -9.0 + (2.0 if run else 0.0))
 
 
 ## Làm tròn tần số về bội của 1/24 Hz để vòng nhạc 24 giây nối liền, không bị click.
@@ -241,20 +303,62 @@ static func _loopf(f: float) -> float:
 
 
 # ---------------------------------------------------------------- nhạc nền (ngũ cung, chậm, như đàn tranh + pad)
-func _build_music() -> void:
+# ---------------------------------------------------------------- nhạc nền theo khu vực (ngũ cung, chậm, như đàn tranh + pad)
+# pad: 4 hợp âm (mỗi cái 3 nốt); scale: nốt gảy; density: xác suất mỗi nhịp 1,5 s có nốt; echo: vang lại; gong: chuông trầm ở giây 0 và 12
+const THEMES := {
+	"village": {
+		"chords": [[220.0, 261.63, 329.63], [196.0, 261.63, 293.66], [174.61, 220.0, 261.63], [196.0, 246.94, 293.66]],
+		"scale": [440.0, 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5],
+		"density": 0.78, "pad": 1.0, "pluck": 1.0, "decay": 1.8, "echo": false, "gong": false, "seed": 2026,
+	},
+	"forest": {
+		"chords": [[146.83, 174.61, 220.0], [130.81, 196.0, 233.08], [116.54, 174.61, 220.0], [130.81, 164.81, 196.0]],
+		"scale": [293.66, 349.23, 392.0, 440.0, 523.25, 587.33],
+		"density": 0.45, "pad": 1.25, "pluck": 0.8, "decay": 1.3, "echo": true, "gong": false, "seed": 77,
+	},
+	"sect": {
+		"chords": [[196.0, 293.66, 392.0], [220.0, 329.63, 440.0], [174.61, 261.63, 349.23], [196.0, 246.94, 392.0]],
+		"scale": [392.0, 440.0, 493.88, 587.33, 659.25, 783.99],
+		"density": 0.6, "pad": 1.15, "pluck": 1.1, "decay": 1.5, "echo": false, "gong": true, "seed": 311,
+	},
+	"cave": {
+		"chords": [[110.0, 164.81, 220.0], [98.0, 146.83, 196.0], [110.0, 146.83, 220.0], [87.31, 130.81, 196.0]],
+		"scale": [1318.5, 1568.0, 1760.0, 2093.0, 2349.3],
+		"density": 0.42, "pad": 1.5, "pluck": 0.55, "decay": 0.9, "echo": true, "gong": false, "seed": 905,
+	},
+}
+
+static var _built := {}
+static var _mutex := Mutex.new()
+
+
+func _build_theme(theme: String) -> void:
+	var cfg: Dictionary = THEMES[theme]
 	var len_s := 24.0
 	var n := int(len_s * MUSIC_RATE)
 	var s := PackedFloat32Array()
 	s.resize(n)
-	# 4 hợp âm, mỗi hợp âm sống 12 giây, cách nhau 6 giây, cửa sổ sin² nên nối vòng liền mạch
-	var chords := [[220.0, 261.63, 329.63], [196.0, 261.63, 293.66], [174.61, 220.0, 261.63], [196.0, 246.94, 293.66]]
-	var scale := [440.0, 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5].map(_loopf)
+	var chords: Array = cfg["chords"]
+	var scale: Array = (cfg["scale"] as Array).map(_loopf)
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 2026
-	var notes: Array = []   # [thời điểm, tần số]
+	rng.seed = int(cfg["seed"])
+	var notes: Array = []   # [thời điểm, tần số, biên độ]
 	for k in 14:
-		if rng.randf() < 0.78:
-			notes.append([k * 1.5 + (0.0 if rng.randf() < 0.7 else 0.75), scale[rng.randi_range(0, scale.size() - 1)]])
+		if rng.randf() < float(cfg["density"]):
+			var at := k * 1.5 + (0.0 if rng.randf() < 0.7 else 0.75)
+			var f: float = scale[rng.randi_range(0, scale.size() - 1)]
+			notes.append([at, f, 1.0])
+			if bool(cfg["echo"]):
+				notes.append([at + 0.45, f, 0.42])
+				notes.append([at + 0.9, f, 0.18])
+	var gongs: Array = []
+	if bool(cfg["gong"]):
+		for at in [0.0, 12.0]:
+			for pr in [[98.0, 1.0], [98.0 * 2.76, 0.45], [98.0 * 5.4, 0.2]]:
+				gongs.append([at, _loopf(pr[0]), pr[1]])
+	var pad_amp: float = cfg["pad"]
+	var pluck_amp: float = cfg["pluck"]
+	var decay: float = cfg["decay"]
 	for i in n:
 		var t := float(i) / MUSIC_RATE
 		var v := 0.0
@@ -265,15 +369,21 @@ func _build_music() -> void:
 				for f in chords[c]:
 					f = _loopf(f)
 					var vib := 1.0 + 0.002 * sin(TAU * 4.5 * t)
-					v += w * (sin(TAU * f * t * vib) * 0.05 + sin(TAU * _loopf(f * 2.003) * t) * 0.018)
+					v += w * pad_amp * (sin(TAU * f * t * vib) * 0.05 + sin(TAU * _loopf(f * 2.003) * t) * 0.018)
 		for nt in notes:
 			var d := fposmod(t - float(nt[0]), len_s)
-			if d < 3.0:
+			if d < 3.5:
 				var f: float = nt[1]
-				v += (sin(TAU * f * t) + 0.4 * sin(TAU * f * 2.0 * t) * exp(-d * 6.0) + 0.15 * sin(TAU * f * 3.0 * t) * exp(-d * 9.0)) * exp(-d * 1.8) * 0.07
+				v += (sin(TAU * f * t) + 0.4 * sin(TAU * f * 2.0 * t) * exp(-d * 6.0) + 0.15 * sin(TAU * f * 3.0 * t) * exp(-d * 9.0)) * exp(-d * decay) * 0.07 * pluck_amp * float(nt[2])
+		for g in gongs:
+			var d := fposmod(t - float(g[0]), len_s)
+			if d < 6.0:
+				v += sin(TAU * float(g[1]) * t) * exp(-d * 0.9) * 0.05 * float(g[2]) * minf(1.0, d * 40.0)
 		s[i] = v
 	var w := _wav(s, MUSIC_RATE)
 	w.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	w.loop_begin = 0
 	w.loop_end = n
-	_music_stream = w
+	_mutex.lock()
+	_built[theme] = w
+	_mutex.unlock()
