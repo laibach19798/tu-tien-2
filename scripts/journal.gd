@@ -58,6 +58,7 @@ func is_open() -> bool:
 
 
 func open_ui(tab: String) -> void:
+	Sfx.play("ui_open")
 	visible = true
 	_tab = tab
 	_dir_i = 0

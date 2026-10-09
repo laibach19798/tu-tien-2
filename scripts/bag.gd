@@ -69,6 +69,7 @@ func is_open() -> bool:
 
 func toggle() -> void:
 	visible = not visible
+	Sfx.play("ui_open" if visible else "ui_close")
 	if visible:
 		_selected = ""
 	refresh()

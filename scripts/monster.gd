@@ -105,6 +105,7 @@ func take_hit(dmg: float, from: Vector2) -> bool:
 		_timer = 0.32
 		_struck = false
 	_show_number(dmg)
+	Sfx.play("mhurt", randf_range(0.9, 1.1))
 	if hp <= 0.0:
 		_die()
 	elif host != null and host.player != null:
@@ -114,6 +115,7 @@ func take_hit(dmg: float, from: Vector2) -> bool:
 
 func _die() -> void:
 	alive = false
+	Sfx.play("mdie", randf_range(0.9, 1.1))
 	state = "dead"
 	_bar.queue_redraw()
 	if host != null and host.has_method("on_monster_killed"):

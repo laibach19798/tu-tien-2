@@ -136,6 +136,7 @@ func is_open() -> bool:
 
 
 func open_ui(p_mode: String) -> void:
+	Sfx.play("ui_open")
 	mode = p_mode
 	_title.set_text("Tiệm May · Tô Nương" if mode == "shop" else "Tủ Đồ")
 	_preview_outfit = wardrobe.equipped.duplicate()

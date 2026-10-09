@@ -45,6 +45,7 @@ func _process(delta: float) -> void:
 
 func _pickup() -> void:
 	var label := ""
+	Sfx.play("coin" if item == "stone" else "pickup")
 	if item == "stone":
 		host.inv.add_stones(amount)
 		label = "+%d linh thạch" % amount

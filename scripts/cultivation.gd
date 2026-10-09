@@ -52,6 +52,7 @@ func add_xp(amount: float) -> void:
 		if layer < LAYERS:
 			xp -= xp_needed()
 			layer += 1
+			Sfx.play("levelup")
 			message.emit("Đột phá tiểu cảnh giới: %s" % realm_name())
 		else:
 			xp = xp_needed()
@@ -70,6 +71,7 @@ func try_breakthrough() -> void:
 		return
 	if randf() < BREAKTHROUGH_CHANCE:
 		realm += 1
+		Sfx.play("breakthrough")
 		layer = 1
 		xp = 0.0
 		qi = 0.0
@@ -77,6 +79,7 @@ func try_breakthrough() -> void:
 		message.emit("ĐỘT PHÁ THÀNH CÔNG! Cảnh giới mới: %s" % realm_name())
 	else:
 		xp = xp_needed() * 0.5
+		Sfx.play("fail")
 		ready_breakthrough = false
 		message.emit("Đột phá thất bại, tu vi tổn hao. Hãy tu luyện lại.")
 	changed.emit()

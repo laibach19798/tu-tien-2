@@ -38,6 +38,7 @@ func is_open() -> bool:
 
 
 func open_menu() -> void:
+	Sfx.play("ui_open")
 	_page = "main"
 	_confirm = ""
 	visible = true
@@ -96,6 +97,7 @@ func _btn(text: String, cb: Callable, disabled := false) -> Button:
 	b.custom_minimum_size = Vector2(0, 52)
 	b.disabled = disabled
 	b.pressed.connect(cb)
+	b.pressed.connect(Sfx.play.bind("ui_click"))
 	return b
 
 
@@ -116,7 +118,13 @@ func _build_main() -> void:
 	_body.add_child(_btn("Toàn màn hình: %s  (F11)" % ("BẬT" if _fullscreen else "TẮT"), func():
 		_set_fullscreen(not _fullscreen)
 		_build()))
-	var quit_text := "Thoát game (tự lưu)" if _confirm != "quit" else "Chắc chắn thoát? Bấm lần nữa"
+	_body.add_child(_btn("Nhạc nền: %s" % ("BẬT" if Sfx.music_on else "TẮT"), func():
+		Sfx.set_music(not Sfx.music_on)
+		_build()))
+	_body.add_child(_btn("Hiệu ứng âm thanh: %s" % ("BẬT" if Sfx.sfx_on else "TẮT"), func():
+		Sfx.set_sfx(not Sfx.sfx_on)
+		_build()))
+	var quit_text :="Thoát game (tự lưu)" if _confirm != "quit" else "Chắc chắn thoát? Bấm lần nữa"
 	_body.add_child(_btn(quit_text, _on_quit))
 
 
