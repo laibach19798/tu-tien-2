@@ -70,6 +70,7 @@ func is_open() -> bool:
 
 
 func open_shop() -> void:
+	Sfx.play("ui_open")
 	visible = true
 	refresh()
 

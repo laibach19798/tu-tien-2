@@ -54,6 +54,7 @@ func is_open() -> bool:
 
 
 func open_ui() -> void:
+	Sfx.play("ui_open")
 	visible = true
 	_result.text = ""
 	_progress.visible = false
@@ -147,6 +148,7 @@ func _finish(r: Dictionary) -> void:
 	_busy = false
 	_progress.visible = false
 	var success := randf() < chance_for(r)
+	Sfx.play("craft" if success else "fail")
 	if success:
 		inv.add(r["out"], 1)
 		_result.text = "Thành đan!  +1 %s" % Items.item_name(r["out"])

@@ -133,6 +133,7 @@ func cast(i: int) -> void:
 	_cd[i] = SKILLS[i]["cd"]
 	var aim := _aim()
 	_face(aim)
+	Sfx.play(str(SKILLS[i]["id"]))
 	match SKILLS[i]["id"]:
 		"slash": _do_slash(aim)
 		"qi": _do_qi(aim)
@@ -146,6 +147,7 @@ func _power(base: float) -> float:
 
 func hit_target(t: Node, dmg: float, col := Color(0.6, 0.95, 1.0), big := false) -> void:
 	if t.take_hit(dmg, player.global_position):
+		Sfx.play("hit_big" if big else "hit", randf_range(0.92, 1.08))
 		impact(t.hit_center(), col, big)
 		if big:
 			shake(5.0, 0.15)

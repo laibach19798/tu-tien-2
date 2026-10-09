@@ -49,6 +49,7 @@ func use(id: String, cult: Cultivation) -> bool:
 	if d.is_empty() or not d.get("usable", false) or count(id) <= 0:
 		return false
 	remove(id)
+	Sfx.play("heal")
 	if d.get("xp", 0) > 0:
 		cult.add_xp(float(d["xp"]))
 	if d.get("qi", 0) > 0:

@@ -229,6 +229,7 @@ func _build_toast() -> void:
 
 
 func toast(text: String) -> void:
+	Sfx.play("toast")
 	_toast_label.text = text
 	_toast.reset_size()
 	if _toast_tween:
@@ -265,12 +266,14 @@ func update_hp(hp: float, max_hp: float) -> void:
 
 ## Màn hình loé đỏ khi bị đánh.
 func flash_hurt() -> void:
+	Sfx.play("hurt")
 	_hurt.color.a = 0.38
 	var tw := create_tween()
 	tw.tween_property(_hurt, "color:a", 0.0, 0.35)
 
 
 func show_death(title: String, sub: String) -> void:
+	Sfx.play("death")
 	_death.visible = true
 	_death.get_node("T").text = title
 	_death.get_node("S").text = sub

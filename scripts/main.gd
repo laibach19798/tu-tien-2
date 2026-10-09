@@ -596,6 +596,7 @@ func _build_hud() -> void:
 	inv.vitals = vitals
 	vitals.changed.connect(func(): hud.update_hp(vitals.hp, vitals.max_hp))
 	vitals.hurt.connect(_on_player_hurt)
+	Sfx.setup(self)
 	vitals.died.connect(_on_player_died)
 	wardrobe.changed.connect(func(): Wardrobe.apply(player, wardrobe.equipped))
 	cult.message.connect(hud.toast)

@@ -19,7 +19,7 @@ const ITEMS := {
 	"hair_long_silver": {"slot": "hair", "name": "Tóc dài - bạc", "style": "long", "tint": Color(0.85, 0.88, 0.95), "price": 140, "desc": "Tóc bạc buông dài, phong thái tiên nhân."},
 	# --- Áo ---
 	"outfit_plain": {"slot": "clothes", "name": "Áo thường", "style": "test", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Bộ trang phục thường, không có hào quang."},
-	"tien_bao": {"slot": "clothes", "name": "Tiên bào", "style": "test", "full": true, "aura": {"color": Color(1.0, 0.55, 0.2), "color2": Color(1.0, 0.95, 0.6), "outline": 1.0}, "tint": Color(1, 1, 1), "price": 240, "desc": "Tiên bào có hào quang linh lực rực rỡ bao quanh."},
+	"tien_bao": {"slot": "clothes", "name": "Tiên bào", "style": "test", "full": true, "aura": {"color": Color(1.0, 0.55, 0.2), "color2": Color(1.0, 0.95, 0.6), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 240, "desc": "Tiên bào có hào quang linh lực rực rỡ bao quanh."},
 	"outfit_lam": {"slot": "clothes", "name": "Áo lam", "style": "lam", "full": true, "tint": Color(1, 1, 1), "price": 20, "desc": "Áo vải màu lam, giản dị."},
 	"outfit_do": {"slot": "clothes", "name": "Áo đỏ thẫm", "style": "do", "full": true, "tint": Color(1, 1, 1), "price": 30, "desc": "Áo vải nhuộm đỏ thẫm."},
 	"outfit_luc": {"slot": "clothes", "name": "Áo lục", "style": "luc", "full": true, "tint": Color(1, 1, 1), "price": 30, "desc": "Áo xanh lục như lá trúc."},
@@ -28,8 +28,8 @@ const ITEMS := {
 	"outfit_trang": {"slot": "clothes", "name": "Áo trắng", "style": "trang", "full": true, "tint": Color(1, 1, 1), "price": 60, "desc": "Áo trắng thanh sạch."},
 	"outfit_xam": {"slot": "clothes", "name": "Áo xám tro", "style": "xam", "full": true, "tint": Color(1, 1, 1), "price": 25, "desc": "Áo xám tro kín đáo."},
 	"outfit_thanh": {"slot": "clothes", "name": "Áo thanh ngọc", "style": "thanh", "full": true, "tint": Color(1, 1, 1), "price": 50, "desc": "Áo màu xanh ngọc thanh nhã."},
-	"tien_bao_bach_van": {"slot": "clothes", "name": "Tiên bào Bạch Vân", "style": "bachvan", "full": true, "aura": {"color": Color(0.6, 0.9, 1.0), "color2": Color(1.0, 1.0, 1.0), "outline": 1.0}, "tint": Color(1, 1, 1), "price": 300, "desc": "Tiên bào trắng như mây, hào quang xanh băng."},
-	"tien_bao_tu_dien": {"slot": "clothes", "name": "Tiên bào Tử Điện", "style": "tudien", "full": true, "aura": {"color": Color(0.7, 0.4, 1.0), "color2": Color(1.0, 0.85, 0.4), "outline": 1.0}, "tint": Color(1, 1, 1), "price": 360, "desc": "Tiên bào tím sẫm, linh lực tím vàng như sấm."},
+	"tien_bao_bach_van": {"slot": "clothes", "name": "Tiên bào Bạch Vân", "style": "bachvan", "full": true, "aura": {"color": Color(0.6, 0.9, 1.0), "color2": Color(1.0, 1.0, 1.0), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 300, "desc": "Tiên bào trắng như mây, hào quang xanh băng."},
+	"tien_bao_tu_dien": {"slot": "clothes", "name": "Tiên bào Tử Điện", "style": "tudien", "full": true, "aura": {"color": Color(0.7, 0.4, 1.0), "color2": Color(1.0, 0.85, 0.4), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 360, "desc": "Tiên bào tím sẫm, linh lực tím vàng như sấm."},
 	# --- Giày ---
 	"shoes_cloth_brown": {"slot": "shoes", "name": "Giày vải - nâu", "style": "cloth", "tint": Color(0.50, 0.34, 0.22), "price": 0, "desc": "Giày vải đơn giản."},
 	"shoes_cloth_white": {"slot": "shoes", "name": "Giày vải - trắng", "style": "cloth", "tint": Color(0.93, 0.90, 0.84), "price": 20, "desc": "Giày vải trắng sạch sẽ."},
@@ -119,6 +119,17 @@ static func apply(character: Node, outfit: Dictionary) -> void:
 ## Bộ đồ có "aura" (color, color2, outline, rise, trail) thì gắn hào quang; không thì gỡ.
 static func _set_aura(character: Node, cfg: Dictionary) -> void:
 	var node := character.get_node_or_null("OutfitAura")
+	var qi := character.get_node_or_null("QiCape")
+	if cfg.is_empty() or not bool(cfg.get("qi_cape", false)):
+		if qi != null:   # áo choàng linh khí chỉ có khi aura bật "qi_cape"
+			character.remove_child(qi)
+			qi.queue_free()
+	elif qi == null:
+		qi = preload("res://scripts/qi_cape.gd").new()
+		qi.name = "QiCape"
+		character.add_child(qi)
+	if qi != null and not cfg.is_empty():
+		qi.configure(cfg)
 	if cfg.is_empty():
 		if node != null:
 			character.remove_child(node)
