@@ -20,6 +20,12 @@ var _trail_on := true
 var _canvas_mod: CanvasModulate
 var _light: PointLight2D
 var _find_timer := 0.0
+var _p := 1.0          # sức mạnh hào quang theo cảnh giới (0..1), đọc từ meta "aura_power" của nhân vật, đổi mượt
+var _tier := -1
+var _burst := 0.0      # vòng sáng bùng ra khi đột phá cảnh giới
+
+const RISE_BY_TIER := [4, 10, 18, 28, 36]
+const SPARKS_BY_TIER := [1, 3, 5, 7, 9]
 
 
 func _ready() -> void:
@@ -102,6 +108,11 @@ func configure(cfg: Dictionary, clothes_layer: AnimatedSprite2D) -> void:
 	queue_redraw()
 
 
+## Vòng sáng bùng ra quanh người (gọi khi đột phá cảnh giới).
+func burst() -> void:
+	_burst = 1.0
+
+
 func _exit_tree() -> void:
 	if is_instance_valid(_clothes):
 		_clothes.material = null
@@ -135,6 +146,14 @@ func _make_emitter(amount: int, life: float, dir: Vector2, vmin: float, vmax: fl
 
 func _process(delta: float) -> void:
 	_t += delta
+	_burst = maxf(0.0, _burst - delta * 1.1)
+	var target := float(get_parent().get_meta("aura_power", 1.0))   # chưa đặt (NPC, xem thử trong tủ đồ): rực đủ
+	_p = lerpf(_p, target, clampf(delta * 2.0, 0.0, 1.0))
+	var tier := clampi(int(floor(_p * 4.999)), 0, 4)
+	if tier != _tier:   # càng lên cảnh giới càng nhiều linh khí và tia lấp lánh
+		_tier = tier
+		_rise.amount = RISE_BY_TIER[tier]
+		_sparks.amount = SPARKS_BY_TIER[tier]
 	var moved := global_position.distance_to(_last_pos)
 	_last_pos = global_position
 	_speed = lerpf(_speed, moved / maxf(delta, 0.001), 0.2)
@@ -147,10 +166,11 @@ func _process(delta: float) -> void:
 	for p in [_rise, _sparks, _trail]:
 		(p as CPUParticles2D).self_modulate = boost
 	_light.color = color
-	_light.energy = (0.35 + 0.9 * night) * (0.85 + 0.15 * sin(_t * 2.6))   # đêm: soi sáng cả mặt đất quanh người
+	_light.energy = (0.35 + 0.9 * night) * (0.85 + 0.15 * sin(_t * 2.6)) * (0.3 + 0.7 * _p) + _burst * 1.5   # đêm: soi sáng cả mặt đất quanh người
 	if is_instance_valid(_clothes) and _clothes.material is ShaderMaterial:
 		var m := _clothes.material as ShaderMaterial
-		m.set_shader_parameter("glow_color", color)
+		m.set_shader_parameter("glow_color", Color(color, 0.35 + 0.65 * _p))
+		m.set_shader_parameter("inner_glow", 0.05 + 0.13 * _p)
 		m.set_shader_parameter("boost", Vector3(boost.r, boost.g, boost.b) * (1.0 + 0.5 * night))
 	queue_redraw()
 
@@ -160,16 +180,24 @@ func _draw() -> void:
 	# quầng sáng mềm sau lưng
 	for i in 5:
 		var r := 30.0 - i * 4.5
-		draw_circle(BODY_CENTER, r, Color(color, 0.035 + 0.01 * pulse))
-	# vòng pháp trận dưới chân (elip dẹt)
+		draw_circle(BODY_CENTER, r, Color(color, (0.035 + 0.01 * pulse) * (0.3 + 0.7 * _p)))
+	# vòng pháp trận dưới chân (elip dẹt): cảnh giới càng cao càng nhiều chi tiết
 	draw_set_transform(Vector2(0, -1), 0.0, Vector2(1.0, 0.4))
-	draw_arc(Vector2.ZERO, 17.0 + pulse * 2.0, 0.0, TAU, 40, Color(color, 0.7), 1.2)
-	draw_arc(Vector2.ZERO, 11.0 - pulse, 0.0, TAU, 32, Color(color2, 0.5), 1.0)
-	for i in 8:
-		var a := _t * 1.2 + i * TAU / 8.0
-		var dir := Vector2(cos(a), sin(a))
-		draw_line(dir * 17.0, dir * 21.0, Color(color2, 0.8), 1.4)
-	for i in 3:
-		var a2 := -_t * 0.8 + i * TAU / 3.0
-		draw_circle(Vector2(cos(a2), sin(a2)) * 11.0, 1.4, Color(color2, 0.9))
+	draw_arc(Vector2.ZERO, 17.0 + pulse * 2.0, 0.0, TAU, 40, Color(color, 0.3 + 0.4 * _p), 1.2)
+	if _p >= 0.35:
+		draw_arc(Vector2.ZERO, 11.0 - pulse, 0.0, TAU, 32, Color(color2, 0.5), 1.0)
+	if _p >= 0.55:
+		for i in 8:
+			var a := _t * 1.2 + i * TAU / 8.0
+			var dir := Vector2(cos(a), sin(a))
+			draw_line(dir * 17.0, dir * 21.0, Color(color2, 0.8), 1.4)
+	if _p >= 0.8:
+		for i in 3:
+			var a2 := -_t * 0.8 + i * TAU / 3.0
+			draw_circle(Vector2(cos(a2), sin(a2)) * 11.0, 1.4, Color(color2, 0.9))
+	if _burst > 0.0:   # đột phá: vòng sáng lan ra
+		draw_arc(Vector2.ZERO, 17.0 + (1.0 - _burst) * 50.0, 0.0, TAU, 48, Color(color2, _burst * 0.9), 2.0)
+		draw_arc(Vector2.ZERO, 12.0 + (1.0 - _burst) * 34.0, 0.0, TAU, 40, Color(color, _burst * 0.6), 1.5)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if _burst > 0.0:
+		draw_circle(BODY_CENTER, 10.0 + (1.0 - _burst) * 44.0, Color(color2, _burst * 0.22))

@@ -106,7 +106,7 @@ const QUESTS := [
 		],
 		"remind": "Cứ đi thẳng đường nam của quảng trường, qua cổng núi là tới Kiếm Tông.",
 		"ready": ["Ngươi tới rồi. Lăng Tiêu đã nhắn trước. Kiếm Tông rộng cửa đón người có tâm, lấy chút lộ phí này mà dùng."],
-		"reward": {"stones": 100, "items": {"dan_tu_vi": 2}},
+		"reward": {"stones": 100, "merit": 30, "items": {"dan_tu_vi": 2}},
 	},
 	{
 		"id": "q9", "title": "Săn Hắc Lang Vương", "giver": "sect_head", "turn_in": "sect_head", "free": true, "after": "q8",
@@ -119,7 +119,7 @@ const QUESTS := [
 		],
 		"remind": "Hắc Lang Vương ở hang ổ sâu trong Hắc Lâm, theo đường lớn phía đông. Nhớ mang đan hồi huyết.",
 		"ready": ["Tin tức đã truyền về, ngươi quả không phụ sự kỳ vọng. Món này là của ngươi."],
-		"reward": {"stones": 500, "items": {"dan_tu_vi": 3, "yeu_dan": 2}},
+		"reward": {"stones": 500, "merit": 150, "items": {"dan_tu_vi": 3, "yeu_dan": 2}},
 	},
 	{
 		"id": "q10", "title": "Hang Linh Mạch", "giver": "hermit", "turn_in": "hermit", "free": true, "after": "q6",
@@ -134,6 +134,67 @@ const QUESTS := [
 		"ready": ["Ha, ngươi thật sự đã tới đó và về được! Cầm lấy, ta già rồi, chẳng cần mấy thứ này."],
 		"reward": {"stones": 150, "items": {"yeu_dan": 2}},
 	},
+	{
+		"id": "q11", "title": "Luyện kiếm trước sân", "giver": "sect_keeper", "turn_in": "sect_keeper", "free": true, "after": "q8", "since": true,
+		"desc": "Chém trúng mộc nhân trong sân Kiếm Tông 20 lần",
+		"obj": {"type": "hits", "target": 20},
+		"intro": [
+			"Chưởng môn nói ngươi mới vào tông. Ta là Mộ Dung, coi giữ Tàng Bảo Các, cũng lo việc sai bảo đệ tử.",
+			"Người của Kiếm Tông lấy cống hiến làm gốc. Muốn đổi đan dược, trang phục ở chỗ ta thì phải có điểm cống hiến.",
+			"Việc đầu tiên đơn giản thôi: ra mấy mộc nhân trong sân, chém trúng hai mươi nhát cho tay quen kiếm.",
+		],
+		"remind": "Mộc nhân ở sân phía nam, hai bên hàng cột. Chém trúng đủ hai mươi nhát rồi quay lại.",
+		"ready": ["Tay kiếm đã vững. Đây là cống hiến đầu tiên của ngươi, cứ ghé Tàng Bảo Các đổi đồ."],
+		"reward": {"stones": 40, "merit": 25},
+	},
+	{
+		"id": "q12", "title": "Dẹp bầy hắc lang", "giver": "sect_keeper", "turn_in": "sect_keeper", "free": true, "after": "q11", "since": true,
+		"desc": "Hạ 8 Hắc lang trong Hắc Lâm (phía đông làng)",
+		"obj": {"type": "kills", "mob": "wolf_dark", "target": 8},
+		"intro": [
+			"Hắc lang trong Hắc Lâm sinh sôi quá nhanh, dân làng ven rừng không dám ra khỏi nhà.",
+			"Tông môn treo thưởng: hạ tám con hắc lang, mỗi con đều là một điểm cống hiến sau này nữa. Nhớ mang đan hồi huyết.",
+		],
+		"remind": "Hắc lang ở Hắc Lâm, phía đông làng. Hạ đủ tám con rồi báo ta.",
+		"ready": ["Gọn gàng. Tông môn ghi công cho ngươi, thêm chút đan dược dưỡng thương."],
+		"reward": {"stones": 120, "merit": 60, "items": {"dan_hoi_huyet": 2}},
+	},
+	{
+		"id": "q13", "title": "Trừ yêu tướng", "giver": "sect_keeper", "turn_in": "sect_keeper", "free": true, "after": "q12", "since": true,
+		"desc": "Hạ 5 Yêu tướng (tiểu yêu tinh hung dữ) ở vùng đông nam",
+		"obj": {"type": "kills", "mob": "goblin_elite", "target": 5},
+		"intro": [
+			"Phía đông nam có yêu tướng cầm đầu lũ tiểu yêu. Chúng khó đối phó hơn hắc lang nhiều, đòn nặng và máu dày.",
+			"Hạ năm tên, tông môn trọng thưởng. Đừng đánh một lúc nhiều tên, dụ từng tên một.",
+		],
+		"remind": "Yêu tướng ở vùng đông nam, gần đường tới Hang Linh Mạch. Hạ đủ năm tên rồi quay lại.",
+		"ready": ["Giỏi lắm! Yêu tướng không phải đối thủ dễ. Đây là phần thưởng xứng đáng."],
+		"reward": {"stones": 200, "merit": 90, "items": {"yeu_dan": 1}},
+	},
+	{
+		"id": "q14", "title": "Đan dược cho tông môn", "giver": "sect_keeper", "turn_in": "sect_keeper", "free": true, "after": "q8", "since": true,
+		"desc": "Luyện thành 5 viên đan (lò đan ở quảng trường làng)",
+		"obj": {"type": "craft", "target": 5},
+		"intro": [
+			"Kho đan của Tàng Bảo Các sắp cạn. Ngươi biết luyện đan chứ?",
+			"Luyện cho tông môn năm lò đan, loại nào cũng được. Lò đan ở quảng trường làng, nguyên liệu thì tự lo.",
+		],
+		"remind": "Cần luyện thành năm viên đan, loại nào cũng được. Lò đan ở quảng trường làng.",
+		"ready": ["Đan này dùng được. Tông môn nhận, đây là phần của ngươi."],
+		"reward": {"stones": 60, "merit": 50, "items": {"dan_tu_vi": 1}},
+	},
+	{
+		"id": "q15", "title": "Dâng yêu đan", "giver": "sect_keeper", "turn_in": "sect_keeper", "free": true, "after": "q13",
+		"desc": "Mang 3 Yêu đan về nộp cho Chấp sự Mộ Dung",
+		"obj": {"type": "collect", "item": "yeu_dan", "target": 3},
+		"intro": [
+			"Yêu đan là nguyên liệu quý để luyện Trúc Cơ Linh Đan. Tông môn đang cần ba viên.",
+			"Yêu tướng và Hắc Lang Vương thỉnh thoảng rơi ra thứ này. Gom đủ ba viên, mang về cho ta.",
+		],
+		"remind": "Cần ba Yêu đan, rơi từ yêu tướng và yêu lang. Đủ rồi quay lại gặp ta.",
+		"ready": ["Ba viên Yêu đan đều thượng phẩm. Tông môn ghi nhớ công của ngươi."],
+		"reward": {"stones": 150, "merit": 70},
+	},
 ]
 var states: Dictionary = {}   # id -> "active" | "done"
 var meditate_time := 0.0
@@ -141,6 +202,7 @@ var sword_hits := 0
 var kills: Dictionary = {}
 var crafts := 0
 var visited: Dictionary = {}
+var base: Dictionary = {}   # nhiệm vụ có "since": tiến độ tính từ lúc nhận (id -> giá trị bộ đếm lúc nhận)
 var inv: Inventory
 var cult: Cultivation
 var _last_sec := -1
@@ -161,6 +223,15 @@ func add_meditate(dt: float) -> void:
 		changed.emit()
 
 
+## Giá trị bộ đếm hiện tại của một loại mục tiêu tích luỹ.
+func _counter(o: Dictionary) -> int:
+	match o["type"]:
+		"hits": return sword_hits
+		"kills": return int(kills.get(o["mob"], 0))
+		"craft": return crafts
+	return 0
+
+
 func progress(q: Dictionary) -> Vector2i:
 	var o: Dictionary = q["obj"]
 	var target: int = o["target"]
@@ -169,9 +240,7 @@ func progress(q: Dictionary) -> Vector2i:
 		"meditate": cur = int(meditate_time)
 		"collect": cur = inv.count(o["item"])
 		"reach": cur = cult.step_index() + 1
-		"hits": cur = sword_hits
-		"kills": cur = int(kills.get(o["mob"], 0))
-		"craft": cur = crafts
+		"hits", "kills", "craft": cur = _counter(o) - (int(base.get(q["id"], 0)) if q.get("since", false) else 0)
 		"visit": cur = 1 if visited.get(o["area"], false) else 0
 	return Vector2i(mini(cur, target), target)
 
@@ -247,6 +316,9 @@ func active_for(npc: String) -> Dictionary:
 
 func accept(id: String) -> void:
 	states[id] = "active"
+	var qd := _find(id)
+	if qd.get("since", false):
+		base[id] = _counter(qd["obj"])
 	message.emit("Nhận nhiệm vụ: %s" % _find(id)["title"])
 	changed.emit()
 
@@ -261,6 +333,9 @@ func complete(id: String) -> void:
 	if r.get("stones", 0) > 0:
 		inv.add_stones(int(r["stones"]))
 		parts.append("%d linh thạch" % int(r["stones"]))
+	if r.get("merit", 0) > 0:
+		inv.add_merit(int(r["merit"]))
+		parts.append("%d cống hiến" % int(r["merit"]))
 	var its: Dictionary = r.get("items", {})
 	for k in its:
 		inv.add(k, int(its[k]))
@@ -278,7 +353,7 @@ func _find(id: String) -> Dictionary:
 
 
 static func npc_name(id: String) -> String:
-	return {"elder": "Trưởng lão Vân Hạc", "merchant": "Thương nhân Lý Tam", "swordmaster": "Kiếm sư Lăng Tiêu", "sect_head": "Chưởng môn Thanh Huyền", "hermit": "Ẩn sĩ Mặc Thạch"}.get(id, id)
+	return {"elder": "Trưởng lão Vân Hạc", "merchant": "Thương nhân Lý Tam", "swordmaster": "Kiếm sư Lăng Tiêu", "sect_head": "Chưởng môn Thanh Huyền", "hermit": "Ẩn sĩ Mặc Thạch", "sect_keeper": "Chấp sự Mộ Dung"}.get(id, id)
 
 
 func tracker_text() -> String:
@@ -297,7 +372,7 @@ func tracker_text() -> String:
 
 
 func to_dict() -> Dictionary:
-	return {"states": states, "meditate": meditate_time, "hits": sword_hits, "kills": kills, "crafts": crafts, "visited": visited}
+	return {"states": states, "meditate": meditate_time, "hits": sword_hits, "kills": kills, "crafts": crafts, "visited": visited, "base": base}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -312,6 +387,10 @@ func from_dict(d: Dictionary) -> void:
 	for k in kd:
 		kills[str(k)] = int(kd[k])
 	crafts = int(d.get("crafts", 0))
+	base = {}
+	var bd: Dictionary = d.get("base", {})
+	for k in bd:
+		base[str(k)] = int(bd[k])
 	visited = {}
 	var vd: Dictionary = d.get("visited", {})
 	for k in vd:

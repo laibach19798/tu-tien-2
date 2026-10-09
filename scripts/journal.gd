@@ -210,6 +210,8 @@ func _build_char() -> void:
 	_row(stats, "Khí huyết tối đa", "%d" % roundi(main.vitals.max_hp))
 	_row(stats, "Linh khí tối đa", "%d" % roundi(cult.qi_max()))
 	_row(stats, "Linh thạch", "%d" % main.inv.stones, UIKit.STONE_TXT)
+	_row(stats, "Chức vị Kiếm Tông", Sect.rank_name(main.inv.merit_total), UIKit.JADE)
+	_row(stats, "Cống hiến", "%d  (tổng %d)" % [main.inv.merit, main.inv.merit_total], Color(1.0, 0.82, 0.35))
 	mid.add_child(HSeparator.new())
 	var rec := VBoxContainer.new()
 	rec.add_theme_constant_override("separation", 3)
@@ -417,6 +419,11 @@ func _quest_detail() -> Control:
 		sbox.add_child(UIKit.Icon.new("stone", Color.WHITE, 24.0))
 		sbox.add_child(UIKit.label(" %d linh thạch" % int(r["stones"]), 16, UIKit.STONE_TXT))
 		rh.add_child(sbox)
+	if int(r.get("merit", 0)) > 0:
+		var mbox := HBoxContainer.new()
+		mbox.add_child(UIKit.Icon.new("slash", Color(1.0, 0.82, 0.35), 24.0))
+		mbox.add_child(UIKit.label(" %d cống hiến" % int(r["merit"]), 16, Color(1.0, 0.82, 0.35)))
+		rh.add_child(mbox)
 	var its: Dictionary = r.get("items", {})
 	for k in its:
 		var ib := HBoxContainer.new()

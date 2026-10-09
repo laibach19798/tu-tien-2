@@ -24,6 +24,12 @@ func xp_needed() -> float:
 	return 60.0 * pow(1.28, step_index())
 
 
+## Sức mạnh hào quang trang phục theo cảnh giới: 0.15 (Luyện Khí tầng 1) .. 1.0 (Hóa Thần).
+func aura_power() -> float:
+	var x := (float(realm - 1) + float(layer - 1) / float(LAYERS)) / float(REALMS.size() - 2)
+	return 0.15 + 0.85 * clampf(x, 0.0, 1.0)
+
+
 func qi_max() -> float:
 	return 100.0 + 40.0 * step_index()
 
