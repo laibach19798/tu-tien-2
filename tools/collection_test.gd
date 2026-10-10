@@ -79,10 +79,12 @@ func _process(_delta: float) -> bool:
 	ok = ok and int(pr["have"]) == 0 and int(pr["total"]) == 5 and (pr["missing"] as Array).size() == 5
 	var txt := Wardrobe.acquire_text("sword_crystal")
 	print("cách có kiếm tinh thạch: ", txt)
-	ok = ok and txt.contains("Hang Linh Mạch") and txt.contains("6%")
+	ok = ok and txt.contains("Linh Mạch Động") and txt.contains("6%")
 	ok = ok and Wardrobe.acquire_text("outfit_lam") == ""
 	# 6) rơi đồ theo vùng: trong hang có đồ Linh Mạch, ngoài hang thì không
-	ok = ok and main.in_drop_region(WorldExpansion.CAVE + Vector2(100, 0), "cave") and not main.in_drop_region(Vector2(500, 800), "cave")
+	ok = ok and not main.in_drop_region(Vector2.ZERO, "linh_mach_dong")
+	main.switch_map_now("linh_mach_dong", Maps.DEFS["linh_mach_dong"]["entry"])
+	ok = ok and main.in_drop_region(Vector2.ZERO, "linh_mach_dong")
 	var cave_ids: Array = []
 	for slot in Wardrobe.SETS["linh_mach"]["pieces"]:
 		cave_ids.append(str(Wardrobe.SETS["linh_mach"]["pieces"][slot]))
@@ -91,8 +93,16 @@ func _process(_delta: float) -> bool:
 		if m.kind_id == "goblin_elite":
 			gob = m
 			break
-	var in_cave := _count_cave_loot(gob, WorldExpansion.CAVE + Vector2(40, 40), cave_ids, 300)
-	var outside := _count_cave_loot(gob, Vector2(1000, 900), cave_ids, 300)
+	if gob == null:
+		print("FAIL không có yêu tướng trong Linh Mạch Động")
+		ok = false
+	var in_cave := _count_cave_loot(gob, gob.position, cave_ids, 300)
+	main.switch_map_now("dam_lay", Maps.DEFS["dam_lay"]["entry"])
+	for m in main.monsters:
+		if m.kind_id == "goblin_elite":
+			gob = m
+			break
+	var outside := _count_cave_loot(gob, gob.position, cave_ids, 300)
 	print("rơi trong hang: ", in_cave, " | ngoài hang: ", outside)
 	ok = ok and in_cave > 0 and outside == 0
 	print("TONG: ", "OK" if ok else "LOI")

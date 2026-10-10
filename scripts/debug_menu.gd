@@ -116,14 +116,10 @@ func _build() -> void:
 	])
 	_section("Dịch chuyển (đóng menu sau khi đi)", [
 		["Quảng trường", func(): _tp(main.CENTER + Vector2(0, 200))],
-		["Lò luyện đan", func(): _tp(main.furnace.position + Vector2(0, 60))],
+		["Lò luyện đan", func(): _tp(Vector2(1130, 1010) + Vector2(0, 60))],
 		["Sân luyện kiếm", func(): _tp(Vector2(1050, 1170))],
 		["Linh mạch ao sen", func(): _tp(Vector2(1900, 560))],
-		["Khu sói phía tây", func(): _tp(Vector2(430, 760))],
-		["Khu sói phía nam", func(): _tp(Vector2(1450, 1540))],
-		["Yêu quái phía đông", func(): _tp(Vector2(2150, 980))],
-		["Yêu quái tây bắc", func(): _tp(Vector2(620, 430))],
-	])
+	] + Maps.DEFS.keys().map(func(id): return ["Map: " + Maps.map_name(id), func(): _go_map(str(id))]))
 	_section("Quái vật", [
 		["Tạo sói trước mặt", func(): _spawn("wolf")],
 		["Tạo yêu quái trước mặt", func(): _spawn("goblin")],
@@ -254,7 +250,14 @@ func _unlock_wardrobe() -> void:
 	_toast("Đã mở khoá mọi trang phục (phím C để mặc)")
 
 
+func _go_map(id: String) -> void:
+	main.switch_map_now(id, Maps.DEFS[id]["entry"])
+	close_menu()
+
+
 func _tp(pos: Vector2) -> void:
+	if main.current_map != "overworld":
+		main.switch_map_now("overworld", pos)
 	main.player.position = pos
 	main.camera.position = pos
 	close_menu()

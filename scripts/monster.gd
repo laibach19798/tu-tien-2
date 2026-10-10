@@ -300,7 +300,7 @@ func _step(step: Vector2) -> void:
 
 func _move_axis(step: Vector2) -> void:
 	var np := position + step
-	np = np.clamp(Vector2(30, 40), host.WORLD - Vector2(30, 20))
+	np = np.clamp(Vector2(30, 40), host.map_size - Vector2(30, 20))
 	if host._is_blocked(Rect2(np.x - 12, np.y - 8, 24, 10)):
 		return
 	if host.is_safe(np) and not host.is_safe(position):

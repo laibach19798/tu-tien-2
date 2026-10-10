@@ -18,6 +18,7 @@ func _initialize() -> void:
 func _process(_delta: float) -> bool:
 	frame += 1
 	if frame == 5:
+		main.switch_map_now("soi_linh", Maps.DEFS["soi_linh"]["entry"])
 		for m in main.monsters:
 			if m.kind_id == "wolf":
 				wolf = m

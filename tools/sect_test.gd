@@ -32,6 +32,7 @@ func _process(_delta: float) -> bool:
 	q.complete("q11")
 	print("sau q11: cong hien=", inv.merit, " tong=", inv.merit_total, " chuc=", Sect.rank_name(inv.merit_total))
 	# giet quai tinh cong hien
+	main.switch_map_now("dam_lay", Maps.DEFS["dam_lay"]["entry"])
 	for m in main.monsters:
 		if m.kind_id == "goblin_elite":
 			var before := inv.merit
