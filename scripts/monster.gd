@@ -30,6 +30,24 @@ const KINDS := {
 		"drops": {"da_yeu": 0.8, "yeu_dan": 0.55, "linh_thao": 0.4}, "frames": "res://character/monsters/goblin/frames.tres",
 		"center": Vector2(0, -46), "shadow": Vector2(30.0, 10.0), "tint": Color(0.7, 0.4, 0.3), "sprite_tint": Color(1.0, 0.68, 0.58), "size": 1.65, "bar": -94.0,
 	},
+	"sect_disciple": {
+		"name": "Đệ tử", "hp": 170.0, "dmg": 16.0, "speed": 112.0, "aggro": 270.0, "leash": 620.0,
+		"reach": 46.0, "windup": 0.5, "recover": 0.9, "xp": 40.0, "stones": [8, 16], "humanoid": true, "respawn": 600.0,
+		"drops": {"linh_thao": 0.3, "yeu_dan": 0.12}, "frames": "",
+		"center": Vector2(0, -30), "shadow": Vector2(16.0, 6.4), "tint": Color(0.6, 0.6, 0.7), "size": 1.0, "bar": -84.0,
+	},
+	"sect_elder": {
+		"name": "Trưởng lão", "hp": 560.0, "dmg": 30.0, "speed": 122.0, "aggro": 300.0, "leash": 700.0,
+		"reach": 56.0, "windup": 0.55, "recover": 0.8, "xp": 160.0, "stones": [40, 70], "humanoid": true, "respawn": 600.0,
+		"drops": {"yeu_dan": 0.6, "linh_thao": 0.5}, "frames": "",
+		"center": Vector2(0, -30), "shadow": Vector2(18.0, 7.0), "tint": Color(0.8, 0.7, 0.4), "size": 1.0, "bar": -90.0,
+	},
+	"sect_master": {
+		"name": "Tông chủ", "hp": 2200.0, "dmg": 46.0, "speed": 128.0, "aggro": 340.0, "leash": 900.0,
+		"reach": 64.0, "windup": 0.6, "recover": 0.75, "xp": 800.0, "stones": [250, 400], "humanoid": true, "boss": true, "respawn": 900.0,
+		"drops": {"yeu_dan": 1.0, "linh_thao": 1.0, "dan_hoi_huyet": 0.6}, "frames": "",
+		"center": Vector2(0, -34), "shadow": Vector2(20.0, 8.0), "tint": Color(0.9, 0.75, 0.3), "size": 1.0, "bar": -96.0,
+	},
 	"wolf_king": {
 		"name": "Hắc Lang Vương", "hp": 950.0, "dmg": 30.0, "speed": 132.0, "aggro": 340.0, "leash": 820.0,
 		"reach": 66.0, "windup": 0.55, "recover": 0.8, "xp": 240.0, "stones": [70, 110], "boss": true, "respawn": 240.0,
@@ -57,6 +75,13 @@ var _knock := Vector2.ZERO
 var _flash := 0.0
 var _lunge := Vector2.ZERO
 var _struck := false
+var _body: Node2D          # kẻ địch hình người: nhân vật nền + trang phục của tông môn
+var outfit: Dictionary = {}
+var sect_id := ""          # tông môn của kẻ địch hình người
+var territory_id := ""     # địa bàn mà con này canh giữ
+var _last_motion := ""
+var invader := false       # quân xâm lược (tông địch tập kích địa bàn của Kiếm Tông)
+var display_name := ""
 
 
 func setup(p_host: Node, id: String, p_home: Vector2) -> void:
@@ -73,7 +98,23 @@ func _ready() -> void:
 	add_to_group("targets")
 	var sh := Shadow.make(float(kind["shadow"].x), float(kind["shadow"].y), 0.34)
 	add_child(sh)
-	if ResourceLoader.exists(kind["frames"]):
+	if bool(kind.get("humanoid", false)):
+		_body = load("res://character/hd/base_character.tscn").instantiate()
+		Wardrobe.apply(_body, outfit)
+		add_child(_body)
+		if display_name != "":
+			var nl := Label.new()
+			nl.text = display_name
+			nl.add_theme_font_size_override("font_size", 16)
+			nl.add_theme_color_override("font_color", SectWar.sect_color(sect_id).lerp(Color.WHITE, 0.4))
+			nl.add_theme_color_override("font_outline_color", Color.BLACK)
+			nl.add_theme_constant_override("outline_size", 5)
+			nl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			nl.custom_minimum_size = Vector2(200, 0)
+			nl.position = Vector2(-100, float(kind["bar"]) - 24.0)
+			nl.z_index = 5
+			add_child(nl)
+	elif ResourceLoader.exists(kind["frames"]):
 		_sprite = AnimatedSprite2D.new()
 		_sprite.sprite_frames = load(kind["frames"])
 		_sprite.position = Vector2(0, -28)
@@ -111,6 +152,32 @@ func take_hit(dmg: float, from: Vector2) -> bool:
 	elif host != null and host.player != null:
 		_facing = Dir.from_vector(host.player.position - position, _facing)
 	return true
+
+
+# ---- trạng thái do công pháp gây ra
+var _slow_until := 0.0
+var _slow_mult := 1.0
+
+
+## Làm chậm: nhân tốc độ di chuyển với mult trong dur giây.
+func apply_slow(mult: float, dur: float) -> void:
+	_slow_mult = mult
+	_slow_until = Time.get_ticks_msec() / 1000.0 + dur
+
+
+func _spd() -> float:
+	return _slow_mult if Time.get_ticks_msec() / 1000.0 < _slow_until else 1.0
+
+
+## Sát thương theo thời gian (thiêu đốt): không gây giật lùi hay ngắt đòn.
+func take_dot(dmg: float) -> void:
+	if not alive:
+		return
+	hp -= dmg
+	_flash = 0.6
+	_show_number(dmg)
+	if hp <= 0.0:
+		_die()
 
 
 func _die() -> void:
@@ -159,6 +226,9 @@ func _show_number(dmg: float) -> void:
 
 # ---------------------------------------------------------------- hoạt ảnh
 func _play(action: String) -> void:
+	if _body != null:
+		_play_body(action)
+		return
 	if _sprite == null:
 		return
 	var frames := _sprite.sprite_frames
@@ -181,6 +251,20 @@ func _play(action: String) -> void:
 	if _sprite.animation != key or not _sprite.is_playing():
 		_sprite.play(key)
 
+func _play_body(action: String) -> void:
+	var motion := action + _facing + str(state in ["chase", "return"])
+	if action != "attack" and motion == _last_motion and not _body.is_busy():
+		return   # đang phát đúng hoạt ảnh rồi: không gọi lại (tránh đồng bộ 5 lớp sprite mỗi khung)
+	_last_motion = motion
+	if action == "attack":
+		if not _body.is_busy():
+			var spd := 0.6 / maxf(float(kind["windup"]), 0.1)   # đòn chém xong đúng lúc ra đòn
+			if not _body.play_oneshot("slash", _facing, spd):
+				_body.set_motion("idle", _facing)
+		return
+	_body.set_motion("run" if action == "walk" and state in ["chase", "return"] else action, _facing)
+
+
 # ---------------------------------------------------------------- AI
 func _physics_process(delta: float) -> void:
 	_t += delta
@@ -188,6 +272,10 @@ func _physics_process(delta: float) -> void:
 	if _knock.length() > 4.0:
 		_step(_knock * delta)
 		_knock = _knock.lerp(Vector2.ZERO, minf(1.0, delta * 9.0))
+	if _body != null:
+		var bb := 1.0 + _flash * 1.4
+		_body.modulate = Color(bb, bb * (1.0 - 0.4 * _flash), bb * (1.0 - 0.4 * _flash), 1.0)
+		_body.position = _lunge
 	if _sprite != null:
 		var b := 1.0 + _flash * 1.4
 		_sprite.modulate = Color(b, b * (1.0 - 0.4 * _flash), b * (1.0 - 0.4 * _flash), 1.0)
@@ -219,7 +307,7 @@ func _physics_process(delta: float) -> void:
 				_timer = randf_range(1.0, 3.0)
 			else:
 				_facing = Dir.from_vector(d, _facing)
-				_step(d.normalized() * float(kind["speed"]) * 0.45 * delta)
+				_step(d.normalized() * (float(kind["speed"]) * _spd()) * 0.45 * delta)
 		"chase":
 			_play("walk")
 			if not seeing and dist > float(kind["aggro"]) * 1.5:
@@ -233,7 +321,7 @@ func _physics_process(delta: float) -> void:
 				_struck = false
 			else:
 				_facing = Dir.from_vector(to_p, _facing)
-				_step(to_p.normalized() * float(kind["speed"]) * delta)
+				_step(to_p.normalized() * (float(kind["speed"]) * _spd()) * delta)
 		"windup":
 			_play("attack")
 			_timer -= delta
@@ -263,7 +351,7 @@ func _physics_process(delta: float) -> void:
 				_timer = 1.5
 			else:
 				_facing = Dir.from_vector(d2, _facing)
-				_step(d2.normalized() * float(kind["speed"]) * 0.9 * delta)
+				_step(d2.normalized() * (float(kind["speed"]) * _spd()) * 0.9 * delta)
 				hp = minf(max_hp, hp + max_hp * 0.1 * delta)
 			if seeing and (position - home).length() < float(kind["leash"]) * 0.6:
 				state = "chase"
@@ -309,7 +397,7 @@ func _move_axis(step: Vector2) -> void:
 
 
 func _draw() -> void:
-	if _sprite != null or not alive:
+	if _sprite != null or _body != null or not alive:
 		return
 	# chưa có ảnh: vẽ tạm một khối có mắt
 	var c: Color = kind["tint"]
@@ -320,16 +408,24 @@ func _draw() -> void:
 
 
 func _process(_delta: float) -> void:
-	if _sprite == null:
+	if _sprite == null and _body == null:
 		queue_redraw()
 
 
 ## Thanh máu pixel nổi phía trên đầu; hiện khi bị thương hoặc đang gồng đòn.
 class HealthBar extends Node2D:
 	var m: Monster
+	var _shown_hp := -1.0
+	var _shown_state := ""
 
 	func _process(_delta: float) -> void:
-		queue_redraw()
+		if m == null:
+			return
+		var blink := m.state == "windup"   # dấu ! nhấp nháy khi gồng đòn
+		if blink or m.hp != _shown_hp or m.state != _shown_state:
+			_shown_hp = m.hp
+			_shown_state = m.state
+			queue_redraw()
 
 	func _draw() -> void:
 		if m == null or not m.alive:

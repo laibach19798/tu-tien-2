@@ -478,16 +478,7 @@ static func _cave_floor(m: Node) -> void:
 
 # ---------------------------------------------------------------- NPC, bù nhìn, thảo dược
 static func spawn_npcs(m: Node) -> void:
-	m._spawn_npc("sect_head", "Chưởng môn Thanh Huyền", {"hair": "hair_long_silver", "clothes": "tien_bao_bach_van", "shoes": "shoes_boot_black"}, SECT_C + Vector2(0, 0))
-	m._prop("stall", SECT_C + Vector2(-120, -105), Vector2(110, 40), 1.0, false, Color(0.9, 0.86, 0.7))
-	m._spawn_npc("sect_keeper", "Chấp sự Mộ Dung", {"hair": "hair_ponytail_black", "clothes": "outfit_thanh", "shoes": "shoes_boot_black"}, SECT_C + Vector2(-120, -60))
 	m._spawn_npc("hermit", "Ẩn sĩ Mặc Thạch", {"hair": "hair_topknot_silver", "clothes": "outfit_xam", "shoes": "shoes_cloth_brown"}, CAMP + Vector2(-38, 14))
-	for p in [Vector2(950, 2610), Vector2(1050, 2650), Vector2(1530, 2650), Vector2(1630, 2610)]:
-		var d: TrainingDummy = preload("res://scripts/dummy.gd").new()
-		d.position = p
-		m.world.add_child(d)
-		m.blockers.append(Rect2(p.x - 18, p.y - 14, 36, 16))
-		d.got_hit.connect(m._on_dummy_hit)
 
 
 static func extra_herbs(m: Node) -> void:

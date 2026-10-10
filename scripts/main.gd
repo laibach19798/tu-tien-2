@@ -41,6 +41,9 @@ var occluders: Array = []      # vật thể cao: mờ đi khi nhân vật đứ
 var _med_light: PointLight2D
 const FLAT_PROPS := ["field_a", "field_b", "lily", "water", "bridge"]
 var pond_zone := Rect2()
+var war: SectWar                 # chiến sự Tiểu Thế Giới
+var war_ui: CanvasLayer
+var territory_nodes := {}        # tid -> {flag, allies}: chỉ có khi đang ở Tiểu Thế Giới
 var _ground_img: Image
 var _ground_sprite: Sprite2D
 var map_size := WORLD            # kích thước map đang chơi (thế giới gốc = WORLD)
@@ -53,6 +56,9 @@ var _travel_lock := 0.0
 var _ow := {}                    # trạng thái thế giới gốc khi đang ở map phụ
 var _map_root: Node2D
 var _fade: ColorRect
+var _fade_label: Label
+var _cull_t := 0.0
+const CULL_R := 1150.0   # quái ở xa hơn bán kính này (ngoài màn hình) tạm ngừng hoàn toàn
 var _pending_map := "overworld"
 var _pending_pos := Vector2.ZERO
 var road_mask := PackedByteArray()
@@ -586,6 +592,14 @@ func _build_hud() -> void:
 	add_child(inv)
 	add_child(quests)
 	add_child(wardrobe)
+	war = SectWar.new()
+	add_child(war)
+	war.message.connect(hud.toast)
+	war.income.connect(_on_war_income)
+	war.attack_started.connect(_on_attack_started)
+	war.territory_changed.connect(_on_territory_changed)
+	war.changed.connect(_sync_war_quests)
+	war.victory.connect(_on_war_victory)
 	quests.setup(inv, cult)
 	vitals.setup(cult)
 	inv.vitals = vitals
@@ -654,7 +668,7 @@ func _density_at(p: Vector2) -> float:
 
 
 func _ui_blocked() -> bool:
-	return _dead or traveling or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
+	return _dead or traveling or (war_ui != null and war_ui.is_open()) or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -686,6 +700,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_C:
 			meditating = false
 			fashion.open_ui("closet")
+		elif event.keycode == KEY_G:
+			meditating = false
+			war_ui.open_ui()
 		elif event.keycode in [KEY_J, KEY_K, KEY_L, KEY_U]:
 			meditating = false
 			school.cast([KEY_J, KEY_K, KEY_L, KEY_U].find(event.keycode))
@@ -732,7 +749,7 @@ var debug_speed := 1.0
 
 func _collect_save() -> Dictionary:
 	var d := {
-		"cult": cult.to_dict(), "vitals": vitals.to_dict(), "inv": inv.to_dict(), "quests": quests.to_dict(), "wardrobe": wardrobe.to_dict(),
+		"cult": cult.to_dict(), "vitals": vitals.to_dict(), "inv": inv.to_dict(), "quests": quests.to_dict(), "wardrobe": wardrobe.to_dict(), "war": war.to_dict(),
 		"school": school.to_dict() if school else {},
 		"pos": [player.position.x, player.position.y], "map": current_map, "time": atmo.t, "playtime": playtime,
 	}
@@ -807,6 +824,7 @@ func _apply_save(data: Dictionary, runtime: bool) -> void:
 	inv.from_dict(data.get("inv", {}))
 	quests.from_dict(data.get("quests", {}))
 	wardrobe.from_dict(data.get("wardrobe", {}))
+	war.from_dict(data.get("war", {}))
 	playtime = float(data.get("playtime", 0.0))
 	atmo.t = float(data.get("time", atmo.t))
 	var p = data.get("pos", null)
@@ -817,6 +835,9 @@ func _apply_save(data: Dictionary, runtime: bool) -> void:
 		var sp := Vector2(p[0], p[1])
 		if runtime:
 			if want != current_map:
+				switch_map_now(want, sp)
+			elif want == "tieu_gioi":   # chiến sự đã đổi theo file lưu: dựng lại map cho khớp
+				switch_map_now("overworld", Maps.overworld_landing(want))
 				switch_map_now(want, sp)
 			else:
 				player.position = sp
@@ -862,6 +883,9 @@ func _physics_process(delta: float) -> void:
 	if meditating:
 		cult.meditate(delta, density)
 		quests.add_meditate(delta)
+		for z in qi_zones:
+			if z.get("heal", false) and _in_zone(player.position, z):
+				vitals.heal(10.0 * delta)   # thiền ở linh tuyền của tông môn hồi khí huyết
 	else:
 		cult.qi = minf(cult.qi_max(), cult.qi + 3.0 * delta)   # hồi linh khí chậm khi không thiền
 	if debug_inf_qi:
@@ -890,6 +914,10 @@ func _physics_process(delta: float) -> void:
 			Sfx.step(surface_at(player.position), run)
 	player.set_motion(action, direction)
 	camera.position = player.position
+	_cull_t -= delta
+	if _cull_t <= 0.0:
+		_cull_t = 0.3
+		_cull_monsters()
 	_travel_lock = maxf(0.0, _travel_lock - delta)
 	if _travel_lock <= 0.0 and not traveling and not _dead:
 		for g in gates:
@@ -967,6 +995,9 @@ func _build_gameplay() -> void:
 	journal = preload("res://scripts/journal.gd").new()
 	journal.main = self
 	add_child(journal)
+	war_ui = preload("res://scripts/war_ui.gd").new()
+	war_ui.war = war
+	add_child(war_ui)
 	pause_menu = preload("res://scripts/pause_menu.gd").new()
 	pause_menu.main = self
 	add_child(pause_menu)
@@ -1091,6 +1122,8 @@ func _update_prompt() -> void:
 		hud.set_prompt("E: Hái Linh thảo")
 	elif t == furnace:
 		hud.set_prompt("E: Luyện đan")
+	elif t is TerritoryFlag:
+		hud.set_prompt(t.prompt_text())
 	else:
 		hud.set_prompt("E: Trò chuyện với %s" % t.display_name)
 
@@ -1134,7 +1167,13 @@ func _talk_swordmaster(nm: String) -> void:
 
 
 func _talk(npc: Node2D) -> void:
+	if npc is TerritoryFlag:
+		_use_flag(npc.tid)
+		return
 	var id: String = npc.npc_id
+	if id == "ally":
+		dialogue.say(npc.display_name, ["Địa bàn này đã thuộc về Kiếm Tông. Chúng đệ tử sẽ canh giữ, sư huynh cứ yên tâm."])
+		return
 	var nm: String = npc.display_name
 	if id == "swordmaster" and not school.joined:
 		_talk_swordmaster(nm)
@@ -1175,6 +1214,30 @@ func _menu_options(id: String) -> Array:
 			{"text": "Trò chuyện", "call": _lore.bind(id)},
 			bye,
 		]
+	if id == "war_elder":
+		return [
+			{"text": "Xem thế cục chiến sự (G)", "call": Callable(war_ui, "open_ui")},
+			{"text": "Hỏi về các tông môn đối địch", "call": _lore.bind("war_info")},
+			{"text": "Trò chuyện", "call": _lore.bind(id)},
+			bye,
+		]
+	if id == "scripture_elder":
+		var cost := _scripture_cost()
+		return [
+			{"text": "Tham ngộ kinh thư (%d linh thạch, tăng tu vi)" % cost, "call": _study_scripture},
+			{"text": "Trò chuyện", "call": _lore.bind(id)},
+			bye,
+		]
+	if id == "array_master":
+		var opts: Array = []
+		for tid in war.owned_by_player():
+			if opts.size() >= 6:
+				break
+			opts.append({"text": "Truyền tống tới %s" % str(SectWar.territory(tid)["name"]), "call": _teleport_territory.bind(str(tid))})
+		opts.append({"text": "Truyền tống ra cổng Tiểu Thế Giới", "call": _teleport_hq})
+		opts.append({"text": "Trò chuyện", "call": _lore.bind(id)})
+		opts.append(bye)
+		return opts
 	if id == "merchant":
 		return [
 			{"text": "Xem hàng (mua / bán)", "call": Callable(shop, "open_shop")},
@@ -1185,6 +1248,34 @@ func _menu_options(id: String) -> Array:
 
 
 func _lore(id: String) -> void:
+	if id == "war_elder":
+		dialogue.say("Trưởng lão Chiến Sự", [
+			"Chiến Sự Đường theo dõi mọi biến động trong Tiểu Thế Giới. Năm tông, mười hai địa bàn, tông nào cũng muốn nuốt hết.",
+			"Mỗi địa bàn đang giữ nộp cống mỗi phút. Địch tập kích thì phải về giữ, mất địa bàn là mất cả cống phẩm.",
+			"Giữ tám địa bàn cùng lúc, Kiếm Tông sẽ là bá chủ. Hạ được tông chủ một tông địch thì tông đó yếu đi một lúc, nhân đó mà đánh.",
+		])
+		return
+	if id == "war_info":
+		var lines: Array[String] = []
+		for sid in SectWar.SECTS:
+			if sid == SectWar.PLAYER:
+				continue
+			var tr: Dictionary = SectWar.trait_of(sid)
+			lines.append("%s - %s: %s" % [SectWar.sect_name(sid), tr.get("name", ""), tr.get("desc", "")])
+		dialogue.say("Trưởng lão Chiến Sự", lines)
+		return
+	if id == "scripture_elder":
+		dialogue.say("Trưởng lão Tàng Kinh", [
+			"Tàng Kinh Các lưu giữ kinh thư các đời. Đọc một quyển, ngộ ra một chút, tu vi tự tăng.",
+			"Kinh thư không rẻ, mà càng tu cao thì càng phải đọc những quyển sâu hơn. Ngươi tự cân nhắc.",
+		])
+		return
+	if id == "array_master":
+		dialogue.say("Trận pháp sư Vân Cơ", [
+			"Trận Pháp Đường dựng truyền tống trận tới mọi địa bàn Kiếm Tông đang giữ. Địa bàn nào mất thì trận ở đó cũng tắt.",
+			"Địch tập kích mà ngươi ở xa thì cứ nhờ ta, đi một khắc là tới.",
+		])
+		return
 	if id == "elder":
 		dialogue.say("Trưởng lão Vân Hạc", [
 			"Tu tiên là nghịch thiên mà đi. Luyện Khí, Trúc Cơ, Kim Đan, Nguyên Anh, Hóa Thần: mỗi cảnh giới là một cửa ải.",
@@ -1306,6 +1397,21 @@ func on_monster_killed(m: Monster) -> void:
 		if not wardrobe.is_owned(str(od["id"])) and rng.randf() < float(od["chance"]):
 			_drop(str(od["id"]), 1, m.position + Vector2(rng.randf_range(-14.0, 14.0), 6.0))
 	float_text(m.position + Vector2(0, -70), "+%d tu vi" % int(k["xp"]), UIKit.XP_GOLD)
+	if m.kind_id == "sect_master":
+		war.weaken(m.sect_id)
+		inv.add_merit(40)
+		inv.add_stones(300)
+		hud.toast("Hạ %s! +40 cống hiến, +300 linh thạch. %s suy yếu một thời gian." % [m.display_name, SectWar.sect_name(m.sect_id)])
+	if m.invader and war.under_attack.has(m.territory_id):
+		var left := 0
+		for o in monsters:
+			if o != m and o.alive and o.invader and o.territory_id == m.territory_id:
+				left += 1
+		if left == 0:
+			war.defended(m.territory_id)
+			inv.add_merit(15)
+			inv.add_stones(150)
+			hud.toast("Giữ vững địa bàn! +15 cống hiến, +150 linh thạch")
 
 
 func _drop(id: String, n: int, at: Vector2) -> void:
@@ -1369,21 +1475,21 @@ func _on_player_died() -> void:
 func _check_regions() -> void:
 	var p := player.position
 	if current_map == "overworld":
-		if p.distance_to(WorldExpansion.SECT_C) < 300.0:
-			quests.add_visit("sect")
 		if p.distance_to(WorldExpansion.CAVE) < 200.0:
 			quests.add_visit("cave")
 		if p.distance_to(WorldExpansion.CAMP) < 200.0:
 			quests.add_visit("camp")
 	else:
 		quests.add_visit("map_" + current_map)
+		if current_map == "sect_" + SectWar.PLAYER:
+			quests.add_visit("sect")
 	var boss: Monster = null
 	for m in monsters:
 		if m.alive and bool(m.kind.get("boss", false)) and m.position.distance_to(p) < 620.0:
 			boss = m
 			break
 	if boss != null:
-		hud.set_boss(str(boss.kind["name"]), boss.hp, boss.max_hp)
+		hud.set_boss(boss.display_name if boss.display_name != "" else str(boss.kind["name"]), boss.hp, boss.max_hp)
 	else:
 		hud.set_boss("", 0.0, 1.0)
 
@@ -1441,6 +1547,14 @@ func _build_fade() -> void:
 	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	cl.add_child(_fade)
+	_fade_label = Label.new()
+	_fade_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_fade_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_fade_label.add_theme_font_size_override("font_size", 28)
+	_fade_label.add_theme_color_override("font_color", UIKit.GOLD)
+	_fade_label.visible = false
+	cl.add_child(_fade_label)
 
 
 func _build_overworld_gates() -> void:
@@ -1462,9 +1576,17 @@ func travel_to(id: String, to_pos: Vector2) -> void:
 	var tw := create_tween()
 	tw.tween_property(_fade, "color:a", 1.0, 0.35)
 	await tw.finished
+	_fade_label.text = "Đang vào %s…" % Maps.map_name(id) if id != "overworld" else "Đang về làng…"
+	_fade_label.visible = true
+	await get_tree().process_frame   # cho chữ kịp hiện trước khi dựng map (có thể mất vài giây)
+	await get_tree().process_frame
 	switch_map_now(id, to_pos)
+	_fade_label.visible = false
 	if id != "overworld":
 		hud.toast("Đến %s" % Maps.map_name(id))
+		if Maps.DEFS[id].has("sect") and Maps.DEFS[id]["sect"] != SectWar.PLAYER:
+			var tr: Dictionary = SectWar.trait_of(Maps.DEFS[id]["sect"])
+			hud.toast("Tông địch! %s: %s" % [tr.get("name", ""), tr.get("desc", "")])
 	var tw2 := create_tween()
 	tw2.tween_property(_fade, "color:a", 0.0, 0.35)
 	await tw2.finished
@@ -1515,6 +1637,7 @@ func _leave_map() -> void:
 	else:
 		_map_root.queue_free()
 		_map_root = null
+		territory_nodes = {}
 		atmo.drop_map(current_map)
 
 
@@ -1591,3 +1714,101 @@ func _enter_extra(id: String) -> void:
 func _apply_map_camera() -> void:
 	camera.limit_right = int(map_size.x)
 	camera.limit_bottom = int(map_size.y)
+
+
+# ---------------------------------------------------------------- chiến sự Tiểu Thế Giới
+func _sync_war_quests() -> void:
+	quests.war_owned = war.count(SectWar.PLAYER)
+	quests.changed.emit()
+
+
+func _on_war_income(merit: int, stones: int) -> void:
+	if merit > 0:
+		inv.add_merit(merit)
+	if stones > 0:
+		inv.add_stones(stones)
+	hud.toast("Địa bàn nộp cống: +%d cống hiến, +%d linh thạch" % [merit, stones])
+
+
+func _on_attack_started(tid: String) -> void:
+	Sfx.play("mhurt")
+	if current_map == "tieu_gioi":
+		MapBuilder.spawn_humanoids(self, str(war.under_attack[tid]["by"]), tid, SectWar.territory(tid)["pos"], 4, 1, true)
+
+
+func _on_territory_changed(tid: String) -> void:
+	if current_map == "tieu_gioi":
+		MapBuilder.refresh_territory(self, tid)
+
+
+func _on_war_victory() -> void:
+	inv.add_merit(300)
+	inv.add_stones(2000)
+	wardrobe.grant_title("war:ba_chu")
+	hud.toast("Kiếm Tông giữ %d địa bàn, trở thành bá chủ Tiểu Thế Giới! +300 cống hiến, +2000 linh thạch" % SectWar.WIN_COUNT)
+
+
+## Cắm cờ / xem thông tin một địa bàn.
+func _use_flag(tid: String) -> void:
+	var t := SectWar.territory(tid)
+	var own := war.owner_of(tid)
+	var inc: Dictionary = t.get("income", {})
+	if own == SectWar.PLAYER:
+		var lines: Array[String] = ["%s (%s) thuộc về Kiếm Tông." % [t["name"], t["type"]],
+			"Mỗi phút nộp %d cống hiến và %d linh thạch." % [int(inc.get("merit", 0)), int(inc.get("stones", 0))]]
+		if war.under_attack.has(tid):
+			lines.append("Quân %s đang tập kích! Hạ chúng trong %d giây nữa, không thì mất địa bàn." % [SectWar.sect_name(war.under_attack[tid]["by"]), int(war.under_attack[tid]["left"])])
+		dialogue.say("Cột cờ", lines)
+		return
+	var alive := 0
+	for m in monsters:
+		if m.alive and m.territory_id == tid and not m.invader:
+			alive += 1
+	if alive > 0:
+		hud.toast("Còn %d lính canh ở %s. Hạ hết rồi mới cắm cờ được." % [alive, t["name"]])
+		return
+	war.claim(tid)
+	inv.add_merit(10)
+	inv.add_stones(100)
+	hud.toast("Chiếm %s! +10 cống hiến, +100 linh thạch" % t["name"])
+
+
+# ---------------------------------------------------------------- chức năng điện trong tông môn
+func _scripture_cost() -> int:
+	return 60 + 40 * cult.step_index()
+
+
+## Tàng Kinh Các: trả linh thạch để tham ngộ, nhận tu vi.
+func _study_scripture() -> void:
+	var cost := _scripture_cost()
+	if not inv.spend_stones(cost):
+		hud.toast("Không đủ linh thạch (cần %d)" % cost)
+		return
+	var gain := maxf(30.0, cult.xp_needed() * 0.06)
+	cult.add_xp(gain)
+	Sfx.play("levelup")
+	hud.toast("Tham ngộ kinh thư: +%d tu vi" % int(gain))
+
+
+## Trận Pháp Đường: truyền tống tới một địa bàn Kiếm Tông đang giữ (trong Tiểu Thế Giới).
+func _teleport_territory(tid: String) -> void:
+	travel_to("tieu_gioi", (SectWar.territory(tid)["pos"] as Vector2) + Vector2(0, 130))
+
+
+func _teleport_hq() -> void:
+	travel_to("tieu_gioi", (SectWar.SECTS[SectWar.PLAYER]["hq"] as Vector2) + Vector2(0, 140))
+
+
+## Quái còn sống, đang yên và ở xa người chơi thì tắt hẳn xử lý (AI, hoạt ảnh, đồ đeo): Tiểu Thế Giới có hàng chục lính hình người.
+func _cull_monsters() -> void:
+	var pp := player.position
+	for m in monsters:
+		if not m.alive:
+			continue
+		var far: bool = m.position.distance_squared_to(pp) > CULL_R * CULL_R
+		var idle: bool = m.state in ["idle", "wander"]
+		if far and idle:
+			if m.process_mode != Node.PROCESS_MODE_DISABLED:
+				m.process_mode = Node.PROCESS_MODE_DISABLED
+		elif m.process_mode == Node.PROCESS_MODE_DISABLED:
+			m.process_mode = Node.PROCESS_MODE_INHERIT

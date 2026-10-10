@@ -44,8 +44,19 @@ func _process(_delta: float) -> bool:
 			gate_blocked = gate_blocked or main._is_blocked(Rect2(gp.x - 20, gp.y - 10, 40, 14))
 		var safe_entry: bool = main.is_safe(d["entry"])
 		print(id, ": quái ", by, " | cổng ", main.gates.size(), " | chặn chỗ đến=", entry_blocked, " cổng=", gate_blocked, " | an toàn chỗ đến=", safe_entry, " | props ", main.prop_log.size(), " | linh thảo ", main.herbs.size())
-		ok = ok and main.current_map == id and main.monsters.size() > 0 and not entry_blocked and not gate_blocked and safe_entry and main.gates.size() == 1
+		var is_home: bool = d.get("sect", "") == SectWar.PLAYER
+		var hostile_sect: bool = d.has("sect") and not is_home   # tông địch: không có vùng an toàn
+		ok = ok and main.current_map == id and (main.monsters.size() > 0 or is_home) and not entry_blocked and not gate_blocked and (safe_entry or hostile_sect)
+		ok = ok and (main.gates.size() == 1 or id == "tieu_gioi") and (id != "tieu_gioi" or main.gates.size() == 6)
 		ok = ok and main.map_size == d["size"] and main.camera.limit_right == int(d["size"].x)
+		if d.has("sect") and is_home:
+			var npc_ids := []
+			for n in main.npcs:
+				npc_ids.append(n.npc_id)
+			print("  NPC tông môn: ", npc_ids, " | lò đan: ", main.furnace != null)
+			for need in ["sect_head", "sect_keeper", "scripture_elder", "war_elder", "array_master", "tailor"]:
+				ok = ok and npc_ids.has(need)
+			ok = ok and main.furnace != null
 		# mỗi nhóm quái phải sinh đủ
 		var want := {}
 		for gr in d["groups"]:

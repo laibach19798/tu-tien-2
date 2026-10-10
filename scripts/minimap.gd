@@ -445,6 +445,14 @@ class FullView extends Control:
 		var k := sc / Minimap.PX
 		for z in main.qi_zones:
 			_ell(z["pos"] * k, z["r"] * k, z["r"] * k * 0.62, Color(0.4, 0.9, 1.0, 0.25))
+		if main.current_map == "tieu_gioi":   # thế cục chiến sự: vòng màu theo chủ từng địa bàn, ô vuông căn cứ từng tông
+			for t in SectWar.TERRITORIES:
+				var oc := SectWar.sect_color(main.war.owner_of(t["id"])) if main.war.owner_of(t["id"]) != "" else Color(0.75, 0.75, 0.75)
+				_ell(t["pos"] * k, 130.0 * k, 130.0 * k * 0.62, Color(oc, 0.42))
+			for sid in SectWar.SECTS:
+				var hp: Vector2 = (SectWar.SECTS[sid]["hq"] as Vector2) * k
+				draw_rect(Rect2(hp - Vector2(9, 9), Vector2(18, 18)), UIKit.BLACK)
+				draw_rect(Rect2(hp - Vector2(7, 7), Vector2(14, 14)), SectWar.sect_color(sid))
 		# vùng yêu thú (nhóm quái sinh ra)
 		var f := get_theme_default_font()
 		for g in main.map_def.get("groups", []):
