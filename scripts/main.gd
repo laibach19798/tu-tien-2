@@ -557,6 +557,7 @@ const QI_ZONES := [
 ] + WorldExpansion.NEW_QI_ZONES
 
 var cult := Cultivation.new()
+var _last_realm := 1
 var vitals := Vitals.new()
 var monsters: Array = []
 var alchemy: CanvasLayer
@@ -610,6 +611,9 @@ func _build_hud() -> void:
 	inv.changed.connect(_refresh_quest_ui)
 	_refresh_quest_ui()
 	Wardrobe.apply(player, wardrobe.equipped)
+	_last_realm = cult.realm
+	_sync_aura_power()
+	cult.changed.connect(_sync_aura_power)
 	# Hào quang thiền định (con đầu tiên của nhân vật để vẽ phía sau)
 	aura = preload("res://scripts/aura.gd").new()
 	player.add_child(aura)
@@ -649,7 +653,7 @@ func _density_at(p: Vector2) -> float:
 
 
 func _ui_blocked() -> bool:
-	return _dead or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
+	return _dead or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -875,6 +879,7 @@ func _physics_process(delta: float) -> void:
 	camera.position = player.position
 
 
+var sect_shop: CanvasLayer
 var _step_dist := 0.0
 var _theme_timer := 0.0
 
@@ -916,12 +921,17 @@ func _build_gameplay() -> void:
 	shop = preload("res://scripts/shop.gd").new()
 	shop.inv = inv
 	add_child(shop)
+	sect_shop = preload("res://scripts/sect_shop.gd").new()
+	sect_shop.inv = inv
+	sect_shop.wardrobe = wardrobe
+	add_child(sect_shop)
 	bag = preload("res://scripts/bag.gd").new()
 	bag.inv = inv
 	bag.cult = cult
 	add_child(bag)
 	inv.changed.connect(func():
 		shop.refresh()
+		sect_shop.refresh()
 		bag.refresh())
 	fashion = preload("res://scripts/fashion_ui.gd").new()
 	fashion.wardrobe = wardrobe
@@ -1120,6 +1130,8 @@ func _talk(npc: Node2D) -> void:
 		greeting = q["remind"]
 	elif id == "merchant":
 		greeting = "Khách quan cần gì nào?"
+	elif id == "sect_keeper":
+		greeting = "Cống hiến của ngươi hiện là %d, chức vị %s. Cần đổi gì không?" % [inv.merit, Sect.rank_name(inv.merit_total)]
 	elif id == "tailor":
 		greeting = "Khách muốn may áo mới, đổi kiểu tóc hay sắm đôi giày chăng?"
 	dialogue.choose(nm, greeting, _menu_options(id))
@@ -1130,6 +1142,13 @@ func _menu_options(id: String) -> Array:
 	if id == "tailor":
 		return [
 			{"text": "Xem tiệm may (mua / mặc thử)", "call": Callable(fashion, "open_ui").bind("shop")},
+			{"text": "Trò chuyện", "call": _lore.bind(id)},
+			bye,
+		]
+	if id == "sect_keeper":
+		return [
+			{"text": "Tàng Bảo Các (đổi đồ / nộp nguyên liệu)", "call": Callable(sect_shop, "open_shop")},
+			{"text": "Hỏi về chức vị và cống hiến", "call": _lore.bind("sect_rank")},
 			{"text": "Trò chuyện", "call": _lore.bind(id)},
 			bye,
 		]
@@ -1159,6 +1178,17 @@ func _lore(id: String) -> void:
 			"Thung lũng này có linh mạch sau chính điện, thiền ở đó nhanh gấp ba. Bù nhìn trong sân dùng thoải mái để luyện kiếm.",
 			"Phía đông là Hắc Lâm, phía đông nam là Hang Linh Mạch. Cả hai đều nguy hiểm, nhưng cơ duyên cũng ở đó.",
 		])
+	elif id == "sect_keeper":
+		dialogue.say("Chấp sự Mộ Dung", [
+			"Tàng Bảo Các là kho báu của tông môn. Đan dược, trang phục, đều đổi bằng điểm cống hiến, không dùng linh thạch.",
+			"Muốn có điểm thì nhận việc của ta, hạ yêu tướng, hạ Hắc Lang Vương, hoặc nộp nguyên liệu như yêu đan, nanh yêu.",
+		])
+	elif id == "sect_rank":
+		var lines: Array[String] = ["Chức vị tính theo tổng cống hiến đã nhận, không mất đi khi ngươi đổi đồ. Mỗi lần thăng chức, tông môn thưởng thêm."]
+		for rk in Sect.RANKS:
+			lines.append("%s: từ %d cống hiến." % [rk["name"], int(rk["need"])])
+		lines.append("Hiện ngươi là %s, tổng đã nhận %d cống hiến." % [Sect.rank_name(inv.merit_total), inv.merit_total])
+		dialogue.say("Chấp sự Mộ Dung", lines)
 	elif id == "hermit":
 		dialogue.say("Ẩn sĩ Mặc Thạch", [
 			"Rừng này ngày xưa lành lắm. Từ khi Hắc Lang Vương tu thành yêu, đàn sói đổi hẳn tính nết.",
@@ -1224,6 +1254,10 @@ func on_monster_killed(m: Monster) -> void:
 	var k: Dictionary = m.kind
 	cult.add_xp(float(k["xp"]))
 	quests.add_kill(m.kind_id)
+	var mk := int(Sect.KILL_MERIT.get(m.kind_id, 0))
+	if mk > 0 and quests.states.get("q8", "") == "done":   # chỉ tính cho người đã vào Kiếm Tông
+		inv.add_merit(mk)
+		float_text(m.position + Vector2(0, -92), "+%d cống hiến" % mk, Color(1.0, 0.82, 0.35))
 	var st: Array = k["stones"]
 	_drop("stone", rng.randi_range(int(st[0]), int(st[1])), m.position)
 	var drops: Dictionary = k["drops"]
@@ -1306,3 +1340,12 @@ func _check_regions() -> void:
 		hud.set_boss(str(boss.kind["name"]), boss.hp, boss.max_hp)
 	else:
 		hud.set_boss("", 0.0, 1.0)
+
+## Hào quang trang phục mạnh dần theo cảnh giới; đột phá thành công thì bùng một vòng sáng.
+func _sync_aura_power() -> void:
+	player.set_meta("aura_power", cult.aura_power())
+	if cult.realm > _last_realm:
+		var a := player.get_node_or_null("OutfitAura")
+		if a != null:
+			a.burst()
+	_last_realm = cult.realm

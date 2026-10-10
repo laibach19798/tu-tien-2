@@ -3,7 +3,7 @@ extends Node2D
 ## Không phải vải thật nên không có đường cắt/rách; cộng sáng như hào quang và được bù màu đêm.
 ## Wardrobe._set_aura tạo node này khi aura có "qi_cape": true. Toạ độ theo ô 64px của nhân vật, gốc ở chân.
 
-const STRANDS := 5
+const STRANDS := 6
 const POINTS := 13
 const SEG := 3.6
 const SHOULDER := Vector2(0, -30)
@@ -18,17 +18,13 @@ var _last_gpos := Vector2.ZERO
 var _t := 0.0
 var _canvas_mod: CanvasModulate
 var _find_timer := 0.0
-var _glow: Node2D
 var _alpha := 1.0       # dải ở trước thân (hướng bắc) thì mờ hơn để không che người
 
 
 func _ready() -> void:
 	var add := CanvasItemMaterial.new()
 	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-	_glow = Node2D.new()   # lớp cộng sáng: quầng và điểm lấp lánh; thân dải vẽ thường để rõ nét
-	_glow.material = add
-	add_child(_glow)
-	_glow.draw.connect(_draw_glow)
+	material = add
 	for s in STRANDS:
 		_pos.append([])
 		_vel.append([])
@@ -57,7 +53,7 @@ func _facing_vec() -> Vector2:
 ## Điểm neo của dải s (trải đều ngang vai; nhìn ngang thì dồn lại) và hướng buông xuống của nó.
 func _anchor(s: int, f: Vector2) -> Vector2:
 	var u := (float(s) / float(STRANDS - 1)) * 2.0 - 1.0       # -1 .. 1
-	var half := 3.0 + 8.0 * absf(f.y)
+	var half := 2.5 + 6.5 * absf(f.y)
 	return SHOULDER + Vector2(u * half - f.x * 3.0, 0.0)
 
 
@@ -97,9 +93,7 @@ func _process(delta: float) -> void:
 		return
 	_t += delta
 	_find_timer -= delta
-	var boost := _night_boost()
-	self_modulate = boost
-	_glow.self_modulate = boost
+	self_modulate = _night_boost()
 	var parent := get_parent() as Node2D
 	var gscale := maxf(absf(parent.global_scale.x), 0.001)
 	var gmove := (parent.global_position - _last_gpos) / gscale
@@ -128,7 +122,6 @@ func _process(delta: float) -> void:
 			_vel[s][i] = v
 	_order()
 	queue_redraw()
-	_glow.queue_redraw()
 
 
 ## Hướng bắc: dải buông phía trước thân (vẽ trên cùng); còn lại ở sau (sau cả hào quang).
@@ -139,59 +132,22 @@ func _order() -> void:
 	var want: int = parent.get_child_count() - 1 if north else ((aura.get_index() + 1) if aura != null else 0)
 	if get_index() != want:
 		parent.move_child(self, want)
-	_alpha = 0.5 if north else 1.0
+	var pw := clampf((float(parent.get_meta("aura_power", 1.0)) - 0.4) / 0.5, 0.0, 1.0)   # cảnh giới thấp: chưa có áo choàng linh khí
+	_alpha = (0.5 if north else 1.0) * pw
 
 
 func _draw() -> void:
 	if _pos.is_empty():
 		return
-	var zero := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
-	for s in STRANDS:
-		var outer := s == 0 or s == STRANDS - 1
-		var wmax := 4.8 if outer else (3.6 if s % 2 == 0 else 2.8)
-		for i in range(POINTS - 1):
-			var t0 := float(i) / float(POINTS - 1)
-			var t1 := float(i + 1) / float(POINTS - 1)
-			var f0 := pow(1.0 - t0, 0.9) * _alpha
-			var f1 := pow(1.0 - t1, 0.9) * _alpha
-			var a: Vector2 = (_pos[s][i] as Vector2).round()
-			var b: Vector2 = (_pos[s][i + 1] as Vector2).round()
-			var dir := b - a
-			if dir.length() < 0.01:
-				continue
-			var n := dir.orthogonal().normalized()
-			var w0 := lerpf(wmax, 0.5, pow(t0, 0.85))
-			var w1 := lerpf(wmax, 0.5, pow(t1, 0.85))
-			var c0 := color.lerp(color2, 0.25 * (1.0 - t0))
-			var c1 := color.lerp(color2, 0.25 * (1.0 - t1))
-			# thân dải
-			draw_primitive(PackedVector2Array([a + n * w0, b + n * w1, b - n * w1, a - n * w0]),
-				PackedColorArray([Color(c0, 0.8 * f0), Color(c1, 0.8 * f1), Color(c1, 0.8 * f1), Color(c0, 0.8 * f0)]), zero)
-			# lõi sáng mảnh ở giữa
-			draw_primitive(PackedVector2Array([a + n * w0 * 0.3, b + n * w1 * 0.3, b - n * w1 * 0.3, a - n * w0 * 0.3]),
-				PackedColorArray([Color(color2, 0.9 * f0), Color(color2, 0.9 * f1), Color(color2, 0.9 * f1), Color(color2, 0.9 * f0)]), zero)
-			# viền đậm hai mép cho nét rõ
-			draw_line(a + n * w0, b + n * w1, Color(c0.darkened(0.4), 0.95 * f0), 1.0)
-			draw_line(a - n * w0, b - n * w1, Color(c0.darkened(0.4), 0.95 * f0), 1.0)
-			# vạch ngang như nếp vải khí
-			if i % 3 == 1:
-				draw_line(a + n * w0 * 0.9, a - n * w0 * 0.9, Color(color2, 0.75 * f0), 1.0)
-	# móc cài ngọc ở cổ
-	draw_circle(SHOULDER + Vector2(0, -1), 2.2, Color(color.darkened(0.4), _alpha))
-	draw_circle(SHOULDER + Vector2(0, -1), 1.4, Color(color2, _alpha))
-
-
-## Quầng sáng quanh dải và điểm lấp lánh (vẽ cộng sáng).
-func _draw_glow() -> void:
-	if _pos.is_empty():
-		return
 	for s in STRANDS:
 		for i in range(POINTS - 1):
 			var t := float(i) / float(POINTS - 1)
-			var fade := pow(1.0 - t, 1.0) * _alpha
+			var fade := pow(1.0 - t, 1.15)
+			var c := color.lerp(color2, 0.4 * (1.0 - t))   # gần vai hơi sáng, càng xa càng về màu linh khí
 			var a: Vector2 = (_pos[s][i] as Vector2).round()
 			var b: Vector2 = (_pos[s][i + 1] as Vector2).round()
-			_glow.draw_line(a, b, Color(color, 0.12 * fade), 8.0)
-			_glow.draw_line(a, b, Color(color2, 0.10 * fade), 4.0)
+			var w := roundf(lerpf(3.5, 1.0, t))
+			draw_line(a, b, Color(c, 0.14 * fade * _alpha), w + 3.0)       # quầng mờ
+			draw_line(a, b, Color(c, 0.72 * fade * _alpha), w)             # lõi
 			if i % 3 == 0:
-				_glow.draw_circle(b, 1.0, Color(color2, 0.9 * fade * (0.6 + 0.4 * sin(_t * 6.0 + s + i))))
+				draw_circle(b, 0.9, Color(color2, 0.9 * fade * _alpha * (0.6 + 0.4 * sin(_t * 6.0 + s + i))))   # điểm sáng lấp lánh

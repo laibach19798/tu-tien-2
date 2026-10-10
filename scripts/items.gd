@@ -7,7 +7,7 @@ const DATA := {
 	"linh_thao": {
 		"name": "Linh thảo",
 		"desc": "Thảo dược mọc nơi linh khí dồi dào, nguyên liệu luyện đan.",
-		"sell": 6, "buy": 0, "usable": false, "icon": "herb",
+		"sell": 6, "buy": 0, "merit": 1, "usable": false, "icon": "herb",
 	},
 	"dan_tu_khi": {
 		"name": "Tụ Khí Đan",
@@ -27,22 +27,37 @@ const DATA := {
 	"soi_nanh": {
 		"name": "Nanh sói",
 		"desc": "Chiếc nanh sắc của sói hoang. Thương nhân thu mua, cũng dùng để luyện đan.",
-		"sell": 8, "buy": 0, "usable": false, "icon": "fang", "tint": Color(0.96, 0.94, 0.86),
+		"sell": 8, "buy": 0, "merit": 1, "usable": false, "icon": "fang", "tint": Color(0.96, 0.94, 0.86),
 	},
 	"da_yeu": {
 		"name": "Da yêu quái",
 		"desc": "Mảnh da dày lấy từ yêu quái núi. Bán được ít linh thạch.",
-		"sell": 7, "buy": 0, "usable": false, "icon": "hide", "tint": Color(0.66, 0.46, 0.28),
+		"sell": 7, "buy": 0, "merit": 1, "usable": false, "icon": "hide", "tint": Color(0.66, 0.46, 0.28),
 	},
 	"yeu_dan": {
 		"name": "Yêu đan",
 		"desc": "Hạt nhân linh khí của yêu thú. Nguyên liệu quý để luyện đan, bán được giá.",
-		"sell": 30, "buy": 0, "usable": false, "icon": "pill", "tint": Color(0.78, 0.42, 0.96),
+		"sell": 30, "buy": 0, "merit": 5, "usable": false, "icon": "pill", "tint": Color(0.78, 0.42, 0.96),
 	},
 	"lang_vuong_nanh": {
 		"name": "Nanh Lang Vương",
 		"desc": "Chiếc nanh khổng lồ của Hắc Lang Vương. Báu vật hiếm, bán được giá rất cao.",
-		"sell": 150, "buy": 0, "usable": false, "icon": "fang", "tint": Color(1.0, 0.55, 0.5),
+		"sell": 150, "buy": 0, "merit": 40, "usable": false, "icon": "fang", "tint": Color(1.0, 0.55, 0.5),
+	},
+	"dan_ho_the": {
+		"name": "Hộ Thể Đan",
+		"desc": "Hồi 220 khí huyết. Đan dược của Kiếm Tông.",
+		"sell": 40, "buy": 0, "usable": true, "hp": 220, "icon": "pill", "tint": Color(0.95, 0.5, 0.3),
+	},
+	"dan_kiem_y": {
+		"name": "Kiếm Ý Đan",
+		"desc": "Tăng 300 tu vi. Đan dược của Kiếm Tông.",
+		"sell": 60, "buy": 0, "usable": true, "xp": 300, "icon": "pill", "tint": Color(0.5, 0.92, 0.85),
+	},
+	"dan_truc_co": {
+		"name": "Trúc Cơ Linh Đan",
+		"desc": "Tăng 1200 tu vi. Chỉ có ở Tàng Bảo Các, dành cho người có chức vị cao.",
+		"sell": 200, "buy": 0, "usable": true, "xp": 1200, "icon": "pill", "tint": Color(1.0, 0.85, 0.4),
 	},
 	"tro_dan": {
 		"name": "Tro đan",

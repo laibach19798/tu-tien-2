@@ -107,6 +107,8 @@ func _build() -> void:
 	_section("Vật phẩm", [
 		["+500 linh thạch", func(): main.inv.add_stones(500); _toast("+500 linh thạch")],
 		["+5000 linh thạch", func(): main.inv.add_stones(5000); _toast("+5000 linh thạch")],
+		["+100 cống hiến Kiếm Tông", func(): main.inv.add_merit(100); _toast("+100 cống hiến")],
+		["+1000 cống hiến Kiếm Tông", func(): main.inv.add_merit(1000); _toast("+1000 cống hiến")],
 		["Mỗi loại ×10", func(): _all_items(10)],
 		["Nguyên liệu đan ×10", func(): _mats(10)],
 		["Xoá hết túi đồ", func(): main.inv.items.clear(); main.inv.changed.emit(); _toast("Đã xoá túi đồ")],
