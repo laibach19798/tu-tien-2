@@ -42,6 +42,12 @@ const KINDS := {
 		"drops": {"yeu_dan": 0.6, "linh_thao": 0.5}, "frames": "",
 		"center": Vector2(0, -30), "shadow": Vector2(18.0, 7.0), "tint": Color(0.8, 0.7, 0.4), "size": 1.0, "bar": -90.0,
 	},
+	"sect_master": {
+		"name": "Tông chủ", "hp": 2200.0, "dmg": 46.0, "speed": 128.0, "aggro": 340.0, "leash": 900.0,
+		"reach": 64.0, "windup": 0.6, "recover": 0.75, "xp": 800.0, "stones": [250, 400], "humanoid": true, "boss": true, "respawn": 900.0,
+		"drops": {"yeu_dan": 1.0, "linh_thao": 1.0, "dan_hoi_huyet": 0.6}, "frames": "",
+		"center": Vector2(0, -34), "shadow": Vector2(20.0, 8.0), "tint": Color(0.9, 0.75, 0.3), "size": 1.0, "bar": -96.0,
+	},
 	"wolf_king": {
 		"name": "Hắc Lang Vương", "hp": 950.0, "dmg": 30.0, "speed": 132.0, "aggro": 340.0, "leash": 820.0,
 		"reach": 66.0, "windup": 0.55, "recover": 0.8, "xp": 240.0, "stones": [70, 110], "boss": true, "respawn": 240.0,

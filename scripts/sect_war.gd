@@ -20,27 +20,32 @@ const WIN_COUNT := 8              # nắm giữ chừng này địa bàn là bá
 # hq: căn cứ (không chiếm được); outfit: trang phục đệ tử / trưởng lão
 const SECTS := {
 	"kiem_tong": {
-		"name": "Kiếm Tông", "color": Color(0.40, 0.78, 1.0), "hq": Vector2(560, 2560), "theme": "meadow",
+		"name": "Kiếm Tông", "color": Color(0.40, 0.78, 1.0), "hq": Vector2(560, 2560), "theme": "meadow", "pave": "alt", "master": "Chưởng môn Thanh Huyền",
+		"trait": {"name": "Kiếm Đạo Chính Tông", "desc": "Cống phẩm từ địa bàn nhiều hơn 25%; có đủ các điện: luyện đan, tàng kinh, trận pháp, chiến sự.", "income": 1.25},
 		"disciple": {"hair": "hair_topknot_black", "clothes": "outfit_trang", "shoes": "shoes_cloth_white", "head": "head_band_white"},
 		"elder": {"hair": "hair_long_silver", "clothes": "tien_bao_bach_van", "shoes": "shoes_boot_black", "head": "head_crown_gold"},
 	},
 	"xich_viem": {
-		"name": "Xích Viêm Tông", "color": Color(1.0, 0.45, 0.25), "hq": Vector2(560, 700), "theme": "lava",
+		"name": "Xích Viêm Tông", "color": Color(1.0, 0.45, 0.25), "hq": Vector2(560, 700), "theme": "lava", "pave": "rock", "master": "Tông chủ Xích Viêm", "roof": {"hue": 8.0, "sat": 1.25, "val": 1.0},
+		"trait": {"name": "Hỏa Luyện", "desc": "Hung hãn: sức tấn công mạnh hơn 30%. Tông chủ luyện hỏa công, đòn rất nặng.", "atk": 1.3},
 		"disciple": {"hair": "hair_topknot_black", "clothes": "outfit_do", "shoes": "shoes_boot_black", "head": "head_band_red"},
 		"elder": {"hair": "hair_topknot_silver", "clothes": "outfit_do", "shoes": "shoes_boot_black", "head": "head_crown_gold"},
 	},
 	"han_bang": {
-		"name": "Hàn Băng Cung", "color": Color(0.65, 0.9, 1.0), "hq": Vector2(2240, 380), "theme": "snow",
+		"name": "Hàn Băng Cung", "color": Color(0.65, 0.9, 1.0), "hq": Vector2(2240, 380), "theme": "snow", "pave": "alt", "master": "Cung chủ Hàn Băng", "roof": {"hue": 195.0, "sat": 0.32, "val": 1.3},
+		"trait": {"name": "Băng Phong", "desc": "Phòng thủ vững: địa bàn khó bị chiếm hơn 35%, nhưng ít khi chủ động tấn công.", "def": 1.35, "freq": 0.6},
 		"disciple": {"hair": "hair_long_silver", "clothes": "outfit_thanh", "shoes": "shoes_cloth_white", "head": "head_pin_jade"},
 		"elder": {"hair": "hair_long_silver", "clothes": "outfit_thanh", "shoes": "shoes_cloth_white", "head": "head_halo"},
 	},
 	"doc_mon": {
-		"name": "Độc Môn", "color": Color(0.55, 0.9, 0.35), "hq": Vector2(3900, 760), "theme": "swamp",
+		"name": "Độc Môn", "color": Color(0.55, 0.9, 0.35), "hq": Vector2(3900, 760), "theme": "swamp", "pave": "path", "master": "Môn chủ Độc Môn", "roof": {"hue": 112.0, "sat": 0.9, "val": 0.85},
+		"trait": {"name": "Độc Công", "desc": "Hay tập kích: số lần xuất quân nhiều hơn 60%, đánh lén liên tục nhưng không mạnh.", "freq": 1.6},
 		"disciple": {"hair": "hair_ponytail_black", "clothes": "outfit_luc", "shoes": "shoes_boot_black", "head": "head_mask_fox"},
 		"elder": {"hair": "hair_ponytail_black", "clothes": "outfit_luc", "shoes": "shoes_boot_black", "head": "head_crown_gold"},
 	},
 	"huyen_minh": {
-		"name": "Huyền Minh Giáo", "color": Color(0.75, 0.5, 1.0), "hq": Vector2(3900, 2560), "theme": "cave",
+		"name": "Huyền Minh Giáo", "color": Color(0.75, 0.5, 1.0), "hq": Vector2(3900, 2560), "theme": "cave", "pave": "base", "master": "Giáo chủ Huyền Minh", "roof": {"hue": 275.0, "sat": 1.0, "val": 0.7},
+		"trait": {"name": "Âm Mưu", "desc": "Đánh úp: khi tập kích địa bàn của Kiếm Tông, thời gian phòng thủ chỉ còn 60%.", "ambush": 0.6, "atk": 1.1},
 		"disciple": {"hair": "hair_topknot_black", "clothes": "outfit_tim", "shoes": "shoes_boot_black", "head": "head_band_red"},
 		"elder": {"hair": "hair_topknot_black", "clothes": "tien_bao_tu_dien", "shoes": "shoes_boot_black", "head": "head_crown_gold"},
 	},
@@ -68,6 +73,7 @@ var owners := {}            # tid -> id tông ("" = vô chủ)
 var under_attack := {}      # tid -> {by, left}
 var log: Array = []         # nhật ký chiến sự (mới nhất ở cuối)
 var won := false
+var weakened := {}         # sect -> số giây còn bị suy yếu (sau khi tông chủ bị hạ)
 var _t_attack := ATTACK_INTERVAL * 0.6
 var _t_income := INCOME_INTERVAL
 var rng := RandomNumberGenerator.new()
@@ -85,6 +91,7 @@ func reset() -> void:
 	under_attack = {}
 	log = []
 	won = false
+	weakened = {}
 
 
 static func territory(tid: String) -> Dictionary:
@@ -124,7 +131,20 @@ func owned_by_player() -> Array:
 
 ## Sức mạnh một tông: nền + theo số địa bàn đang giữ.
 func power(sect: String) -> float:
-	return 24.0 + 12.0 * count(sect)
+	var p := 24.0 + 12.0 * count(sect)
+	if float(weakened.get(sect, 0.0)) > 0.0:
+		p *= 0.5
+	return p
+
+
+static func trait_of(sect: String) -> Dictionary:
+	return (SECTS.get(sect, {}) as Dictionary).get("trait", {})
+
+
+## Tông chủ bị hạ: tông đó yếu đi một lúc.
+func weaken(sect: String) -> void:
+	weakened[sect] = 420.0
+	_log("Tông chủ %s bị hạ! %s suy yếu một thời gian." % [sect_name(sect), sect_name(sect)])
 
 
 func _log(text: String) -> void:
@@ -138,6 +158,10 @@ func _log(text: String) -> void:
 func _process(delta: float) -> void:
 	_t_attack -= delta
 	_t_income -= delta
+	for sid in weakened.keys():
+		weakened[sid] = float(weakened[sid]) - delta
+		if float(weakened[sid]) <= 0.0:
+			weakened.erase(sid)
 	for tid in under_attack.keys():
 		under_attack[tid]["left"] = float(under_attack[tid]["left"]) - delta
 		if float(under_attack[tid]["left"]) <= 0.0:
@@ -157,6 +181,9 @@ func _pay_income() -> void:
 		var inc: Dictionary = territory(tid).get("income", {})
 		m += int(inc.get("merit", 0))
 		s += int(inc.get("stones", 0))
+	var k := float(trait_of(PLAYER).get("income", 1.0))
+	m = int(round(m * k))
+	s = int(round(s * k))
 	if m > 0 or s > 0:
 		income.emit(m, s)
 
@@ -165,7 +192,19 @@ func _pay_income() -> void:
 func _ai_attack() -> void:
 	var sects := SECTS.keys()
 	sects.erase(PLAYER)
-	var att: String = sects[rng.randi() % sects.size()]
+	var weights: Array = []
+	var total := 0.0
+	for sid in sects:
+		var w := float(trait_of(sid).get("freq", 1.0))
+		weights.append(w)
+		total += w
+	var roll := rng.randf() * total
+	var att: String = sects[sects.size() - 1]
+	for i in sects.size():
+		roll -= float(weights[i])
+		if roll <= 0.0:
+			att = sects[i]
+			break
 	var targets: Array = []
 	for t in TERRITORIES:
 		var tid: String = t["id"]
@@ -186,12 +225,12 @@ func _ai_attack() -> void:
 	var tid: String = tgt["id"]
 	var def := owner_of(tid)
 	if def == PLAYER:
-		under_attack[tid] = {"by": att, "left": DEFEND_TIME}
+		under_attack[tid] = {"by": att, "left": DEFEND_TIME * float(trait_of(att).get("ambush", 1.0))}
 		_log("%s tập kích %s! Về phòng thủ trong %d giây." % [sect_name(att), tgt["name"], int(DEFEND_TIME)])
 		attack_started.emit(tid)
 		return
-	var a := power(att) * rng.randf_range(0.6, 1.4)
-	var d := (power(def) if def != "" else 20.0) * rng.randf_range(0.6, 1.4)
+	var a := power(att) * float(trait_of(att).get("atk", 1.0)) * rng.randf_range(0.6, 1.4)
+	var d := (power(def) * float(trait_of(def).get("def", 1.0)) if def != "" else 20.0) * rng.randf_range(0.6, 1.4)
 	if a > d:
 		owners[tid] = att
 		_log("%s chiếm %s từ %s." % [sect_name(att), tgt["name"], sect_name(def) if def != "" else "vô chủ"])
@@ -236,7 +275,7 @@ func claim(tid: String) -> bool:
 
 
 func to_dict() -> Dictionary:
-	return {"owners": owners, "under": under_attack, "log": log, "won": won, "ta": _t_attack, "ti": _t_income}
+	return {"owners": owners, "under": under_attack, "log": log, "won": won, "ta": _t_attack, "ti": _t_income, "weak": weakened}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -251,6 +290,7 @@ func from_dict(d: Dictionary) -> void:
 			under_attack[tid] = {"by": str(u[tid].get("by", "")), "left": float(u[tid].get("left", DEFEND_TIME))}
 	log = (d.get("log", []) as Array).duplicate()
 	won = bool(d.get("won", false))
+	weakened = (d.get("weak", {}) as Dictionary).duplicate()
 	_t_attack = float(d.get("ta", ATTACK_INTERVAL * 0.6))
 	_t_income = float(d.get("ti", INCOME_INTERVAL))
 	changed.emit()

@@ -12,17 +12,24 @@ static func build(m: Node, id: String) -> void:
 	xr.seed = hash(id)
 	_ground(m, d, xr)
 	_border(m, d, xr)
-	if bool(d.get("war", false)):
+	m.gates = []
+	for g in d["gates"]:   # cổng ra: mặc định về chỗ đứng trước cổng ở thế giới gốc
+		var gg: Dictionary = (g as Dictionary).duplicate()
+		if not gg.has("to_pos"):
+			gg["to_pos"] = Maps.overworld_landing(id)
+		m.gates.append(gg)
+	if d.has("sect"):
+		for g in d["gates"]:
+			gate_visual(m, g)
+		_compound(m, d, xr)
+	elif bool(d.get("war", false)):
+		for g in d["gates"]:
+			gate_visual(m, g)
 		_war_world(m, d, xr)
 	else:
+		for g in d["gates"]:
+			gate_visual(m, g)
 		_props(m, d, xr)
-	for g in d["gates"]:
-		gate_visual(m, g)
-	m.gates = []
-	for g in d["gates"]:   # cổng ra: đích là chỗ đứng trước cổng ở thế giới gốc
-		var gg: Dictionary = (g as Dictionary).duplicate()
-		gg["to_pos"] = Maps.overworld_landing(id)
-		m.gates.append(gg)
 	m.map_herbs(xr, int(d.get("herbs", 0)))
 	m.spawn_monster_groups(d["groups"])
 
@@ -116,7 +123,7 @@ static func _ground_finish(m: Node, d: Dictionary, tex: ImageTexture, xr: Random
 
 
 static func _ground(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void:
-	if bool(d.get("war", false)) and _ground_cache.has(d["name"]):
+	if (bool(d.get("war", false)) or d.has("sect")) and _ground_cache.has(d["name"]):
 		_ground_finish(m, d, _ground_cache[d["name"]], xr)
 		return
 	var size: Vector2 = d["size"]
@@ -182,7 +189,12 @@ static func _ground(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void:
 	if bool(d.get("war", false)):
 		_paint_patches(img, xr)
 	# 3) đường mòn: dải mảng dán dọc đường, rìa lệch ngẫu nhiên và mờ dần ra cỏ
-	var path_st := _stamps(tiles["path"], [1.0])
+	var path_tiles: Array = tiles["path"]
+	if d.has("path_theme"):   # đường lát đá riêng (khác nền)
+		var pt := _load_tiles({"tiles": d["path_theme"]})
+		if not (pt[d.get("path_row", "path")] as Array).is_empty():
+			path_tiles = pt[d.get("path_row", "path")]
+	var path_st := _stamps(path_tiles, [1.0], 0.55 if d.has("path_theme") else 0.35)
 	for line in lines:
 		for i in range(line.size() - 1):
 			var a: Vector2 = line[i]
@@ -203,8 +215,10 @@ static func _ground(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void:
 					m.blockers.append(Rect2(cx * CELL + 10, cy * CELL + 10, CELL - 20, CELL - 20))
 	if bool(d.get("war", false)):
 		_paint_plazas(img, xr)
+	if d.has("sect"):
+		_paint_compound_plazas(img, d, xr)
 	var tex := ImageTexture.create_from_image(img)
-	if bool(d.get("war", false)):
+	if bool(d.get("war", false)) or d.has("sect"):
 		_ground_cache[d["name"]] = tex
 	_ground_finish(m, d, tex, xr)
 
@@ -432,7 +446,7 @@ static func _war_clear(m: Node, d: Dictionary, p: Vector2, lines: Array) -> bool
 	return not m._is_blocked(Rect2(p.x - 50, p.y - 40, 100, 50))
 
 
-static func _place_theme_props(m: Node, d: Dictionary, xr: RandomNumberGenerator, theme: String, c: Vector2, rx: float, ry: float, lines: Array, scale_k: float) -> void:
+static func _place_theme_props(m: Node, d: Dictionary, xr: RandomNumberGenerator, theme: String, c: Vector2, rx: float, ry: float, lines: Array, scale_k: float, clear := Callable()) -> void:
 	for e in THEME_PROPS[theme]:
 		var name := str(e["n"])
 		if not ResourceLoader.exists("res://assets/props/%s.png" % name):
@@ -443,7 +457,10 @@ static func _place_theme_props(m: Node, d: Dictionary, xr: RandomNumberGenerator
 		while made < want and tries < want * 25:
 			tries += 1
 			var p := c + Vector2(xr.randf_range(-rx, rx), xr.randf_range(-ry, ry))
-			if Vector2((p.x - c.x) / rx, (p.y - c.y) / ry).length() > 1.0 or not _war_clear(m, d, p, lines):
+			if Vector2((p.x - c.x) / rx, (p.y - c.y) / ry).length() > 1.0:
+				continue
+			var spot_ok: bool = clear.call(p) if clear.is_valid() else _war_clear(m, d, p, lines)
+			if not spot_ok:
 				continue
 			m._prop(name, p, e.get("block", Vector2.ZERO), 1.0, xr.randf() < 0.5, e.get("tint", Color.WHITE))
 			made += 1
@@ -484,31 +501,20 @@ static func _war_world(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> voi
 		spawn_humanoids(m, str(m.war.under_attack[tid]["by"]), str(tid), SectWar.territory(tid)["pos"], 4, 1, true)
 
 
-## Căn cứ một tông: cổng tông, nhà, cờ; Kiếm Tông có thêm NPC và bù nhìn, các tông khác có lính canh.
+## Căn cứ một tông trong Tiểu Thế Giới: chỉ có DUY NHẤT một cổng dịch chuyển vào tông môn (map riêng), vài cờ và lính gác ngoài cổng.
 static func _hq(m: Node, sid: String, xr: RandomNumberGenerator) -> void:
 	var h: Dictionary = SectWar.SECTS[sid]
 	var pos: Vector2 = h["hq"]
 	var col: Color = h["color"]
-	var tint := col.lerp(Color.WHITE, 0.55)
-	m._prop("sect_gate", pos + Vector2(0, -190), Vector2(180, 24), 1.0, false, tint)
-	m._house("house_blue", pos + Vector2(-330, -40), false, tint)
-	m._house("house_red", pos + Vector2(330, -40), true, tint)
-	for off in [Vector2(-170, -120), Vector2(170, -120), Vector2(-250, 150), Vector2(250, 150)]:
+	var g := {"pos": pos, "to": "sect_" + sid, "to_pos": Maps.COMPOUND_ENTRY, "label": h["name"], "tint": col}
+	m.gates.append(g)
+	gate_visual(m, g, true)
+	for off in [Vector2(-110, -40), Vector2(110, -40)]:
 		_banner(m, pos + off, col)
-	m.atmo.add_light(pos + Vector2(0, -60), col.lerp(Color(1, 0.85, 0.6), 0.5), 3.4, 0.7)
-	m.no_decor.append(Rect2(pos.x - 400, pos.y - 260, 800, 520))
-	if sid == SectWar.PLAYER:
-		m._spawn_npc("sect_head", "Chưởng môn Thanh Huyền", {"hair": "hair_long_silver", "clothes": "tien_bao_bach_van", "shoes": "shoes_boot_black"}, pos + Vector2(0, 0))
-		m._prop("stall", pos + Vector2(-120, -105), Vector2(110, 40), 1.0, false, Color(0.9, 0.86, 0.7))
-		m._spawn_npc("sect_keeper", "Chấp sự Mộ Dung", {"hair": "hair_ponytail_black", "clothes": "outfit_thanh", "shoes": "shoes_boot_black"}, pos + Vector2(-120, -60))
-		for off in [Vector2(-240, 120), Vector2(-130, 160), Vector2(130, 160), Vector2(240, 120)]:
-			var dm: TrainingDummy = preload("res://scripts/dummy.gd").new()
-			dm.position = pos + off
-			m.world.add_child(dm)
-			m.blockers.append(Rect2(dm.position.x - 18, dm.position.y - 14, 36, 16))
-			dm.got_hit.connect(m._on_dummy_hit)
-	else:
-		spawn_humanoids(m, sid, "", pos + Vector2(0, 60), 4, 1, false)
+	m.atmo.add_light(pos, col.lerp(Color(1, 0.85, 0.6), 0.4), 2.6, 0.7)
+	m.no_decor.append(Rect2(pos.x - 300, pos.y - 220, 600, 440))
+	if sid != SectWar.PLAYER:
+		spawn_humanoids(m, sid, "", pos + Vector2(0, -170), 2, 1, false)
 
 
 static func _banner(m: Node, p: Vector2, col: Color) -> void:
@@ -561,26 +567,38 @@ static func _garrison(m: Node, tid: String) -> void:
 				made += 1
 
 
+## Sinh một lính người (đệ tử / trưởng lão / tông chủ) của tông sid tại p.
+static func spawn_one(m: Node, sid: String, kind: String, p: Vector2, tid := "", invader := false) -> Monster:
+	var h: Dictionary = SectWar.SECTS[sid]
+	var elder := kind != "sect_disciple"
+	var mon := Monster.new()
+	mon.outfit = h["elder"] if elder else h["disciple"]
+	mon.sect_id = sid
+	mon.territory_id = tid
+	mon.invader = invader
+	match kind:
+		"sect_master":
+			mon.display_name = str(h["master"])
+		"sect_elder":
+			mon.display_name = "Trưởng lão " + str(h["name"])
+		_:
+			mon.display_name = "Đệ tử " + str(h["name"])
+	mon.setup(m, kind, p)
+	m.world.add_child(mon)
+	m.monsters.append(mon)
+	return mon
+
+
 ## Sinh lính người của một tông quanh center (nd đệ tử + ne trưởng lão). invader: quân xâm lược (hạ hết là bảo vệ được địa bàn).
 static func spawn_humanoids(m: Node, sid: String, tid: String, center: Vector2, nd: int, ne: int, invader: bool) -> void:
-	var h: Dictionary = SectWar.SECTS[sid]
 	for i in nd + ne:
-		var elder := i >= nd
 		var tries := 0
 		while tries < 60:
 			tries += 1
 			var p := center + Vector2(m.rng.randf_range(-170, 170), m.rng.randf_range(-110, 110))
 			if m._is_blocked(Rect2(p.x - 30, p.y - 30, 60, 50)) or (m.is_safe(p) and sid != SectWar.PLAYER):
 				continue
-			var mon := Monster.new()
-			mon.outfit = h["elder"] if elder else h["disciple"]
-			mon.sect_id = sid
-			mon.territory_id = tid
-			mon.invader = invader
-			mon.display_name = ("Trưởng lão " if elder else "Đệ tử ") + str(h["name"])
-			mon.setup(m, "sect_elder" if elder else "sect_disciple", p)
-			m.world.add_child(mon)
-			m.monsters.append(mon)
+			spawn_one(m, sid, "sect_elder" if i >= nd else "sect_disciple", p, tid, invader)
 			break
 
 
@@ -605,6 +623,231 @@ static func refresh_territory(m: Node, tid: String) -> void:
 			alive += 1
 	if alive == 0:
 		_garrison(m, tid)
+
+
+# ---------------------------------------------------------------- Tông môn (map riêng)
+## Sân lát đá trước từng điện và quảng trường lớn giữa tông môn.
+static func _paint_compound_plazas(img: Image, d: Dictionary, xr: RandomNumberGenerator) -> void:
+	var tiles := _load_tiles({"tiles": "cobble"})
+	var row: String = SectWar.SECTS[d["sect"]]["pave"]
+	if (tiles[row] as Array).is_empty():
+		return
+	var st := _stamps(tiles[row], [1.0], 0.72)
+	_fill_ellipse(img, st, Vector2(1800, 2200), 560.0, 200.0, xr)   # quảng trường sơn môn
+	_fill_ellipse(img, st, Vector2(1800, 1100), 520.0, 220.0, xr)   # sân chính điện
+	for hall in Maps.COMPOUND_HALLS:
+		var f: Vector2 = hall["foot"]
+		_fill_ellipse(img, st, f + Vector2(0, 40), 250.0 if hall["id"] != "main" else 200.0, 110.0, xr)
+
+
+static func _recolor(s: Sprite2D, roof: Dictionary) -> void:
+	if roof.is_empty():
+		return
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://scripts/outfit_dye.gdshader")
+	mat.set_shader_parameter("hue", float(roof["hue"]))
+	mat.set_shader_parameter("sat_mul", float(roof["sat"]))
+	mat.set_shader_parameter("val_mul", float(roof["val"]))
+	s.material = mat
+
+
+## Ao sen giữa tông môn có cầu bắc ngang trục chính.
+static func _pond(m: Node, c: Vector2, rx: float, ry: float, xr: RandomNumberGenerator) -> void:
+	var cell := 4
+	var pad := 56.0
+	var gw := int((rx + pad) * 2.0 / cell)
+	var gh := int((ry + pad) * 2.0 / cell)
+	var noise := FastNoiseLite.new()
+	noise.seed = 31
+	noise.frequency = 0.07
+	var ripple := FastNoiseLite.new()
+	ripple.seed = 17
+	ripple.frequency = 0.3
+	var img := Image.create(gw, gh, false, Image.FORMAT_RGBA8)
+	var deep := Color(0.09, 0.40, 0.68)
+	var mid := Color(0.13, 0.49, 0.77)
+	var shallow := Color(0.27, 0.64, 0.88)
+	var shine := Color(0.62, 0.86, 0.97)
+	for y in gh:
+		for x in gw:
+			var wp := Vector2((x + 0.5) * cell - (rx + pad), (y + 0.5) * cell - (ry + pad))
+			var dd := Vector2(wp.x / rx, wp.y / ry).length() + noise.get_noise_2d(x, y) * 0.12
+			if dd < 1.0:
+				var col := deep if dd < 0.5 else (mid if dd < 0.8 else shallow)
+				if dd > 0.93:
+					col = Color(0.82, 0.75, 0.6)   # bờ cát
+				elif ripple.get_noise_2d(x * 0.6, y * 2.2) > 0.5 and dd < 0.85:
+					col = shine
+				img.set_pixel(x, y, col)
+			elif dd < 1.12:
+				img.set_pixel(x, y, Color(0.55, 0.52, 0.5))   # bờ đá
+	var spr := Sprite2D.new()
+	spr.texture = ImageTexture.create_from_image(img)
+	spr.centered = false
+	spr.scale = Vector2.ONE * cell
+	spr.position = c - Vector2(rx + pad, ry + pad)
+	m.layer_ground.add_child(spr)
+	# chặn người đi xuống nước, chừa lối cầu ở giữa
+	m.blockers.append(Rect2(c.x - rx * 0.88, c.y - ry * 0.7, rx * 0.88 - 62.0, ry * 1.2))
+	m.blockers.append(Rect2(c.x + 62.0, c.y - ry * 0.7, rx * 0.88 - 62.0, ry * 1.2))
+	m.no_decor.append(Rect2(c.x - rx - 40, c.y - ry - 60, rx * 2 + 80, ry * 2 + 120))
+	var bridge: Sprite2D = m._prop("bridge", Vector2(c.x, c.y + ry + 14.0), Vector2.ZERO, 1.1)
+	bridge.z_index = -1
+	for i in 7:
+		var p := c + Vector2(xr.randf_range(-rx * 0.7, rx * 0.7), xr.randf_range(-ry * 0.5, ry * 0.4))
+		if absf(p.x - c.x) > 80.0:
+			m._prop("lily", p, Vector2.ZERO, 1.0, xr.randf() < 0.5)
+
+
+static func _hall_rects(d: Dictionary) -> Array:
+	var out: Array = []
+	for hall in Maps.COMPOUND_HALLS:
+		var f: Vector2 = hall["foot"]
+		var sc: float = float(hall.get("sc", 1.3))
+		var path := "res://assets/props/%s.png" % hall["prop"]
+		var sz := Vector2(300, 260)
+		if ResourceLoader.exists(path):
+			sz = (load(path) as Texture2D).get_size()
+		sz *= sc
+		out.append(Rect2(f.x - sz.x * 0.5 - 70.0, f.y - sz.y - 60.0, sz.x + 140.0, sz.y + 200.0))
+	return out
+
+
+static func _compound(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void:
+	var sid: String = d["sect"]
+	var h: Dictionary = SectWar.SECTS[sid]
+	var col: Color = h["color"]
+	var roof: Dictionary = h.get("roof", {})
+	var lines: Array = d["path"]
+	var rects := _hall_rects(d)
+	# sơn môn: cổng lớn nhuộm màu tông (cổng dịch chuyển nằm dưới vòm cổng)
+	var gate: Sprite2D = m._prop("sect_gate", Maps.COMPOUND_GATE + Vector2(0, 30), Vector2(180, 24), 1.15, false, col.lerp(Color.WHITE, 0.55))
+	gate.z_index = 0
+	m.no_decor.append(Rect2(Maps.COMPOUND_GATE.x - 220, Maps.COMPOUND_GATE.y - 240, 440, 300))
+	# tường rào hai bên sơn môn
+	var fy := Maps.COMPOUND_GATE.y + 30.0
+	for x in range(110, 3500, 100):
+		if absf(float(x) - Maps.COMPOUND_GATE.x) < 230.0:
+			continue
+		m._prop("fence_c", Vector2(x, fy), Vector2(98, 14))
+	_pond(m, Vector2(1800, 1650), 360.0, 82.0, xr)
+	# các điện
+	for hall in Maps.COMPOUND_HALLS:
+		var f: Vector2 = hall["foot"]
+		var path := "res://assets/props/%s.png" % hall["prop"]
+		if not ResourceLoader.exists(path):
+			continue
+		var tex: Texture2D = load(path)
+		var sc: float = float(hall.get("sc", 1.3))
+		var bw: float = tex.get_width() * sc * 0.82
+		var s: Sprite2D = m._prop(str(hall["prop"]), f, Vector2(bw, 70.0), sc)
+		_recolor(s, roof)
+		m.atmo.add_light(f + Vector2(0, -60), Color(1.0, 0.82, 0.55), 2.2, 0.6)
+		var l := Label.new()
+		l.text = str(hall["name"])
+		l.add_theme_font_size_override("font_size", 22)
+		l.add_theme_color_override("font_color", Color(1.0, 0.9, 0.55))
+		l.add_theme_color_override("font_outline_color", Color.BLACK)
+		l.add_theme_constant_override("outline_size", 6)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.custom_minimum_size = Vector2(300, 0)
+		l.position = f + Vector2(-150, -tex.get_height() * sc - 34.0)
+		l.z_index = 150
+		m.world.add_child(l)
+	# công trình đặc trưng của tông địch (lò rèn, tháp băng, chòi độc, đàn tế)
+	var sig_path := "res://assets/props/sig_%s.png" % sid
+	if sid != SectWar.PLAYER and ResourceLoader.exists(sig_path):
+		var st: Texture2D = load(sig_path)
+		for sp in [Vector2(1290, 1700), Vector2(2310, 1700)]:
+			m._prop("sig_" + sid, sp, Vector2(st.get_width() * 1.2, 60.0), 1.5)
+			m.atmo.add_light(sp + Vector2(0, -90), col, 2.0, 0.7)
+	# đình, đèn lồng dọc trục chính, cờ hiệu tông
+	for pp in [Vector2(520, 1620), Vector2(3080, 1620)]:
+		if ResourceLoader.exists("res://assets/props/pavilion.png"):
+			var pv: Sprite2D = m._prop("pavilion", pp, Vector2(150, 40), 1.4)
+			_recolor(pv, roof)
+	var yy := 2350.0
+	while yy > 1150.0:
+		for sx in [-140.0, 140.0]:
+			var lp := Vector2(1800.0 + sx, yy)
+			if absf(yy - 1650.0) < 130.0:
+				continue
+			m._prop("lantern", lp, Vector2(14, 8))
+			m.atmo.add_light(lp + Vector2(0, -80), Color(1.0, 0.8, 0.5), 1.3, 0.55)
+		yy -= 200.0
+	for bp in [Vector2(1560, 2290), Vector2(2040, 2290), Vector2(1560, 1180), Vector2(2040, 1180)]:
+		_banner(m, bp, col)
+	for sx in [-190.0, 190.0]:
+		if ResourceLoader.exists("res://assets/props/stone_lion.png"):
+			m._prop("stone_lion", Maps.COMPOUND_GATE + Vector2(sx, -60.0), Vector2(40, 14), 1.4)
+	# cây cối / cảnh theo chủ đề của tông, né các điện, ao và đường
+	var plazas: Array = [[Vector2(1800, 2200), 560.0, 200.0], [Vector2(1800, 1100), 520.0, 220.0]]
+	for hall in Maps.COMPOUND_HALLS:
+		plazas.append([(hall["foot"] as Vector2) + Vector2(0, 40), 250.0, 110.0])
+	var clear := func(p: Vector2) -> bool:
+		if p.x < 140.0 or p.y < 260.0 or p.x > 3460.0 or p.y > 2640.0:
+			return false
+		for r in rects:
+			if (r as Rect2).has_point(p):
+				return false
+		if Rect2(1380, 1500, 840, 300).has_point(p) or _path_dist(p, lines) < 100.0 or p.distance_to(Maps.COMPOUND_GATE) < 300.0:
+			return false
+		for e in plazas:   # sân lát đá và sân trước từng điện: không mọc cây
+			if Vector2((p.x - e[0].x) / (float(e[1]) + 40.0), (p.y - e[0].y) / (float(e[2]) + 40.0)).length() < 1.0:
+				return false
+		return not m._is_blocked(Rect2(p.x - 50, p.y - 40, 100, 50))
+	_place_theme_props(m, d, xr, str(h["theme"]), Vector2(1800, 1450), 1700.0, 1250.0, lines, 5.0, clear)
+	if sid == SectWar.PLAYER:
+		_compound_npcs(m)
+	else:
+		_compound_hostiles(m, sid)
+
+
+## Chức năng từng điện của Kiếm Tông: mỗi điện có một người phụ trách (hoặc vật thể) ở cửa.
+static func _compound_npcs(m: Node) -> void:
+	var halls := {}
+	for hall in Maps.COMPOUND_HALLS:
+		halls[hall["id"]] = hall["foot"]
+	var door := func(id: String, off := Vector2(0, 70)) -> Vector2: return (halls[id] as Vector2) + off
+	m._spawn_npc("sect_head", "Chưởng môn Thanh Huyền", {"hair": "hair_long_silver", "clothes": "tien_bao_bach_van", "shoes": "shoes_boot_black"}, door.call("main", Vector2(0, 60)))
+	m._spawn_npc("sect_keeper", "Chấp sự Mộ Dung", {"hair": "hair_ponytail_black", "clothes": "outfit_thanh", "shoes": "shoes_boot_black"}, door.call("treasure"))
+	m._spawn_npc("scripture_elder", "Trưởng lão Tàng Kinh", {"hair": "hair_long_silver", "clothes": "outfit_xam", "shoes": "shoes_cloth_white"}, door.call("library"))
+	m._spawn_npc("war_elder", "Trưởng lão Chiến Sự", {"hair": "hair_topknot_silver", "clothes": "outfit_do", "shoes": "shoes_boot_black", "sword": "sword_black"}, door.call("war"))
+	m._spawn_npc("array_master", "Trận pháp sư Vân Cơ", {"hair": "hair_ponytail_black", "clothes": "outfit_tim", "shoes": "shoes_boot_black", "head": "head_pin_jade"}, door.call("array"))
+	m._spawn_npc("tailor", "Y quán chủ Tô Nương", {"hair": "hair_ponytail_brown", "clothes": "outfit_lam", "dye": "dye_green", "shoes": "shoes_boot_black"}, door.call("tailor"))
+	# lò luyện đan cạnh Luyện Đan Phòng
+	var fu := Furnace.new()
+	fu.position = door.call("alchemy", Vector2(190, 60))
+	m.world.add_child(fu)
+	m.furnace = fu
+	m.blockers.append(Rect2(fu.position.x - 24, fu.position.y - 16, 48, 18))
+	# bù nhìn ở Diễn Võ Đường
+	for off in [Vector2(-250, 100), Vector2(-130, 150), Vector2(0, 175), Vector2(130, 150), Vector2(250, 100)]:
+		var dm: TrainingDummy = preload("res://scripts/dummy.gd").new()
+		dm.position = (halls["training"] as Vector2) + off
+		m.world.add_child(dm)
+		m.blockers.append(Rect2(dm.position.x - 18, dm.position.y - 14, 36, 16))
+		dm.got_hit.connect(m._on_dummy_hit)
+
+
+## Tông địch: tông chủ ngồi ở chính điện, trưởng lão và đệ tử canh các điện.
+static func _compound_hostiles(m: Node, sid: String) -> void:
+	var halls := {}
+	for hall in Maps.COMPOUND_HALLS:
+		halls[hall["id"]] = hall["foot"]
+	spawn_one(m, sid, "sect_master", (halls["main"] as Vector2) + Vector2(0, 90))
+	for id in ["library", "war", "treasure", "alchemy"]:
+		spawn_one(m, sid, "sect_elder", (halls[id] as Vector2) + Vector2(0, 110))
+	for id in ["main", "library", "war", "treasure", "alchemy", "training", "array", "meditation", "tailor"]:
+		var f: Vector2 = halls[id]
+		for off in [Vector2(-130, 120), Vector2(130, 120)]:
+			if id == "training" or id == "array":
+				if off.x < 0.0:
+					continue   # hai điện ngoài cùng gần cổng: chỉ một lính, để người chơi có chỗ lùi
+			var p: Vector2 = f + off
+			if m._is_blocked(Rect2(p.x - 30, p.y - 30, 60, 50)):
+				continue
+			spawn_one(m, sid, "sect_disciple", p)
 
 
 # ---------------------------------------------------------------- vật thể
@@ -665,9 +908,21 @@ static func _props(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void:
 
 
 ## Cổng dịch chuyển: chỉ là một điểm sáng tròn nhỏ trên nền (đi vào là chuyển map).
-static func gate_visual(m: Node, g: Dictionary) -> void:
+static func gate_visual(m: Node, g: Dictionary, labeled := false) -> void:
 	var pos: Vector2 = g["pos"]
 	var tint: Color = g.get("tint", Color(0.7, 0.9, 1.0))
+	if labeled:
+		var l := Label.new()
+		l.text = str(g["label"])
+		l.add_theme_font_size_override("font_size", 22)
+		l.add_theme_color_override("font_color", tint.lerp(Color.WHITE, 0.5))
+		l.add_theme_color_override("font_outline_color", Color.BLACK)
+		l.add_theme_constant_override("outline_size", 6)
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		l.custom_minimum_size = Vector2(240, 0)
+		l.position = pos + Vector2(-120, -62)
+		l.z_index = 150
+		m.world.add_child(l)
 	var glow := GateGlow.new()
 	glow.tint = tint
 	glow.position = pos

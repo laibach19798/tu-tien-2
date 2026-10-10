@@ -20,7 +20,7 @@ const OVERWORLD_GATES := [
 #  path: các đường mòn [[điểm...]], path_w; props: [{n, count, block, sc, tint, margin}], border: {names, step, rows, block},
 #  groups: [[loại quái, tâm, số con]], qi: linh mạch, herbs: số linh thảo, safe: [[tâm, bán kính]],
 #  gates: cổng ra, areas: tên vùng cho bản đồ nhỏ, mm: màu nền bản đồ nhỏ.
-const DEFS := {
+const BASE_DEFS := {
 	"soi_linh": {
 		"name": "Sói Lĩnh", "size": Vector2(2560, 1792), "music": "forest", "surface": "grass",
 		"entry": Vector2(250, 900),
@@ -163,6 +163,71 @@ const DEFS := {
 		"mm": Color(0.40, 0.58, 0.34),
 	},
 }
+
+
+# Tông môn: mỗi tông là một map riêng ("sect_<id>", dựng từ khuôn dưới đây), vào bằng cổng duy nhất ở căn cứ tông trong Tiểu Thế Giới.
+const COMPOUND_SIZE := Vector2(3600, 2800)
+const COMPOUND_ENTRY := Vector2(1800, 2420)
+const COMPOUND_GATE := Vector2(1800, 2700)
+# Các điện: foot = chân tòa nhà (giữa-đáy), cửa ở foot + (0, 55). Chức năng của từng điện xem MapBuilder._compound_npcs.
+const COMPOUND_HALLS := [
+	{"id": "main", "name": "Chưởng Môn Điện", "prop": "hall_main", "foot": Vector2(1800, 980), "sc": 1.9, "block": Vector2(320, 70)},
+	{"id": "library", "name": "Tàng Kinh Các", "prop": "hall_library", "foot": Vector2(1000, 1380), "sc": 1.3, "block": Vector2(170, 60)},
+	{"id": "war", "name": "Chiến Sự Đường", "prop": "hall_war", "foot": Vector2(2600, 1380), "sc": 1.3, "block": Vector2(240, 60)},
+	{"id": "treasure", "name": "Tàng Bảo Các", "prop": "hall_treasure", "foot": Vector2(1000, 1960), "sc": 1.4, "block": Vector2(200, 60)},
+	{"id": "alchemy", "name": "Luyện Đan Phòng", "prop": "hall_alchemy", "foot": Vector2(2600, 1960), "sc": 1.45, "block": Vector2(250, 60)},
+	{"id": "training", "name": "Diễn Võ Đường", "prop": "hall_training", "foot": Vector2(880, 2480), "sc": 1.3, "block": Vector2(290, 50)},
+	{"id": "array", "name": "Trận Pháp Đường", "prop": "hall_array", "foot": Vector2(2720, 2480), "sc": 1.4, "block": Vector2(230, 60)},
+	{"id": "meditation", "name": "Linh Tuyền Thiền Viện", "prop": "hall_meditation", "foot": Vector2(520, 720), "sc": 1.45, "block": Vector2(250, 60)},
+	{"id": "tailor", "name": "Tàng Y Các", "prop": "hall_tailor", "foot": Vector2(3080, 720), "sc": 1.45, "block": Vector2(200, 60)},
+]
+
+# màu dự phòng khi thiếu ảnh nền theo chủ đề
+const THEME_COLORS := {
+	"meadow": [Color(0.42, 0.62, 0.36), Color(0.55, 0.62, 0.34), Color(0.78, 0.66, 0.46), Color(0.52, 0.55, 0.52)],
+	"lava": [Color(0.18, 0.14, 0.14), Color(0.45, 0.2, 0.1), Color(0.45, 0.28, 0.2), Color(0.25, 0.22, 0.22)],
+	"snow": [Color(0.86, 0.9, 0.95), Color(0.70, 0.82, 0.92), Color(0.70, 0.64, 0.58), Color(0.55, 0.6, 0.68)],
+	"swamp": [Color(0.24, 0.34, 0.22), Color(0.20, 0.38, 0.30), Color(0.40, 0.32, 0.22), Color(0.30, 0.36, 0.28)],
+	"cave": [Color(0.20, 0.19, 0.27), Color(0.18, 0.28, 0.36), Color(0.34, 0.30, 0.32), Color(0.26, 0.26, 0.30)],
+}
+
+static var DEFS: Dictionary = _make_defs()
+
+
+static func _make_defs() -> Dictionary:
+	var out: Dictionary = BASE_DEFS.duplicate()
+	for sid in SectWar.SECTS:
+		out["sect_" + str(sid)] = _sect_def(str(sid))
+	return out
+
+
+static func _sect_def(sid: String) -> Dictionary:
+	var h: Dictionary = SectWar.SECTS[sid]
+	var tc: Array = THEME_COLORS[h["theme"]]
+	var areas: Array = [[COMPOUND_GATE, 260.0, "Sơn môn"]]
+	var paths: Array = [[COMPOUND_GATE, Vector2(1800, 2300), Vector2(1800, 1020)]]
+	for hall in COMPOUND_HALLS:
+		areas.append([hall["foot"], 240.0, hall["name"]])
+		if hall["id"] == "main":
+			continue
+		var door: Vector2 = (hall["foot"] as Vector2) + Vector2(0, 60)
+		var spine_y: float = door.y - 150.0
+		paths.append([Vector2(1800, spine_y), Vector2(door.x, spine_y), door])
+	var player := sid == SectWar.PLAYER
+	return {
+		"name": h["name"], "sect": sid, "size": COMPOUND_SIZE, "music": "cave" if h["theme"] == "cave" else "sect", "surface": "stone",
+		"entry": COMPOUND_ENTRY,
+		"ground": tc[0], "ground2": tc[1], "path_col": tc[2], "rock_col": tc[3],
+		"tiles": h["theme"], "path_theme": "cobble", "path_row": h["pave"],
+		"path": paths, "path_w": 120.0,
+		"props": [], "groups": [], "herbs": 12 if player else 0,
+		"qi": [{"pos": Vector2(520, 800), "r": 300.0, "density": 6.0, "heal": true}] if player else [{"pos": Vector2(520, 800), "r": 260.0, "density": 3.0}],
+		"safe": [[Vector2(1800, 1400), 2300.0]] if player else [],
+		"border": {"names": ["tree_big", "tree_a", "tree_b", "tree_c"], "step": 150, "rows": 2, "block": Vector2(44, 30)},
+		"gates": [{"pos": COMPOUND_GATE, "to": "tieu_gioi", "to_pos": (h["hq"] as Vector2) + Vector2(0, 140), "label": "Rời %s" % h["name"], "tint": h["color"]}],
+		"areas": areas,
+		"mm": (tc[0] as Color).lerp(Color(0.3, 0.3, 0.35), 0.2),
+	}
 
 
 static func exists(id: String) -> bool:

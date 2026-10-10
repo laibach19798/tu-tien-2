@@ -98,11 +98,11 @@ const QUESTS := [
 	},
 	{
 		"id": "q8", "title": "Tiến vào Kiếm Tông", "giver": "swordmaster", "turn_in": "sect_head", "free": true, "after": "q5",
-		"desc": "Vào Tiểu Thế Giới qua cổng ở sân Kiếm Tông (thung lũng phía nam, đi theo đường nam của quảng trường) và gặp Chưởng môn",
+		"desc": "Vào Tiểu Thế Giới qua cổng ở sân Kiếm Tông (thung lũng phía nam), rồi vào cổng Kiếm Tông ở góc tây nam để gặp Chưởng môn trong Chưởng Môn Điện",
 		"obj": {"type": "visit", "area": "sect", "target": 1},
 		"intro": [
 			"Ngươi đã ra dáng người luyện kiếm. Đã đến lúc nhìn thấy Kiếm Tông thật sự.",
-			"Theo con đường phía nam quảng trường, qua cổng núi là tới thung lũng của tông môn. Cuối sân có cổng dẫn vào Tiểu Thế Giới, nơi Kiếm Tông đang tranh địa bàn với bốn tông khác. Chưởng môn Thanh Huyền đang chờ ở đó.",
+			"Theo con đường phía nam quảng trường, qua cổng núi là tới thung lũng của tông môn. Cuối sân có cổng dẫn vào Tiểu Thế Giới, nơi Kiếm Tông đang tranh địa bàn với bốn tông khác. Ở góc tây nam Tiểu Thế Giới có cổng vào tông môn của ta, Chưởng môn Thanh Huyền đang chờ trong Chưởng Môn Điện.",
 			"Sói hoang ở Sói Lĩnh, ngoài làng. Nhớ mang đan dược hồi huyết theo.",
 		],
 		"remind": "Cứ đi thẳng đường nam của quảng trường, qua cổng núi tới sân Kiếm Tông rồi bước vào điểm sáng ở cuối sân để vào Tiểu Thế Giới.",
@@ -197,20 +197,20 @@ const QUESTS := [
 		"reward": {"stones": 150, "merit": 70},
 	},
 	{
-		"id": "q16", "title": "Mở rộng địa bàn", "giver": "sect_head", "turn_in": "sect_head", "free": true, "after": "q8",
+		"id": "q16", "title": "Mở rộng địa bàn", "giver": "war_elder", "turn_in": "war_elder", "free": true, "after": "q8",
 		"desc": "Chiếm thêm địa bàn trong Tiểu Thế Giới để Kiếm Tông giữ tổng cộng 4 địa bàn (hạ lính canh rồi cắm cờ)",
 		"obj": {"type": "territory", "target": 4},
 		"intro": [
 			"Tiểu Thế Giới là nơi năm tông tranh giành địa bàn. Mỗi địa bàn đều nộp cống phẩm đều đặn cho tông đang giữ.",
 			"Kiếm Tông hiện chỉ có hai nơi. Hãy chiếm thêm: hạ lính canh của tông địch hoặc yêu thú ở địa bàn vô chủ, rồi cắm cờ tại cột cờ giữa địa bàn.",
-			"Nhớ rằng địch cũng sẽ tập kích ta. Nghe tin báo thì về giữ, kẻo mất địa bàn.",
+			"Nhớ rằng địch cũng sẽ tập kích ta. Chiến Sự Đường trong tông môn có Trưởng lão Chiến Sự theo dõi chiến cuộc; muốn đi nhanh tới địa bàn đã chiếm thì nhờ Trận pháp sư. Nghe tin báo thì về giữ, kẻo mất địa bàn.",
 		],
 		"remind": "Chiếm đủ bốn địa bàn: hạ hết lính canh rồi nhấn E ở cột cờ. Nhấn G để xem thế cục chiến sự.",
 		"ready": ["Bốn địa bàn! Kiếm Tông đang mạnh lên thấy rõ. Đây là thưởng của tông môn."],
 		"reward": {"stones": 300, "merit": 120, "items": {"dan_ho_the": 2}},
 	},
 	{
-		"id": "q17", "title": "Thế chân vạc", "giver": "sect_head", "turn_in": "sect_head", "free": true, "after": "q16",
+		"id": "q17", "title": "Thế chân vạc", "giver": "war_elder", "turn_in": "war_elder", "free": true, "after": "q16",
 		"desc": "Đưa Kiếm Tông lên giữ 6 địa bàn trong Tiểu Thế Giới",
 		"obj": {"type": "territory", "target": 6},
 		"intro": [
@@ -386,7 +386,7 @@ func _find(id: String) -> Dictionary:
 
 
 static func npc_name(id: String) -> String:
-	return {"elder": "Trưởng lão Vân Hạc", "merchant": "Thương nhân Lý Tam", "swordmaster": "Kiếm sư Lăng Tiêu", "sect_head": "Chưởng môn Thanh Huyền", "hermit": "Ẩn sĩ Mặc Thạch", "sect_keeper": "Chấp sự Mộ Dung"}.get(id, id)
+	return {"elder": "Trưởng lão Vân Hạc", "merchant": "Thương nhân Lý Tam", "swordmaster": "Kiếm sư Lăng Tiêu", "sect_head": "Chưởng môn Thanh Huyền", "hermit": "Ẩn sĩ Mặc Thạch", "sect_keeper": "Chấp sự Mộ Dung", "war_elder": "Trưởng lão Chiến Sự", "scripture_elder": "Trưởng lão Tàng Kinh", "array_master": "Trận pháp sư Vân Cơ"}.get(id, id)
 
 
 func tracker_text() -> String:
