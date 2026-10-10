@@ -45,7 +45,7 @@ const SETS := {
 		"bonus": {2: {"xp": 0.08}, 3: {"xp": 0.15, "hp": 0.08}, 5: {"xp": 0.30, "hp": 0.12, "speed": 0.04}},
 	},
 }
-const REGION_NAMES := {"cave": "Hang Linh Mạch"}
+const REGION_NAMES := {"linh_mach_dong": "Linh Mạch Động"}
 # mốc số trang phục đã sưu tầm -> danh hiệu (danh hiệu theo bộ: SETS[...]["title"])
 const MILESTONES := [[15, "Người Mê Y Phục"], [30, "Chủ Nhân Y Quán"], [50, "Thiên Y Vô Phùng"]]
 const BONUS_LABELS := {"dmg": "sát thương", "xp": "tu vi nhận được", "hp": "khí huyết", "speed": "tốc độ"}
@@ -116,11 +116,11 @@ const ITEMS := {
 	"head_band_wolf": {"slot": "head", "name": "Khăn trán Lang Vương", "drop": {"mob": "wolf_king", "chance": 0.3}, "gear": "band", "col": Color(0.5, 0.08, 0.1), "col2": Color(0.95, 0.93, 0.85), "tint": Color(0.5, 0.08, 0.1), "price": 0, "desc": "Khăn đỏ sẫm cài nanh sói, đuôi khăn phần phật như bờm sói."},
 	"sword_wolf": {"slot": "sword", "name": "Huyết Lang kiếm", "drop": {"mob": "wolf_king", "chance": 0.2}, "scabbard": Color(0.35, 0.08, 0.10), "edge": Color(0.7, 0.2, 0.2), "metal": Color(0.95, 0.9, 0.8), "hilt": Color(0.2, 0.05, 0.07), "glow": Color(1.0, 0.25, 0.2), "tint": Color(0.35, 0.08, 0.10), "price": 0, "desc": "Vỏ kiếm đỏ máu, sát khí của Hắc Lang Vương còn vương lại."},
 	# --- Bộ Linh Mạch: chỉ rơi từ yêu tướng canh Hang Linh Mạch ---
-	"outfit_linh_mach": {"slot": "clothes", "name": "Áo Linh Mạch", "drop": {"mob": "goblin_elite", "chance": 0.07, "region": "cave"}, "style": "linhmach", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Áo xanh lam thấm linh khí của mạch ngầm, lấp lánh như tinh thạch."},
-	"head_pin_crystal": {"slot": "head", "name": "Trâm tinh thạch", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "cave"}, "gear": "pin", "col": Color(0.45, 0.85, 1.0), "col2": Color(0.9, 0.97, 1.0), "tint": Color(0.45, 0.85, 1.0), "price": 0, "desc": "Trâm cài tóc mài từ tinh thạch trong hang, toả ánh xanh nhạt."},
-	"waist_crystal": {"slot": "waist", "name": "Linh tinh bội", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "cave"}, "kind": "jade", "col": Color(0.4, 0.85, 1.0), "col2": Color(0.85, 0.95, 1.0), "tint": Color(0.4, 0.85, 1.0), "price": 0, "desc": "Bội tinh thạch xanh băng, tua bạc khẽ sáng trong bóng tối."},
-	"shoes_boot_crystal": {"slot": "shoes", "name": "Hài tinh thạch", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "cave"}, "style": "boot", "tint": Color(0.35, 0.65, 0.85), "price": 0, "desc": "Hài cao cổ khảm mảnh tinh thạch, bước nhẹ như lướt trên linh mạch."},
-	"sword_crystal": {"slot": "sword", "name": "Tinh Thạch kiếm", "drop": {"mob": "goblin_elite", "chance": 0.06, "region": "cave"}, "scabbard": Color(0.2, 0.45, 0.65), "edge": Color(0.7, 0.95, 1.0), "metal": Color(0.9, 0.98, 1.0), "hilt": Color(0.12, 0.3, 0.45), "glow": Color(0.4, 0.85, 1.0), "tint": Color(0.2, 0.45, 0.65), "price": 0, "desc": "Vỏ kiếm xanh thẫm toả linh quang, rèn từ lõi tinh thạch của hang."},
+	"outfit_linh_mach": {"slot": "clothes", "name": "Áo Linh Mạch", "drop": {"mob": "goblin_elite", "chance": 0.07, "region": "linh_mach_dong"}, "style": "linhmach", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Áo xanh lam thấm linh khí của mạch ngầm, lấp lánh như tinh thạch."},
+	"head_pin_crystal": {"slot": "head", "name": "Trâm tinh thạch", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "linh_mach_dong"}, "gear": "pin", "col": Color(0.45, 0.85, 1.0), "col2": Color(0.9, 0.97, 1.0), "tint": Color(0.45, 0.85, 1.0), "price": 0, "desc": "Trâm cài tóc mài từ tinh thạch trong hang, toả ánh xanh nhạt."},
+	"waist_crystal": {"slot": "waist", "name": "Linh tinh bội", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "linh_mach_dong"}, "kind": "jade", "col": Color(0.4, 0.85, 1.0), "col2": Color(0.85, 0.95, 1.0), "tint": Color(0.4, 0.85, 1.0), "price": 0, "desc": "Bội tinh thạch xanh băng, tua bạc khẽ sáng trong bóng tối."},
+	"shoes_boot_crystal": {"slot": "shoes", "name": "Hài tinh thạch", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "linh_mach_dong"}, "style": "boot", "tint": Color(0.35, 0.65, 0.85), "price": 0, "desc": "Hài cao cổ khảm mảnh tinh thạch, bước nhẹ như lướt trên linh mạch."},
+	"sword_crystal": {"slot": "sword", "name": "Tinh Thạch kiếm", "drop": {"mob": "goblin_elite", "chance": 0.06, "region": "linh_mach_dong"}, "scabbard": Color(0.2, 0.45, 0.65), "edge": Color(0.7, 0.95, 1.0), "metal": Color(0.9, 0.98, 1.0), "hilt": Color(0.12, 0.3, 0.45), "glow": Color(0.4, 0.85, 1.0), "tint": Color(0.2, 0.45, 0.65), "price": 0, "desc": "Vỏ kiếm xanh thẫm toả linh quang, rèn từ lõi tinh thạch của hang."},
 }
 
 const STARTER := {"hair": "hair_topknot_black", "clothes": "outfit_plain", "shoes": "shoes_cloth_brown"}

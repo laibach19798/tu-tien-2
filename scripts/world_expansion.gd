@@ -19,16 +19,6 @@ const NEW_QI_ZONES := [
 	{"pos": Vector2(1530, 2610), "r": 130.0, "density": 3.0},   # góc sân Kiếm Tông
 ]
 
-const NEW_MONSTER_GROUPS := [
-	["wolf", Vector2(420, 2330), 3],
-	["wolf_dark", Vector2(3300, 430), 3],
-	["wolf_dark", Vector2(3650, 1150), 3],
-	["goblin_elite", Vector2(3050, 1420), 2],
-	["wolf_king", Vector2(3650, 580), 1],
-	["goblin_elite", Vector2(3470, 2390), 4],
-]
-
-
 static func has_prop(n: String) -> bool:
 	return ResourceLoader.exists("res://assets/props/%s.png" % n)
 

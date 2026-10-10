@@ -21,6 +21,8 @@ const FLOWERS := [7, 9, 10, 13, 21, 23, 27]
 const CELL := 4   # kích thước 1 "pixel" của ảnh đường (px thế giới)
 const CENTER := Vector2(1280, 900)
 const PLAZA_R := 175.0
+# sân đá cát nhỏ: [tâm, rx, ry] (sân luyện kiếm, khu chợ, tiệm may)
+const STONE_PADS := [[Vector2(1050, 1235), 175.0, 95.0], [Vector2(1620, 1165), 135.0, 75.0], [Vector2(865, 1100), 115.0, 60.0]]
 const ROAD_W := 96.0
 const LANE_W := 56.0
 
@@ -39,6 +41,20 @@ var occluders: Array = []      # vật thể cao: mờ đi khi nhân vật đứ
 var _med_light: PointLight2D
 const FLAT_PROPS := ["field_a", "field_b", "lily", "water", "bridge"]
 var pond_zone := Rect2()
+var _ground_img: Image
+var _ground_sprite: Sprite2D
+var map_size := WORLD            # kích thước map đang chơi (thế giới gốc = WORLD)
+var current_map := "overworld"   # "overworld" hoặc id trong Maps.DEFS
+var map_def: Dictionary = {}     # định nghĩa map phụ đang chơi ({} khi ở thế giới gốc)
+var gates: Array = []            # cổng dịch chuyển của map hiện tại: {pos, to, to_pos, label}
+var qi_zones: Array = []         # linh mạch của map hiện tại
+var traveling := false
+var _travel_lock := 0.0
+var _ow := {}                    # trạng thái thế giới gốc khi đang ở map phụ
+var _map_root: Node2D
+var _fade: ColorRect
+var _pending_map := "overworld"
+var _pending_pos := Vector2.ZERO
 var road_mask := PackedByteArray()
 var road_gw := 0
 var _lantern_spots: Array[Vector2] = []
@@ -59,9 +75,12 @@ func _ready() -> void:
 	add_child(world)
 	fx_layer = Node2D.new()   # hiệu ứng skill: vẽ phía trên vật thể
 	add_child(fx_layer)
+	qi_zones = QI_ZONES.duplicate()
+	_build_fade()
 	_build_ground()
 	_build_roads()
 	_build_pond()
+	_build_overworld_gates()
 	_scatter_decor()
 	_build_village()
 	_build_forest()
@@ -69,6 +88,8 @@ func _ready() -> void:
 	_spawn_player()
 	_build_hud()
 	_build_gameplay()
+	if _pending_map != "overworld":
+		switch_map_now(_pending_map, _pending_pos)
 
 
 func _tex(path: String) -> Texture2D:
@@ -79,15 +100,18 @@ func _tex(path: String) -> Texture2D:
 
 # ---------------------------------------------------------------- nền cỏ
 func _build_ground() -> void:
-	var base := ColorRect.new()
-	base.color = GRASS_COLOR
-	base.size = WORLD
-	layer_ground.add_child(base)
-	# Mảng cỏ đậm/nhạt nhẹ để nền không phẳng
+	# Nền cỏ dựng từ ảnh Pixellab (ảnh được gắn vào sprite sau khi vẽ xong đường, xem _paint_roads)
+	_ground_sprite = Sprite2D.new()
+	_ground_sprite.centered = false
+	layer_ground.add_child(_ground_sprite)
+	var gr := RandomNumberGenerator.new()
+	gr.seed = 20260101
+	_ground_img = MapBuilder.village_ground(WORLD, gr)
+	# Mảng cỏ đậm/nhạt rất nhẹ để nền không phẳng
 	for i in 70:
 		var c := Vector2(rng.randf_range(0, VILLAGE.x), rng.randf_range(0, VILLAGE.y))
 		var r := rng.randf_range(90, 260)
-		var shade := Color(0.25, 0.5, 0.3, 0.18) if i % 2 == 0 else Color(0.62, 0.8, 0.45, 0.14)
+		var shade := Color(0.2, 0.4, 0.3, 0.09) if i % 2 == 0 else Color(0.8, 0.9, 0.5, 0.06)
 		layer_ground.add_child(_blob(c, r, r * rng.randf_range(0.55, 0.85), shade))
 
 
@@ -128,8 +152,7 @@ func _road(pts: Array, w: float) -> void:
 	path_lines.append({"pts": _smooth(pts, 0.0), "w": w})
 
 
-## Vẽ cả mạng đường vào MỘT ảnh pixel (mỗi ô CELL px): ruột đường, viền đất sẫm,
-## mép gồ ghề và cỏ lấn ra ở rìa -> không bị viền chồng nhau giữa các đoạn.
+## Tính mặt nạ đường (cho bản đồ nhỏ) rồi vẽ mạng đường lên ảnh nền bằng mảng dán đất mềm.
 func _paint_roads() -> void:
 	var gw := int(WORLD.x) / CELL
 	var gh := int(WORLD.y) / CELL
@@ -163,44 +186,12 @@ func _paint_roads() -> void:
 				for x in range(maxi(0, int(c.x) - ri), mini(gw, int(c.x) + ri + 1)):
 					if Vector2(x - c.x, y - c.y).length() < r + nz[y * gw + x] * 2.2:
 						mask[y * gw + x] = 1
-	var data := PackedByteArray()
-	data.resize(gw * gh * 4)
-	var fill_a := PATH_FILL
-	var fill_b := PATH_FILL.darkened(0.06)
-	var grass_dark := Color(0.30, 0.53, 0.33)
-	var grass_light := Color(0.52, 0.76, 0.46)
-	for y in gh:
-		for x in gw:
-			var i := y * gw + x
-			var col := Color(0, 0, 0, 0)
-			var h := float(((x * 73856093) ^ (y * 19349663)) & 255) / 255.0
-			if mask[i] == 1:
-				var rim := _cell(mask, gw, gh, x - 1, y) == 0 or _cell(mask, gw, gh, x + 1, y) == 0 \
-					or _cell(mask, gw, gh, x, y - 1) == 0 or _cell(mask, gw, gh, x, y + 1) == 0
-				col = PATH_EDGE if rim else (fill_b if nz[i] > 0.25 and h > 0.5 else fill_a)
-				if not rim and h < 0.025:
-					col = PATH_PEBBLE
-			else:
-				var near1 := _cell(mask, gw, gh, x - 1, y) == 1 or _cell(mask, gw, gh, x + 1, y) == 1 \
-					or _cell(mask, gw, gh, x, y - 1) == 1 or _cell(mask, gw, gh, x, y + 1) == 1
-				if near1:
-					if h < 0.7:
-						col = grass_dark
-				else:
-					var near2 := _cell(mask, gw, gh, x - 2, y) == 1 or _cell(mask, gw, gh, x + 2, y) == 1 \
-						or _cell(mask, gw, gh, x, y - 2) == 1 or _cell(mask, gw, gh, x, y + 2) == 1
-					if near2 and h < 0.3:
-						col = grass_light
-			data[i * 4] = int(col.r * 255.0)
-			data[i * 4 + 1] = int(col.g * 255.0)
-			data[i * 4 + 2] = int(col.b * 255.0)
-			data[i * 4 + 3] = int(col.a * 255.0)
-	var img := Image.create_from_data(gw, gh, false, Image.FORMAT_RGBA8, data)
-	var s := Sprite2D.new()
-	s.texture = ImageTexture.create_from_image(img)
-	s.centered = false
-	s.scale = Vector2.ONE * CELL
-	layer_ground.add_child(s)
+	var gr := RandomNumberGenerator.new()
+	gr.seed = 777
+	MapBuilder.paint_roads(_ground_img, path_lines, PLAZA_R, gr)
+	MapBuilder.paint_stone(_ground_img, path_lines, Rect2(Vector2.ZERO, VILLAGE), CENTER, PLAZA_R, STONE_PADS, gr)
+	_ground_sprite.texture = ImageTexture.create_from_image(_ground_img)
+	_ground_img = null
 	road_mask = mask
 	road_gw = gw
 
@@ -633,15 +624,13 @@ func _build_hud() -> void:
 	atmo.attach(camera)
 	aura.scale = Vector2.ONE * 2.0   # aura.gd vẽ theo tỉ lệ nhân vật 32px
 	_med_light = atmo.add_light(Vector2(0, -16), Color(0.6, 0.9, 1.0), 1.2, 0.0, "manual", player)
-	# Vầng sáng linh mạch trên nền (+ phát sáng về đêm)
-	for z in QI_ZONES:
-		atmo.add_light(z.pos, Color(0.5, 0.9, 1.0), z.r / 128.0 * 1.3, 0.8)
 	_build_qi_zones()
 
 
 ## Mỗi linh mạch: quầng sáng + đốm sáng trên nền, và tia sáng/sương/hạt linh khí phía trên.
 func _build_qi_zones() -> void:
-	for z in QI_ZONES:
+	for z in qi_zones:
+		atmo.add_light(z.pos, Color(0.5, 0.9, 1.0), z.r / 128.0 * 1.3, 0.8)   # vầng sáng linh mạch (+ phát sáng về đêm)
 		var g: Node2D = preload("res://scripts/qi_zone.gd").new()
 		g.setup("ground", z.r)
 		g.position = z.pos
@@ -649,7 +638,7 @@ func _build_qi_zones() -> void:
 		var f: Node2D = preload("res://scripts/qi_zone.gd").new()
 		f.setup("fx", z.r)
 		f.position = z.pos
-		add_child(f)   # sau world -> vẽ phía trên vật thể
+		(_map_root if _map_root != null else self).add_child(f)   # sau world -> vẽ phía trên vật thể
 		_zone_nodes.append({"z": z, "nodes": [g, f]})
 
 
@@ -658,14 +647,14 @@ func _in_zone(p: Vector2, z: Dictionary, grow := 1.0) -> bool:
 
 
 func _density_at(p: Vector2) -> float:
-	for z in QI_ZONES:
+	for z in qi_zones:
 		if _in_zone(p, z):
 			return z.density
 	return 1.0
 
 
 func _ui_blocked() -> bool:
-	return _dead or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
+	return _dead or traveling or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -745,7 +734,7 @@ func _collect_save() -> Dictionary:
 	var d := {
 		"cult": cult.to_dict(), "vitals": vitals.to_dict(), "inv": inv.to_dict(), "quests": quests.to_dict(), "wardrobe": wardrobe.to_dict(),
 		"school": school.to_dict() if school else {},
-		"pos": [player.position.x, player.position.y], "time": atmo.t, "playtime": playtime,
+		"pos": [player.position.x, player.position.y], "map": current_map, "time": atmo.t, "playtime": playtime,
 	}
 	var now := Time.get_datetime_dict_from_system()
 	d["meta"] = {
@@ -821,8 +810,20 @@ func _apply_save(data: Dictionary, runtime: bool) -> void:
 	playtime = float(data.get("playtime", 0.0))
 	atmo.t = float(data.get("time", atmo.t))
 	var p = data.get("pos", null)
+	var want := str(data.get("map", "overworld"))
+	if want != "overworld" and not Maps.exists(want):
+		want = "overworld"
 	if p is Array and p.size() == 2:
-		player.position = Vector2(p[0], p[1])
+		var sp := Vector2(p[0], p[1])
+		if runtime:
+			if want != current_map:
+				switch_map_now(want, sp)
+			else:
+				player.position = sp
+		else:
+			player.position = sp
+			_pending_map = want
+			_pending_pos = sp
 	if school != null:
 		school.from_dict(data.get("school", {}))
 	else:
@@ -889,6 +890,12 @@ func _physics_process(delta: float) -> void:
 			Sfx.step(surface_at(player.position), run)
 	player.set_motion(action, direction)
 	camera.position = player.position
+	_travel_lock = maxf(0.0, _travel_lock - delta)
+	if _travel_lock <= 0.0 and not traveling and not _dead:
+		for g in gates:
+			if player.position.distance_to(g["pos"]) < 56.0:
+				travel_to(str(g["to"]), g["to_pos"])
+				break
 
 
 var sect_shop: CanvasLayer
@@ -898,6 +905,8 @@ var _theme_timer := 0.0
 
 ## Loại mặt đất dưới chân (cho tiếng bước chân): rock = trong hang, stone = sân lát đá, còn lại là cỏ.
 func surface_at(p: Vector2) -> String:
+	if current_map != "overworld":
+		return str(map_def.get("surface", "grass"))
 	if p.distance_to(WorldExpansion.CAVE) < 330.0:
 		return "rock"
 	if p.distance_to(Vector2(1280, 900)) < 330.0 or p.distance_to(WorldExpansion.SECT_C) < 330.0:
@@ -910,6 +919,8 @@ func surface_at(p: Vector2) -> String:
 
 ## Bản nhạc theo khu vực: hang, Kiếm Tông, Hắc Lâm (phía đông), còn lại là làng.
 func music_theme_at(p: Vector2) -> String:
+	if current_map != "overworld":
+		return str(map_def.get("music", "forest"))
 	if p.distance_to(WorldExpansion.CAVE) < 420.0:
 		return "cave"
 	if p.distance_to(WorldExpansion.SECT_C) < 520.0 or p.distance_to(WorldExpansion.SECT_GATE) < 260.0:
@@ -921,7 +932,7 @@ func music_theme_at(p: Vector2) -> String:
 
 func _move_axis(step: Vector2) -> void:
 	var np := player.position + step
-	np = np.clamp(Vector2(20, 20), WORLD - Vector2(20, 10))
+	np = np.clamp(Vector2(20, 20), map_size - Vector2(20, 10))
 	if not _is_blocked(Rect2(np.x - 12, np.y - 8, 24, 10)):
 		player.position = np
 
@@ -992,7 +1003,6 @@ func _build_gameplay() -> void:
 		blockers.append(Rect2(p.x - 18, p.y - 14, 36, 16))
 		d.got_hit.connect(_on_dummy_hit)
 	_spawn_furnace()
-	_spawn_monsters()
 	minimap = Minimap.new()
 	minimap.main = self
 	add_child(minimap)
@@ -1189,7 +1199,7 @@ func _lore(id: String) -> void:
 		dialogue.say("Chưởng môn Thanh Huyền", [
 			"Kiếm Tông không phải nơi dạy ngươi giết chóc, mà dạy ngươi giữ lòng tĩnh khi kiếm trong tay.",
 			"Thung lũng này có linh mạch sau chính điện, thiền ở đó nhanh gấp ba. Bù nhìn trong sân dùng thoải mái để luyện kiếm.",
-			"Phía đông là Hắc Lâm, phía đông nam là Hang Linh Mạch. Cả hai đều nguy hiểm, nhưng cơ duyên cũng ở đó.",
+			"Phía đông là Hắc Lâm, phía đông nam là Hang Linh Mạch. Yêu thú đã rút về những khu cách biệt qua cổng: Sói Lĩnh, Đầm Lầy Độc, Hắc Lang Cốc, Linh Mạch Động. Nguy hiểm nhưng cơ duyên cũng ở đó.",
 		])
 	elif id == "sect_keeper":
 		dialogue.say("Chấp sự Mộ Dung", [
@@ -1206,7 +1216,7 @@ func _lore(id: String) -> void:
 		dialogue.say("Ẩn sĩ Mặc Thạch", [
 			"Rừng này ngày xưa lành lắm. Từ khi Hắc Lang Vương tu thành yêu, đàn sói đổi hẳn tính nết.",
 			"Trại ta có lửa suốt đêm, yêu thú không dám lại gần. Ngươi cứ nghỉ chân thoải mái.",
-			"Muốn tới hang ổ của nó thì đi theo đường lớn về phía đông bắc. Nhớ mang nhiều đan hồi huyết.",
+			"Muốn tới hang ổ của nó thì đi theo đường lớn về phía đông, hết đường là cổng vào Hắc Lang Cốc. Nhớ mang nhiều đan hồi huyết.",
 		])
 	elif id == "tailor":
 		dialogue.say("Thợ may Tô Nương", [
@@ -1223,6 +1233,11 @@ func _lore(id: String) -> void:
 
 # ---------------------------------------------------------------- yêu thú, khí huyết, lò đan
 func is_safe(p: Vector2) -> bool:
+	if current_map != "overworld":
+		for z in map_def.get("safe", []):
+			if p.distance_to(z[0]) < float(z[1]):
+				return true
+		return false
 	if p.distance_to(CENTER) < SAFE_R:
 		return true
 	for z in WorldExpansion.SAFE_ZONES:
@@ -1238,17 +1253,9 @@ func _spawn_furnace() -> void:
 	blockers.append(Rect2(furnace.position.x - 24, furnace.position.y - 16, 48, 18))
 
 
-## Mỗi nhóm: [kind, tâm vùng, số con]. Đều nằm ngoài vùng an toàn quanh quảng trường.
-const MONSTER_GROUPS := [
-	["wolf", Vector2(330, 760), 3],
-	["wolf", Vector2(1450, 1620), 3],
-	["goblin", Vector2(2250, 980), 2],
-	["goblin", Vector2(520, 430), 2],
-] + WorldExpansion.NEW_MONSTER_GROUPS
-
-
-func _spawn_monsters() -> void:
-	for g in MONSTER_GROUPS:
+## Mỗi nhóm: [kind, tâm vùng, số con]. Đều nằm ngoài vùng an toàn.
+func spawn_monster_groups(groups: Array) -> void:
+	for g in groups:
 		var made := 0
 		var tries := 0
 		while made < int(g[2]) and tries < 200:
@@ -1261,6 +1268,22 @@ func _spawn_monsters() -> void:
 			world.add_child(m)
 			monsters.append(m)
 			made += 1
+
+
+## Rải linh thảo trong map phụ.
+func map_herbs(xr: RandomNumberGenerator, n: int) -> void:
+	var made := 0
+	var tries := 0
+	while made < n and tries < n * 40:
+		tries += 1
+		var p := Vector2(xr.randf_range(150, map_size.x - 150), xr.randf_range(300, map_size.y - 120))
+		if is_safe(p) or _is_blocked(Rect2(p.x - 30, p.y - 30, 60, 40)):
+			continue
+		var h: Node2D = preload("res://scripts/herb.gd").new()
+		h.position = p
+		world.add_child(h)
+		herbs.append(h)
+		made += 1
 
 
 func on_monster_killed(m: Monster) -> void:
@@ -1330,6 +1353,8 @@ func _on_player_died() -> void:
 		inv.spend_stones(lost)
 	hud.show_death("TRỌNG THƯƠNG", "Mất %d linh thạch. Được người trong làng đưa về quảng trường..." % lost)
 	await get_tree().create_timer(2.6).timeout
+	if current_map != "overworld":
+		switch_map_now("overworld", CENTER + Vector2(0, 200))
 	player.position = CENTER + Vector2(0, 200)
 	camera.position = player.position
 	for m in monsters:
@@ -1343,12 +1368,15 @@ func _on_player_died() -> void:
 ## Ghi nhận người chơi đã tới các khu vực (cho nhiệm vụ "đến nơi").
 func _check_regions() -> void:
 	var p := player.position
-	if p.distance_to(WorldExpansion.SECT_C) < 300.0:
-		quests.add_visit("sect")
-	if p.distance_to(WorldExpansion.CAVE) < 200.0:
-		quests.add_visit("cave")
-	if p.distance_to(WorldExpansion.CAMP) < 200.0:
-		quests.add_visit("camp")
+	if current_map == "overworld":
+		if p.distance_to(WorldExpansion.SECT_C) < 300.0:
+			quests.add_visit("sect")
+		if p.distance_to(WorldExpansion.CAVE) < 200.0:
+			quests.add_visit("cave")
+		if p.distance_to(WorldExpansion.CAMP) < 200.0:
+			quests.add_visit("camp")
+	else:
+		quests.add_visit("map_" + current_map)
 	var boss: Monster = null
 	for m in monsters:
 		if m.alive and bool(m.kind.get("boss", false)) and m.position.distance_to(p) < 620.0:
@@ -1368,12 +1396,9 @@ func _sync_aura_power() -> void:
 			a.burst()
 	_last_realm = cult.realm
 
-## Vị trí p có thuộc vùng rơi đồ region không (khớp Wardrobe.REGION_NAMES).
-func in_drop_region(p: Vector2, region: String) -> bool:
-	match region:
-		"cave":
-			return p.distance_to(WorldExpansion.CAVE) < 450.0
-	return false
+## Đang ở map region không (khớp Wardrobe.REGION_NAMES).
+func in_drop_region(_p: Vector2, region: String) -> bool:
+	return current_map == region
 
 
 ## Thưởng bộ trang phục: áp lên tu vi, khí huyết, sát thương và tốc độ; báo khi vừa kích hoạt một bộ.
@@ -1404,3 +1429,165 @@ func _grant_quest_outfits() -> void:
 		if quests.states.get(q["id"], "") == "done":
 			for id in Wardrobe.items_unlocked_by(str(q["id"])):
 				wardrobe.grant(id)
+
+
+# ---------------------------------------------------------------- chuyển map
+func _build_fade() -> void:
+	var cl := CanvasLayer.new()
+	cl.layer = 100
+	add_child(cl)
+	_fade = ColorRect.new()
+	_fade.color = Color(0, 0, 0, 0)
+	_fade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_fade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cl.add_child(_fade)
+
+
+func _build_overworld_gates() -> void:
+	gates = []
+	for g in Maps.OVERWORLD_GATES:
+		var gg: Dictionary = (g as Dictionary).duplicate()
+		gg["to_pos"] = Maps.DEFS[gg["to"]]["entry"]
+		gates.append(gg)
+		MapBuilder.gate_visual(self, gg)
+
+
+## Đi qua cổng: màn hình tối dần, đổi map, sáng lại.
+func travel_to(id: String, to_pos: Vector2) -> void:
+	if traveling or id == current_map or (id != "overworld" and not Maps.exists(id)):
+		return
+	traveling = true
+	meditating = false
+	Sfx.play("ui_open")
+	var tw := create_tween()
+	tw.tween_property(_fade, "color:a", 1.0, 0.35)
+	await tw.finished
+	switch_map_now(id, to_pos)
+	if id != "overworld":
+		hud.toast("Đến %s" % Maps.map_name(id))
+	var tw2 := create_tween()
+	tw2.tween_property(_fade, "color:a", 0.0, 0.35)
+	await tw2.finished
+	traveling = false
+
+
+## Đổi map ngay (không hiệu ứng): dùng khi tải game, hồi sinh, debug.
+func switch_map_now(id: String, to_pos: Vector2) -> void:
+	if id == current_map:
+		player.position = to_pos
+		camera.position = to_pos
+		return
+	_leave_map()
+	if id == "overworld":
+		_enter_overworld()
+	else:
+		_enter_extra(id)
+	player.position = to_pos
+	camera.position = to_pos
+	_travel_lock = 1.2
+	if school != null:
+		school.fx_layer = fx_layer
+	if minimap != null:
+		minimap.build()
+	Sfx.set_theme(music_theme_at(to_pos))
+
+
+func _leave_map() -> void:
+	player.get_parent().remove_child(player)
+	if current_map == "overworld":
+		_ow = {
+			"world": world, "layer_ground": layer_ground, "layer_shadows": layer_shadows, "fx_layer": fx_layer,
+			"blockers": blockers, "no_decor": no_decor, "occluders": occluders, "prop_log": prop_log, "path_lines": path_lines,
+			"monsters": monsters, "npcs": npcs, "herbs": herbs, "zone_nodes": _zone_nodes, "furnace": furnace, "pond_zone": pond_zone,
+			"gates": gates, "qi_zones": qi_zones, "road_mask": road_mask, "road_gw": road_gw, "map_size": map_size,
+			"nodes": [layer_ground, layer_shadows, world, fx_layer], "targets": [],
+		}
+		for e in _zone_nodes:
+			for n in e["nodes"]:
+				_ow["nodes"].append(n)
+		for n in world.get_children():   # mộc nhân... không bị chiêu kiếm từ map khác đánh trúng
+			if n.is_in_group("targets"):
+				n.remove_from_group("targets")
+				_ow["targets"].append(n)
+		for n in _ow["nodes"]:
+			n.visible = false
+			n.process_mode = Node.PROCESS_MODE_DISABLED
+	else:
+		_map_root.queue_free()
+		_map_root = null
+		atmo.drop_map(current_map)
+
+
+func _enter_overworld() -> void:
+	world = _ow["world"]
+	layer_ground = _ow["layer_ground"]
+	layer_shadows = _ow["layer_shadows"]
+	fx_layer = _ow["fx_layer"]
+	blockers = _ow["blockers"]
+	no_decor = _ow["no_decor"]
+	occluders = _ow["occluders"]
+	prop_log = _ow["prop_log"]
+	path_lines = _ow["path_lines"]
+	monsters = _ow["monsters"]
+	npcs = _ow["npcs"]
+	herbs = _ow["herbs"]
+	_zone_nodes = _ow["zone_nodes"]
+	furnace = _ow["furnace"]
+	pond_zone = _ow["pond_zone"]
+	gates = _ow["gates"]
+	qi_zones = _ow["qi_zones"]
+	road_mask = _ow["road_mask"]
+	road_gw = _ow["road_gw"]
+	map_size = _ow["map_size"]
+	map_def = {}
+	current_map = "overworld"
+	for n in _ow["nodes"]:
+		n.visible = true
+		n.process_mode = Node.PROCESS_MODE_INHERIT
+	for n in _ow["targets"]:
+		n.add_to_group("targets")
+	_ow = {}
+	world.add_child(player)
+	atmo.set_active_map("overworld")
+	_apply_map_camera()
+
+
+func _enter_extra(id: String) -> void:
+	map_def = Maps.DEFS[id]
+	current_map = id
+	_map_root = Node2D.new()
+	add_child(_map_root)
+	layer_ground = Node2D.new()
+	_map_root.add_child(layer_ground)
+	layer_shadows = Node2D.new()
+	_map_root.add_child(layer_shadows)
+	world = Node2D.new()
+	world.y_sort_enabled = true
+	_map_root.add_child(world)
+	fx_layer = Node2D.new()
+	_map_root.add_child(fx_layer)
+	blockers = []
+	no_decor = []
+	occluders = []
+	prop_log = []
+	path_lines = []
+	monsters = []
+	npcs = []
+	herbs = []
+	_zone_nodes = []
+	furnace = null
+	pond_zone = Rect2()
+	road_mask = PackedByteArray()
+	road_gw = 0
+	map_size = map_def["size"]
+	qi_zones = (map_def["qi"] as Array).duplicate()
+	atmo.set_active_map(id)
+	MapBuilder.build(self, id)
+	_build_qi_zones()
+	world.add_child(player)
+	_apply_map_camera()
+
+
+func _apply_map_camera() -> void:
+	camera.limit_right = int(map_size.x)
+	camera.limit_bottom = int(map_size.y)

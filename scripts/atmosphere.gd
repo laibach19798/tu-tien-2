@@ -12,6 +12,7 @@ var darkness := 0.0    # 0 ban ngày .. 1 đêm sâu
 var sun := 1.0
 var modulate_node: CanvasModulate
 var _lights: Array = []
+var map_tag := "overworld"   # đèn mới thêm thuộc map này (chỉ sáng khi đang ở map đó)
 var _light_tex: GradientTexture2D
 var _fireflies: CPUParticles2D
 var _sway_cache := {}
@@ -64,8 +65,25 @@ func add_light(pos: Vector2, color: Color, tex_scale: float, energy: float, mode
 	l.energy = energy if mode != "night" else 0.0
 	l.position = pos
 	(parent if parent else self).add_child(l)
-	_lights.append({"node": l, "base": energy, "mode": mode})
+	_lights.append({"node": l, "base": energy, "mode": mode, "map": map_tag if parent == null else ""})
 	return l
+
+
+## Bật đèn của map tag, tắt đèn các map khác (đèn gắn vào nhân vật luôn bật).
+func set_active_map(tag: String) -> void:
+	map_tag = tag
+	for e in _lights:
+		if str(e["map"]) != "" and is_instance_valid(e["node"]):
+			(e["node"] as Node2D).visible = e["map"] == tag
+
+
+## Xoá đèn của map tag (khi rời map phụ).
+func drop_map(tag: String) -> void:
+	for e in _lights.duplicate():
+		if e["map"] == tag:
+			if is_instance_valid(e["node"]):
+				(e["node"] as Node).queue_free()
+			_lights.erase(e)
 
 
 func attach(camera: Camera2D) -> void:

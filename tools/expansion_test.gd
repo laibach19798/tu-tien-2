@@ -13,10 +13,7 @@ func _initialize() -> void:
 func _process(_delta: float) -> bool:
 	frame += 1
 	if frame == 6:
-		var by := {}
-		for m in main.monsters:
-			by[m.kind_id] = int(by.get(m.kind_id, 0)) + 1
-		print("quai theo loai: ", by)
+		print("quai o the gioi goc: ", main.monsters.size())
 		var ids := []
 		for n in main.npcs:
 			ids.append(n.npc_id)
@@ -33,6 +30,11 @@ func _process(_delta: float) -> bool:
 		main.quests.states["q6"] = "done"
 		main.quests.states["q8"] = "active"
 		print("q8 status: ", main.quests.status(_idx("q8")), "  q9: ", main.quests.status(_idx("q9")), "  q10: ", main.quests.status(_idx("q10")))
+		main.switch_map_now("tuyet_coc", Maps.DEFS["tuyet_coc"]["entry"])
+		var by := {}
+		for m in main.monsters:
+			by[m.kind_id] = int(by.get(m.kind_id, 0)) + 1
+		print("quai theo loai: ", by)
 		# boss
 		for m in main.monsters:
 			if m.kind_id == "wolf_king":
@@ -41,6 +43,7 @@ func _process(_delta: float) -> bool:
 				var before: int = main.quests.kills.get("wolf_king", 0)
 				m.take_hit(99999.0, main.player.position)
 				print("giet boss: kills ", before, " -> ", main.quests.kills.get("wolf_king", 0))
+		main.switch_map_now("overworld", Vector2(1280, 1100))
 		print("an toan tai trai: ", main.is_safe(WorldExpansion.CAMP), " tai san kiem tong: ", main.is_safe(WorldExpansion.SECT_C))
 		print("=== EXPANSION TEST XONG ===")
 		quit()

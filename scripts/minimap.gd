@@ -53,6 +53,7 @@ var _local: LocalView
 var _full_root: Control
 var _full: FullView
 var full_open := false
+var _full_title: UIKit.Banner
 
 
 func _ready() -> void:
@@ -63,10 +64,14 @@ func is_full_open() -> bool:
 	return full_open
 
 
+func _areas() -> Array:
+	return AREAS if main.current_map == "overworld" else main.map_def["areas"]
+
+
 func area_name(p: Vector2) -> String:
-	var best := "Ngoại ô làng"
+	var best := "Ngoại ô làng" if main.current_map == "overworld" else str(main.map_def["name"])
 	var best_d := INF
-	for a in AREAS:
+	for a in _areas():
 		var d: float = p.distance_to(a[0])
 		if d < float(a[1]) and d < best_d:
 			best = a[2]
@@ -76,8 +81,10 @@ func area_name(p: Vector2) -> String:
 
 # ---------------------------------------------------------------- dựng ảnh nền
 func build() -> void:
-	var gw: int = int(main.WORLD.x / PX)
-	var gh: int = int(main.WORLD.y / PX)
+	var extra: bool = main.current_map != "overworld"
+	var gw: int = int(main.map_size.x / PX)
+	var gh: int = int(main.map_size.y / PX)
+	var ground: Color = main.map_def["mm"] if extra else GROUND
 	_img_w = gw + PAD * 2
 	_img_h = gh + PAD * 2
 	var img := Image.create(_img_w, _img_h, false, Image.FORMAT_RGBA8)
@@ -89,7 +96,7 @@ func build() -> void:
 	for y in gh:
 		for x in gw:
 			var h := ((x * 73856093) ^ (y * 19349663)) & 255
-			var col := GROUND_2 if h < 40 else GROUND
+			var col := ground.darkened(0.07) if h < 40 else ground
 			var mx := int(x * PX / cell)
 			var my := int(y * PX / cell)
 			var i := my * rgw + mx
@@ -108,14 +115,21 @@ func build() -> void:
 						break
 	for e in edge:
 		img.set_pixelv(e, ROAD_EDGE)
+	if extra:   # đường mòn của map phụ
+		for pl in main.path_lines:
+			var pts: PackedVector2Array = pl["pts"]
+			for i in range(pts.size() - 1):
+				var steps := int(pts[i].distance_to(pts[i + 1]) / PX)
+				for j in steps + 1:
+					_disc(img, _px(pts[i].lerp(pts[i + 1], float(j) / maxf(steps, 1.0))), float(pl["w"]) * 0.5 / PX, ROAD)
 	# núi quanh Hang Linh Mạch
 	for y in range(int((WorldExpansion.CAVE.y - 420.0) / PX), int((WorldExpansion.CAVE.y + 420.0) / PX)):
 		for x in range(int((WorldExpansion.CAVE.x - 520.0) / PX), int((WorldExpansion.CAVE.x + 520.0) / PX)):
-			if x >= 0 and y >= 0 and x < gw and y < gh and WorldExpansion.mountain_at(Vector2(x + 0.5, y + 0.5) * PX):
+			if not extra and x >= 0 and y >= 0 and x < gw and y < gh and WorldExpansion.mountain_at(Vector2(x + 0.5, y + 0.5) * PX):
 				img.set_pixel(x + PAD, y + PAD, Color(0.50, 0.46, 0.52))
 	# ao sen
 	var pz: Rect2 = main.pond_zone
-	if pz.size.x > 0.0:
+	if pz.size.x > 0.0 and not extra:
 		var pc := Vector2(pz.get_center())
 		for y in range(int(pz.position.y / PX) + PAD - 1, int(pz.end.y / PX) + PAD + 2):
 			for x in range(int(pz.position.x / PX) + PAD - 1, int(pz.end.x / PX) + PAD + 2):
@@ -143,6 +157,7 @@ func build() -> void:
 		_local.offset_right = -14.0
 		_local.offset_bottom = -14.0
 		_build_full()
+	_full_title.set_text("Bản Đồ Làng" if main.current_map == "overworld" else "Bản Đồ %s" % str(main.map_def["name"]))
 	_full.custom_minimum_size = Vector2((_img_w - PAD * 2) * FULL_SCALE, (_img_h - PAD * 2) * FULL_SCALE)
 	_local.queue_redraw()
 	_full.queue_redraw()
@@ -217,6 +232,8 @@ func _paint_prop(img: Image, e: Dictionary) -> void:
 		_rect(img, c + Vector2i(-int(w * 0.5 / PX), -int(h / PX)), Vector2i(int(w / PX), int(h / PX)), Color(0.55, 0.4, 0.24))
 	elif n.begins_with("fence"):
 		_rect(img, c + Vector2i(-5, -1), Vector2i(11, 1), Color(0.48, 0.34, 0.2))
+	elif not (n.begins_with("flower") or n.begins_with("reeds") or n.begins_with("snow_mound")):
+		_disc(img, c + Vector2i(0, -1), 2.0 if h < 90.0 else 3.0, Color(0.30, 0.38, 0.34) if h >= 90.0 else Color(0.5, 0.52, 0.58))
 
 
 # ---------------------------------------------------------------- điểm đánh dấu (dùng cho cả hai bản đồ)
@@ -260,7 +277,8 @@ func _build_full() -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
 	frame.add_child(v)
-	v.add_child(UIKit.Banner.new("Bản Đồ Làng", 24))
+	_full_title = UIKit.Banner.new("Bản Đồ Làng", 24)
+	v.add_child(_full_title)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 14)
 	v.add_child(h)
@@ -345,7 +363,7 @@ class LocalView extends Control:
 		var k := Minimap.LOCAL_SCALE / Minimap.PX
 		var center := inner + Vector2(vs, vs) * 0.5
 		# linh mạch: vầng sáng xanh
-		for z in main.QI_ZONES:
+		for z in main.qi_zones:
 			var zc: Vector2 = center + (z["pos"] - pc) * k
 			var rx: float = z["r"] * k
 			_pixel_ellipse(zc, rx, rx * 0.62, Color(0.4, 0.9, 1.0, 0.22), clip)
@@ -425,16 +443,16 @@ class FullView extends Control:
 		draw_texture_rect_region(mm._tex, Rect2(Vector2.ZERO, size), Rect2(Minimap.PAD, Minimap.PAD, mm._img_w - Minimap.PAD * 2, mm._img_h - Minimap.PAD * 2))
 		draw_rect(Rect2(-1, -1, size.x + 2, size.y + 2), UIKit.GOLD_DK, false, 2.0)
 		var k := sc / Minimap.PX
-		for z in main.QI_ZONES:
+		for z in main.qi_zones:
 			_ell(z["pos"] * k, z["r"] * k, z["r"] * k * 0.62, Color(0.4, 0.9, 1.0, 0.25))
 		# vùng yêu thú (nhóm quái sinh ra)
 		var f := get_theme_default_font()
-		for g in main.MONSTER_GROUPS:
+		for g in main.map_def.get("groups", []):
 			var c: Vector2 = g[1] * k
 			_ell(c, 170.0 * k, 110.0 * k, Color(UIKit.RED, 0.22))
-		for a in Minimap.AREAS:
+		for a in mm._areas():
 			var nm: String = a[2]
-			if nm in ["Quảng trường", "Sân luyện kiếm", "Khu chợ", "Tiệm may", "Ruộng rau", "Ao sen (linh mạch)", "Rừng tre (linh mạch)", "Cổng Kiếm Tông", "Sân Kiếm Tông", "Trại ẩn sĩ", "Hang ổ Hắc Lang Vương", "Hắc Lâm", "Hang Linh Mạch", "Suối linh (linh mạch)"] or nm.begins_with("Vùng"):
+			if main.current_map != "overworld" or nm in ["Quảng trường", "Sân luyện kiếm", "Khu chợ", "Tiệm may", "Ruộng rau", "Ao sen (linh mạch)", "Rừng tre (linh mạch)", "Cổng Kiếm Tông", "Sân Kiếm Tông", "Trại ẩn sĩ", "Hang ổ Hắc Lang Vương", "Hắc Lâm", "Hang Linh Mạch", "Suối linh (linh mạch)"] or nm.begins_with("Vùng"):
 				nm = nm.replace(" (linh mạch)", "")
 				var pos: Vector2 = a[0] * k
 				var tw := f.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
