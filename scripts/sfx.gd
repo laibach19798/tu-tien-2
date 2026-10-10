@@ -286,6 +286,9 @@ static func _make(id: String) -> AudioStreamWAV:
 			return _gen(0.16, func(t, k):
 				st[0] += 0.35 * (_noise() - st[0])
 				return (_sine(210.0, t) * 0.55 + st[0] * 0.8 * exp(-t * 90.0)) * exp(-t * 22.0) + (_sine(210.0, t - 0.06) * 0.2 * exp(-(t - 0.06) * 25.0) if t > 0.06 else 0.0))
+		"bell":
+			return _gen(0.9, func(t, k):
+				return (_sine(2400.0, t) * 0.35 + _sine(2400.0 * 2.76, t) * 0.2 * exp(-t * 9.0) + _sine(2400.0 * 5.4, t) * 0.08 * exp(-t * 14.0)) * exp(-t * 5.5) * 0.5)
 		"meditate":
 			return _gen(1.2, func(t, k):
 				return (_sine(220.0, t) * 0.3 + _sine(330.0, t) * 0.2 + _sine(440.0, t) * 0.1) * sin(PI * k))

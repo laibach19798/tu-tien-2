@@ -49,6 +49,15 @@ func _pickup() -> void:
 	if item == "stone":
 		host.inv.add_stones(amount)
 		label = "+%d linh thạch" % amount
+	elif Wardrobe.ITEMS.has(item):   # trang phục rơi từ quái
+		var wd: Dictionary = Wardrobe.ITEMS[item]
+		if host.wardrobe.grant(item):
+			label = "Nhặt được: %s" % wd["name"]
+			host.hud.toast("Nhặt được trang phục: %s" % wd["name"])
+		else:   # đã có rồi: đổi ra ít linh thạch
+			var refund := maxi(5, int(wd.get("price", 0)) / 4)
+			host.inv.add_stones(refund)
+			label = "Đã có %s, +%d linh thạch" % [wd["name"], refund]
 	else:
 		host.inv.add(item, amount)
 		label = "+%d %s" % [amount, Items.item_name(item)]
@@ -60,6 +69,9 @@ func _draw() -> void:
 	var bob := sin(_t * 4.0) * 2.0 if _landed else 0.0
 	var icon := "stone" if item == "stone" else str(Items.DATA.get(item, {}).get("icon", "stone"))
 	var tint: Color = Items.DATA.get(item, {}).get("tint", Color.WHITE)
+	if Wardrobe.ITEMS.has(item):   # trang phục: biểu tượng theo ô (áo, đầu, kiếm...) và màu của món
+		icon = str(Wardrobe.ITEMS[item]["slot"])
+		tint = Wardrobe.ITEMS[item]["tint"]
 	draw_rect(Rect2(-8, -1, 16, 3), Color(0, 0, 0, 0.35))
 	UIKit.draw_icon(self, icon, tint, Vector2(-12, -26 - _h + bob), 2.0)
 	if _landed:

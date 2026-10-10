@@ -61,7 +61,7 @@ func _ready() -> void:
 		b.button_group = group
 		b.button_pressed = slot == _tab
 		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(120, 34)
+		b.custom_minimum_size = Vector2(76, 34)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.pressed.connect(_set_tab.bind(slot))
 		tabs.add_child(b)
@@ -168,7 +168,16 @@ func _refresh_preview() -> void:
 		var id: String = _preview_outfit.get(slot, "")
 		if id != "" and Wardrobe.ITEMS.has(id):
 			parts.append(Wardrobe.ITEMS[id]["name"])
-	_preview_name.text = "%s\n%s" % [_dir_names[_dirs[_dir_i]], "\n".join(parts)]
+	var set_lines: Array = []
+	for st in Wardrobe.set_status(_preview_outfit):
+		if int(st["count"]) > 0:
+			var line := "Bộ %s %d/%d" % [st["name"], st["count"], st["total"]]
+			if not (st["bonus"] as Dictionary).is_empty():
+				line += ": " + Wardrobe.bonus_text(st["bonus"])
+			elif int(st["next_need"]) > 0:
+				line += " (cần %d món)" % int(st["next_need"])
+			set_lines.append(line)
+	_preview_name.text = "%s\n%s%s" % [_dir_names[_dirs[_dir_i]], "\n".join(parts), ("\n\n" + "\n".join(set_lines)) if not set_lines.is_empty() else ""]
 
 
 func refresh() -> void:
@@ -179,6 +188,15 @@ func refresh() -> void:
 		_rows.remove_child(c)
 		c.queue_free()
 	var any := false
+	if Wardrobe.OPTIONAL_SLOTS.has(_tab):
+		any = true
+		_rows.add_child(_none_card())
+	if _tab == "dye":
+		var cl: Dictionary = Wardrobe.ITEMS.get(str(_preview_outfit.get("clothes", "")), {})
+		if not bool(cl.get("dyeable", false)):
+			var hint := UIKit.label("Hãy mặc Áo vải nhuộm được để thấy màu nhuộm.", 14, UIKit.MUTED)
+			hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_rows.add_child(hint)
 	for id in Wardrobe.items_of(_tab):
 		var d: Dictionary = Wardrobe.ITEMS[id]
 		var own := wardrobe.is_owned(id)
@@ -213,7 +231,11 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 		tag.add_child(UIKit.label("Đã có", 12, UIKit.JADE))
 		nrow.add_child(tag)
 	col.add_child(nrow)
-	var dl := UIKit.label(str(d["desc"]), 13, UIKit.MUTED)
+	var desc_text := str(d["desc"])
+	if not own and Wardrobe.acquire_text(id) != "":
+		desc_text += "
+" + Wardrobe.acquire_text(id)
+	var dl := UIKit.label(desc_text, 13, UIKit.MUTED)
 	dl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dl.custom_minimum_size = Vector2(200, 0)
 	col.add_child(dl)
@@ -231,6 +253,9 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 	elif own:
 		act.text = "Mặc"
 		act.pressed.connect(_equip.bind(id))
+	elif d.has("unlock") or d.has("drop"):
+		act.text = "Khóa"
+		act.disabled = true
 	else:
 		act.text = "Mua · %d" % int(d["price"])
 		act.disabled = inv.stones < int(d["price"])
@@ -238,6 +263,33 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 	h.add_child(act)
 	return pc
 
+
+## Thẻ "Không mang" cho slot không bắt buộc (kiếm đeo lưng).
+func _none_card() -> Control:
+	var worn := not wardrobe.equipped.has(_tab)
+	var pc := PanelContainer.new()
+	pc.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), Color(UIKit.GOLD_DK, 0.6), 1, 6, Vector2(10, 8)))
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	pc.add_child(h)
+	var lbl := UIKit.label("Không mang", 16, UIKit.GOLD)
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(lbl)
+	var act := Button.new()
+	act.focus_mode = Control.FOCUS_NONE
+	act.custom_minimum_size = Vector2(104, 0)
+	act.text = "Đang để trống" if worn else "Bỏ"
+	act.disabled = worn
+	act.pressed.connect(_remove_optional)
+	h.add_child(act)
+	return pc
+
+
+func _remove_optional() -> void:
+	wardrobe.unequip(_tab)
+	_preview_outfit = wardrobe.equipped.duplicate()
+	_refresh_preview()
+	refresh()
 
 func _try(id: String) -> void:
 	_preview_outfit[Wardrobe.ITEMS[id]["slot"]] = id

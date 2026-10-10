@@ -19,7 +19,7 @@ var cult: Cultivation
 
 func setup(p_cult: Cultivation) -> void:
 	cult = p_cult
-	max_hp = _max_for(cult)
+	max_hp = _max_for(cult) * (1.0 + hp_bonus)
 	hp = max_hp
 	cult.changed.connect(_on_cult)
 	changed.emit()
@@ -29,8 +29,19 @@ static func _max_for(c: Cultivation) -> float:
 	return 100.0 + 24.0 * c.step_index()
 
 
+var hp_bonus := 0.0   # thưởng bộ trang phục: khí huyết tối đa nhân (1 + hp_bonus)
+
+
+func set_hp_bonus(b: float) -> void:
+	if is_equal_approx(b, hp_bonus):
+		return
+	hp_bonus = b
+	if cult != null:
+		_on_cult()
+
+
 func _on_cult() -> void:
-	var m := _max_for(cult)
+	var m := _max_for(cult) * (1.0 + hp_bonus)
 	if m != max_hp:
 		hp += m - max_hp   # lên cảnh giới thì nhận thêm khí huyết
 		max_hp = m
