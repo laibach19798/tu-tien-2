@@ -79,6 +79,7 @@ var _body: Node2D          # kẻ địch hình người: nhân vật nền + tr
 var outfit: Dictionary = {}
 var sect_id := ""          # tông môn của kẻ địch hình người
 var territory_id := ""     # địa bàn mà con này canh giữ
+var _last_motion := ""
 var invader := false       # quân xâm lược (tông địch tập kích địa bàn của Kiếm Tông)
 var display_name := ""
 
@@ -153,6 +154,32 @@ func take_hit(dmg: float, from: Vector2) -> bool:
 	return true
 
 
+# ---- trạng thái do công pháp gây ra
+var _slow_until := 0.0
+var _slow_mult := 1.0
+
+
+## Làm chậm: nhân tốc độ di chuyển với mult trong dur giây.
+func apply_slow(mult: float, dur: float) -> void:
+	_slow_mult = mult
+	_slow_until = Time.get_ticks_msec() / 1000.0 + dur
+
+
+func _spd() -> float:
+	return _slow_mult if Time.get_ticks_msec() / 1000.0 < _slow_until else 1.0
+
+
+## Sát thương theo thời gian (thiêu đốt): không gây giật lùi hay ngắt đòn.
+func take_dot(dmg: float) -> void:
+	if not alive:
+		return
+	hp -= dmg
+	_flash = 0.6
+	_show_number(dmg)
+	if hp <= 0.0:
+		_die()
+
+
 func _die() -> void:
 	alive = false
 	Sfx.play("mdie", randf_range(0.9, 1.1))
@@ -225,6 +252,10 @@ func _play(action: String) -> void:
 		_sprite.play(key)
 
 func _play_body(action: String) -> void:
+	var motion := action + _facing + str(state in ["chase", "return"])
+	if action != "attack" and motion == _last_motion and not _body.is_busy():
+		return   # đang phát đúng hoạt ảnh rồi: không gọi lại (tránh đồng bộ 5 lớp sprite mỗi khung)
+	_last_motion = motion
 	if action == "attack":
 		if not _body.is_busy():
 			var spd := 0.6 / maxf(float(kind["windup"]), 0.1)   # đòn chém xong đúng lúc ra đòn
@@ -276,7 +307,7 @@ func _physics_process(delta: float) -> void:
 				_timer = randf_range(1.0, 3.0)
 			else:
 				_facing = Dir.from_vector(d, _facing)
-				_step(d.normalized() * float(kind["speed"]) * 0.45 * delta)
+				_step(d.normalized() * (float(kind["speed"]) * _spd()) * 0.45 * delta)
 		"chase":
 			_play("walk")
 			if not seeing and dist > float(kind["aggro"]) * 1.5:
@@ -290,7 +321,7 @@ func _physics_process(delta: float) -> void:
 				_struck = false
 			else:
 				_facing = Dir.from_vector(to_p, _facing)
-				_step(to_p.normalized() * float(kind["speed"]) * delta)
+				_step(to_p.normalized() * (float(kind["speed"]) * _spd()) * delta)
 		"windup":
 			_play("attack")
 			_timer -= delta
@@ -320,7 +351,7 @@ func _physics_process(delta: float) -> void:
 				_timer = 1.5
 			else:
 				_facing = Dir.from_vector(d2, _facing)
-				_step(d2.normalized() * float(kind["speed"]) * 0.9 * delta)
+				_step(d2.normalized() * (float(kind["speed"]) * _spd()) * 0.9 * delta)
 				hp = minf(max_hp, hp + max_hp * 0.1 * delta)
 			if seeing and (position - home).length() < float(kind["leash"]) * 0.6:
 				state = "chase"
@@ -384,9 +415,17 @@ func _process(_delta: float) -> void:
 ## Thanh máu pixel nổi phía trên đầu; hiện khi bị thương hoặc đang gồng đòn.
 class HealthBar extends Node2D:
 	var m: Monster
+	var _shown_hp := -1.0
+	var _shown_state := ""
 
 	func _process(_delta: float) -> void:
-		queue_redraw()
+		if m == null:
+			return
+		var blink := m.state == "windup"   # dấu ! nhấp nháy khi gồng đòn
+		if blink or m.hp != _shown_hp or m.state != _shown_state:
+			_shown_hp = m.hp
+			_shown_state = m.state
+			queue_redraw()
 
 	func _draw() -> void:
 		if m == null or not m.alive:

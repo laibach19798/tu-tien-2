@@ -57,6 +57,8 @@ var _ow := {}                    # trạng thái thế giới gốc khi đang �
 var _map_root: Node2D
 var _fade: ColorRect
 var _fade_label: Label
+var _cull_t := 0.0
+const CULL_R := 1150.0   # quái ở xa hơn bán kính này (ngoài màn hình) tạm ngừng hoàn toàn
 var _pending_map := "overworld"
 var _pending_pos := Vector2.ZERO
 var road_mask := PackedByteArray()
@@ -912,6 +914,10 @@ func _physics_process(delta: float) -> void:
 			Sfx.step(surface_at(player.position), run)
 	player.set_motion(action, direction)
 	camera.position = player.position
+	_cull_t -= delta
+	if _cull_t <= 0.0:
+		_cull_t = 0.3
+		_cull_monsters()
 	_travel_lock = maxf(0.0, _travel_lock - delta)
 	if _travel_lock <= 0.0 and not traveling and not _dead:
 		for g in gates:
@@ -1791,3 +1797,18 @@ func _teleport_territory(tid: String) -> void:
 
 func _teleport_hq() -> void:
 	travel_to("tieu_gioi", (SectWar.SECTS[SectWar.PLAYER]["hq"] as Vector2) + Vector2(0, 140))
+
+
+## Quái còn sống, đang yên và ở xa người chơi thì tắt hẳn xử lý (AI, hoạt ảnh, đồ đeo): Tiểu Thế Giới có hàng chục lính hình người.
+func _cull_monsters() -> void:
+	var pp := player.position
+	for m in monsters:
+		if not m.alive:
+			continue
+		var far: bool = m.position.distance_squared_to(pp) > CULL_R * CULL_R
+		var idle: bool = m.state in ["idle", "wander"]
+		if far and idle:
+			if m.process_mode != Node.PROCESS_MODE_DISABLED:
+				m.process_mode = Node.PROCESS_MODE_DISABLED
+		elif m.process_mode == Node.PROCESS_MODE_DISABLED:
+			m.process_mode = Node.PROCESS_MODE_INHERIT
