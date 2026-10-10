@@ -61,7 +61,7 @@ func _ready() -> void:
 		b.button_group = group
 		b.button_pressed = slot == _tab
 		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(120, 34)
+		b.custom_minimum_size = Vector2(76, 34)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.pressed.connect(_set_tab.bind(slot))
 		tabs.add_child(b)
@@ -179,6 +179,15 @@ func refresh() -> void:
 		_rows.remove_child(c)
 		c.queue_free()
 	var any := false
+	if Wardrobe.OPTIONAL_SLOTS.has(_tab):
+		any = true
+		_rows.add_child(_none_card())
+	if _tab == "dye":
+		var cl: Dictionary = Wardrobe.ITEMS.get(str(_preview_outfit.get("clothes", "")), {})
+		if not bool(cl.get("dyeable", false)):
+			var hint := UIKit.label("Hãy mặc Áo vải nhuộm được để thấy màu nhuộm.", 14, UIKit.MUTED)
+			hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			_rows.add_child(hint)
 	for id in Wardrobe.items_of(_tab):
 		var d: Dictionary = Wardrobe.ITEMS[id]
 		var own := wardrobe.is_owned(id)
@@ -238,6 +247,33 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 	h.add_child(act)
 	return pc
 
+
+## Thẻ "Không mang" cho slot không bắt buộc (kiếm đeo lưng).
+func _none_card() -> Control:
+	var worn := not wardrobe.equipped.has(_tab)
+	var pc := PanelContainer.new()
+	pc.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), Color(UIKit.GOLD_DK, 0.6), 1, 6, Vector2(10, 8)))
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 10)
+	pc.add_child(h)
+	var lbl := UIKit.label("Không mang", 16, UIKit.GOLD)
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(lbl)
+	var act := Button.new()
+	act.focus_mode = Control.FOCUS_NONE
+	act.custom_minimum_size = Vector2(104, 0)
+	act.text = "Đang để trống" if worn else "Bỏ"
+	act.disabled = worn
+	act.pressed.connect(_remove_optional)
+	h.add_child(act)
+	return pc
+
+
+func _remove_optional() -> void:
+	wardrobe.unequip(_tab)
+	_preview_outfit = wardrobe.equipped.duplicate()
+	_refresh_preview()
+	refresh()
 
 func _try(id: String) -> void:
 	_preview_outfit[Wardrobe.ITEMS[id]["slot"]] = id

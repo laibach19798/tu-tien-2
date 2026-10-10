@@ -129,9 +129,14 @@ func _order() -> void:
 	var parent := get_parent()
 	var north := (str(parent.get("facing")) if parent.get("facing") != null else "south").begins_with("north")
 	var aura := parent.get_node_or_null("OutfitAura")
-	var want: int = parent.get_child_count() - 1 if north else ((aura.get_index() + 1) if aura != null else 0)
-	if get_index() != want:
-		parent.move_child(self, want)
+	if north:   # trên tóc trước nhưng không giành chỗ cuối cùng với phụ kiện đầu
+		var hair_front := parent.get_node_or_null("HairFront")
+		if hair_front != null and get_index() < hair_front.get_index():
+			parent.move_child(self, parent.get_child_count() - 1)
+	else:
+		var want: int = (aura.get_index() + 1) if aura != null else 0
+		if get_index() != want:
+			parent.move_child(self, want)
 	var pw := clampf((float(parent.get_meta("aura_power", 1.0)) - 0.4) / 0.5, 0.0, 1.0)   # cảnh giới thấp: chưa có áo choàng linh khí
 	_alpha = (0.5 if north else 1.0) * pw
 

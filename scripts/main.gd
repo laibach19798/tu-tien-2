@@ -956,12 +956,12 @@ func _build_gameplay() -> void:
 		quests.add_craft()
 		if ok:
 			cult.add_xp(3.0))
-	_spawn_npc("elder", "Trưởng lão Vân Hạc", {"hair": "hair_long_silver", "clothes": "outfit_plain", "shoes": "shoes_cloth_white"}, CENTER + Vector2(190, 80))
-	_spawn_npc("merchant", "Thương nhân Lý Tam", {"hair": "hair_topknot_black", "clothes": "outfit_plain", "shoes": "shoes_cloth_brown"}, Vector2(1615, 1150))
+	_spawn_npc("elder", "Trưởng lão Vân Hạc", {"hair": "hair_long_silver", "clothes": "outfit_plain", "shoes": "shoes_cloth_white", "head": "head_crown_gold"}, CENTER + Vector2(190, 80))
+	_spawn_npc("merchant", "Thương nhân Lý Tam", {"hair": "hair_topknot_black", "clothes": "outfit_plain", "shoes": "shoes_cloth_brown", "waist": "waist_bell_copper"}, Vector2(1615, 1150))
 	# Tiệm may phía tây nam quảng trường
 	_prop("stall", Vector2(840, 1085), Vector2(110, 50))
 	_prop("barrel_a", Vector2(770, 1095), Vector2(40, 24))
-	_spawn_npc("tailor", "Thợ may Tô Nương", {"hair": "hair_ponytail_brown", "clothes": "outfit_plain", "shoes": "shoes_boot_black"}, Vector2(930, 1090))
+	_spawn_npc("tailor", "Thợ may Tô Nương", {"hair": "hair_ponytail_brown", "clothes": "outfit_lam", "dye": "dye_green", "shoes": "shoes_boot_black"}, Vector2(930, 1090))
 	_spawn_herbs()
 	WorldExpansion.extra_herbs(self)
 	WorldExpansion.spawn_npcs(self)
@@ -971,7 +971,7 @@ func _build_gameplay() -> void:
 	school.setup(self, player, cult, hud, fx_layer)
 	school.from_dict(_pending_school)
 	school.message.connect(hud.toast)
-	_spawn_npc("swordmaster", "Kiếm sư Lăng Tiêu", {"hair": "hair_topknot_silver", "clothes": "outfit_plain", "shoes": "shoes_boot_black"}, Vector2(1050, 1150))
+	_spawn_npc("swordmaster", "Kiếm sư Lăng Tiêu", {"hair": "hair_topknot_silver", "clothes": "outfit_plain", "shoes": "shoes_boot_black", "sword": "sword_black"}, Vector2(1050, 1150))
 	for p in [Vector2(955, 1215), Vector2(1050, 1250), Vector2(1145, 1218)]:
 		var d: TrainingDummy = preload("res://scripts/dummy.gd").new()
 		d.position = p

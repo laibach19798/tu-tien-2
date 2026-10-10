@@ -82,7 +82,8 @@ func _process(delta: float) -> void:
 
 ## Kiếm đeo sau lưng khi không chiến đấu.
 func _update_sheath() -> void:
-	_sheath.visible = joined and _swinging <= 0.0
+	player.set_meta("sword_drawn", _swinging > 0.0)   # BackSword (thoi trang) an khi kiem dang o tren tay
+	_sheath.visible = joined and _swinging <= 0.0 and player.get_node_or_null("BackSword") == null
 	if not _sheath.visible:
 		return
 	# Kiếm đeo chéo trên lưng, chuôi nhô qua vai phải, vỏ chạy xuống hông trái (toạ độ so với chân; vai ~ -28, hông ~ -14).

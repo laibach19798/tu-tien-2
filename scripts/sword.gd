@@ -19,10 +19,24 @@ var glow := 0.0:
 		glow = v
 		queue_redraw()
 var glow_color := Color(0.6, 0.9, 1.0)
-var sheath := false:   # true: vẽ vỏ kiếm nâu (kiếm đeo lưng) thay vì lưỡi kiếm trần
+var sheath := false:   # true: vẽ vỏ kiếm (kiếm đeo lưng) thay vì lưỡi kiếm trần
 	set(v):
 		sheath = v
 		queue_redraw()
+# Màu theo kiểu kiếm (mặc định như trước); đổi qua configure_style()
+var scabbard_color := SCABBARD
+var scabbard_edge := SCABBARD_EDGE
+var gold_color := GOLD
+var hilt_color := HILT
+
+
+## Đặt màu vỏ, viền, chi tiết kim loại và chuôi cho kiếm đeo lưng.
+func configure_style(scabbard: Color, edge: Color, metal: Color, hilt: Color) -> void:
+	scabbard_color = scabbard
+	scabbard_edge = edge
+	gold_color = metal
+	hilt_color = hilt
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -32,12 +46,12 @@ func _draw() -> void:
 		draw_line(Vector2(2, 0), Vector2(l, 0), Color(glow_color, 0.38 * glow), 7.0)
 	var hw := 2.3 if sheath else 2.6
 	var pts := PackedVector2Array([Vector2(4, -hw), Vector2(l - 7, -hw), Vector2(l, 0), Vector2(l - 7, hw), Vector2(4, hw)])
-	draw_colored_polygon(pts, SCABBARD if sheath else BLADE)
-	draw_line(Vector2(4, -0.6), Vector2(l - 5, -0.6), SCABBARD_EDGE if sheath else EDGE, 1.2)
+	draw_colored_polygon(pts, scabbard_color if sheath else BLADE)
+	draw_line(Vector2(4, -0.6), Vector2(l - 5, -0.6), scabbard_edge if sheath else EDGE, 1.2)
 	if sheath:
-		draw_rect(Rect2(l - 9.0, -hw - 0.6, 3.0, hw * 2.0 + 1.2), GOLD)   # khoen vàng trên vỏ
-		draw_rect(Rect2(8.0, -hw - 0.6, 2.0, hw * 2.0 + 1.2), GOLD)
+		draw_rect(Rect2(l - 9.0, -hw - 0.6, 3.0, hw * 2.0 + 1.2), gold_color)   # khoen trên vỏ
+		draw_rect(Rect2(8.0, -hw - 0.6, 2.0, hw * 2.0 + 1.2), gold_color)
 	draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2], pts[3], pts[4], pts[0]]), LINE, 1.0)
-	draw_rect(Rect2(1.0, -6.0, 3.0, 12.0), GOLD)
-	draw_rect(Rect2(-9.0, -1.5, 10.0, 3.0), HILT)
-	draw_circle(Vector2(-10, 0), 2.2, GOLD)
+	draw_rect(Rect2(1.0, -6.0, 3.0, 12.0), gold_color)
+	draw_rect(Rect2(-9.0, -1.5, 10.0, 3.0), hilt_color)
+	draw_circle(Vector2(-10, 0), 2.2, gold_color)

@@ -5,8 +5,10 @@ class_name Wardrobe
 
 signal changed
 
-const SLOTS := ["hair", "clothes", "shoes"]
-const SLOT_NAMES := {"hair": "Tóc", "clothes": "Áo", "shoes": "Giày"}
+const SLOTS := ["hair", "clothes", "dye", "shoes", "head", "waist", "sword"]
+# slot không bắt buộc: có thể không mặc món nào
+const OPTIONAL_SLOTS := ["dye", "head", "waist", "sword"]
+const SLOT_NAMES := {"hair": "Tóc", "clothes": "Áo", "dye": "Nhuộm", "shoes": "Giày", "head": "Đầu", "waist": "Thắt lưng", "sword": "Kiếm đeo"}
 
 # style trùng với tên file trong character/fashion/frames/
 const ITEMS := {
@@ -20,7 +22,7 @@ const ITEMS := {
 	# --- Áo ---
 	"outfit_plain": {"slot": "clothes", "name": "Áo thường", "style": "test", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Bộ trang phục thường, không có hào quang."},
 	"tien_bao": {"slot": "clothes", "name": "Tiên bào", "style": "test", "full": true, "aura": {"color": Color(1.0, 0.55, 0.2), "color2": Color(1.0, 0.95, 0.6), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 240, "desc": "Tiên bào có hào quang linh lực rực rỡ bao quanh."},
-	"outfit_lam": {"slot": "clothes", "name": "Áo lam", "style": "lam", "full": true, "tint": Color(1, 1, 1), "price": 20, "desc": "Áo vải màu lam, giản dị."},
+	"outfit_lam": {"slot": "clothes", "name": "Áo vải nhuộm được", "style": "lam", "full": true, "dyeable": true, "tint": Color(1, 1, 1), "price": 20, "desc": "Áo vải màu lam, giản dị."},
 	"outfit_do": {"slot": "clothes", "name": "Áo đỏ thẫm", "style": "do", "full": true, "tint": Color(1, 1, 1), "price": 30, "desc": "Áo vải nhuộm đỏ thẫm."},
 	"outfit_luc": {"slot": "clothes", "name": "Áo lục", "style": "luc", "full": true, "tint": Color(1, 1, 1), "price": 30, "desc": "Áo xanh lục như lá trúc."},
 	"outfit_vang": {"slot": "clothes", "name": "Áo vàng nghệ", "style": "vang", "full": true, "tint": Color(1, 1, 1), "price": 40, "desc": "Áo vàng nghệ ấm áp."},
@@ -35,6 +37,39 @@ const ITEMS := {
 	"shoes_cloth_white": {"slot": "shoes", "name": "Giày vải - trắng", "style": "cloth", "tint": Color(0.93, 0.90, 0.84), "price": 20, "desc": "Giày vải trắng sạch sẽ."},
 	"shoes_boot_black": {"slot": "shoes", "name": "Hài cao cổ - đen", "style": "boot", "tint": Color(0.20, 0.20, 0.25), "price": 60, "desc": "Hài cao cổ chắc chắn, hợp đường xa."},
 	"shoes_boot_gold": {"slot": "shoes", "name": "Hài cao cổ - vàng", "style": "boot", "tint": Color(0.85, 0.66, 0.25), "price": 110, "desc": "Hài thêu chỉ vàng."},
+	# --- Kiếm đeo lưng ---
+	"sword_iron": {"slot": "sword", "name": "Thiết kiếm vỏ nâu", "scabbard": Color(0.30, 0.20, 0.15), "edge": Color(0.52, 0.38, 0.28), "metal": Color(0.95, 0.78, 0.30), "hilt": Color(0.45, 0.28, 0.20), "tint": Color(0.30, 0.20, 0.15), "price": 60, "desc": "Thanh kiếm sắt vỏ gỗ nâu của người mới nhập môn."},
+	"sword_black": {"slot": "sword", "name": "Huyền thiết kiếm", "scabbard": Color(0.13, 0.13, 0.18), "edge": Color(0.30, 0.30, 0.40), "metal": Color(0.92, 0.76, 0.30), "hilt": Color(0.20, 0.18, 0.22), "tint": Color(0.13, 0.13, 0.18), "price": 120, "desc": "Vỏ đen huyền, khoen vàng, trầm mặc."},
+	"sword_jade": {"slot": "sword", "name": "Thanh ngọc kiếm", "scabbard": Color(0.18, 0.50, 0.42), "edge": Color(0.55, 0.85, 0.75), "metal": Color(0.90, 0.92, 0.85), "hilt": Color(0.12, 0.35, 0.30), "tint": Color(0.18, 0.50, 0.42), "price": 160, "desc": "Vỏ xanh ngọc khảm bạc, thanh nhã."},
+	"sword_frost": {"slot": "sword", "name": "Hàn Băng kiếm", "scabbard": Color(0.72, 0.86, 0.95), "edge": Color(0.95, 0.98, 1.0), "metal": Color(0.60, 0.85, 1.0), "hilt": Color(0.40, 0.55, 0.75), "glow": Color(0.6, 0.9, 1.0), "tint": Color(0.72, 0.86, 0.95), "price": 280, "desc": "Vỏ trắng xanh toả hàn khí lạnh lẽo."},
+	"sword_flame": {"slot": "sword", "name": "Liệt Hỏa kiếm", "scabbard": Color(0.55, 0.12, 0.10), "edge": Color(0.95, 0.45, 0.20), "metal": Color(1.0, 0.75, 0.25), "hilt": Color(0.30, 0.10, 0.08), "glow": Color(1.0, 0.55, 0.2), "tint": Color(0.55, 0.12, 0.10), "price": 280, "desc": "Vỏ đỏ thẫm, ánh lửa bập bùng quanh lưng."},
+	# --- Phụ kiện đầu ---
+	"head_band_white": {"slot": "head", "name": "Khăn buộc trán trắng", "gear": "band", "col": Color(0.95, 0.95, 0.98), "col2": Color(0.95, 0.8, 0.3), "tint": Color(0.95, 0.95, 0.98), "price": 25, "desc": "Khăn trắng buộc trán, đuôi khăn bay theo gió."},
+	"head_band_red": {"slot": "head", "name": "Khăn buộc trán đỏ", "gear": "band", "col": Color(0.78, 0.15, 0.18), "col2": Color(0.95, 0.8, 0.3), "tint": Color(0.78, 0.15, 0.18), "price": 35, "desc": "Khăn đỏ thẫm của kẻ hành tẩu giang hồ."},
+	"head_pin_jade": {"slot": "head", "name": "Trâm ngọc cài tóc", "gear": "pin", "col": Color(0.35, 0.8, 0.65), "col2": Color(0.92, 0.9, 0.8), "tint": Color(0.35, 0.8, 0.65), "price": 70, "desc": "Trâm bạc khảm ngọc xanh, tua rủ nhẹ."},
+	"head_flower": {"slot": "head", "name": "Hoa đào cài tóc", "gear": "flower", "col": Color(0.98, 0.65, 0.75), "col2": Color(1.0, 0.9, 0.5), "tint": Color(0.98, 0.65, 0.75), "price": 40, "desc": "Đoá hoa đào cài bên tai."},
+	"head_crown_gold": {"slot": "head", "name": "Kim quan", "gear": "crown", "col": Color(0.45, 0.85, 0.7), "col2": Color(0.95, 0.78, 0.3), "tint": Color(0.45, 0.85, 0.7), "price": 150, "desc": "Mão vàng ngọc đỉnh, dành cho bậc chân nhân."},
+	"head_mask_fox": {"slot": "head", "name": "Mặt nạ hồ ly nửa mặt", "gear": "mask", "col": Color(0.96, 0.95, 0.92), "col2": Color(0.85, 0.2, 0.2), "tint": Color(0.96, 0.95, 0.92), "price": 120, "desc": "Mặt nạ trắng vằn đỏ che nửa mặt, bí ẩn."},
+	"head_halo": {"slot": "head", "name": "Đạo quang", "gear": "halo", "col": Color(1.0, 0.9, 0.55), "col2": Color(1.0, 1.0, 0.9), "tint": Color(1.0, 0.9, 0.55), "price": 320, "desc": "Vòng sáng lơ lửng trên đỉnh đầu của người đắc đạo."},
+	# --- Vật treo thắt lưng ---
+	"waist_jade": {"slot": "waist", "name": "Ngọc bội xanh", "kind": "jade", "col": Color(0.35, 0.8, 0.62), "col2": Color(0.95, 0.78, 0.3), "tint": Color(0.35, 0.8, 0.62), "price": 80, "desc": "Ngọc bội xanh buộc dây vàng, tua đỏ lắc lư."},
+	"waist_jade_white": {"slot": "waist", "name": "Bạch ngọc bội", "kind": "jade", "col": Color(0.92, 0.95, 0.95), "col2": Color(0.55, 0.8, 0.95), "tint": Color(0.92, 0.95, 0.95), "price": 140, "desc": "Bạch ngọc trong như sương, tua xanh băng."},
+	"waist_bell_copper": {"slot": "waist", "name": "Chuông đồng", "kind": "bell", "col": Color(0.8, 0.5, 0.2), "col2": Color(0.85, 0.55, 0.25), "tint": Color(0.8, 0.5, 0.2), "price": 60, "desc": "Chuông đồng nhỏ, bước đi leng keng."},
+	"waist_bell_silver": {"slot": "waist", "name": "Chuông bạc", "kind": "bell", "col": Color(0.85, 0.88, 0.95), "col2": Color(0.82, 0.86, 0.95), "tint": Color(0.85, 0.88, 0.95), "price": 110, "desc": "Chuông bạc trong trẻo, tiếng ngân dài."},
+	"waist_gourd": {"slot": "waist", "name": "Hồ lô rượu", "kind": "gourd", "col": Color(0.75, 0.5, 0.2), "col2": Color(0.85, 0.2, 0.2), "tint": Color(0.75, 0.5, 0.2), "price": 90, "desc": "Hồ lô đựng rượu, thắt dây đỏ, hợp khách giang hồ."},
+	"waist_jade_bell": {"slot": "waist", "name": "Ngọc bội và chuông", "kind": "both", "col": Color(0.35, 0.8, 0.62), "col2": Color(0.95, 0.78, 0.3), "tint": Color(0.35, 0.8, 0.62), "price": 190, "desc": "Một bên ngọc bội, một bên chuông vàng."},
+	# --- Thuốc nhuộm (dùng cho áo vải nhuộm được) ---
+	"dye_crimson": {"slot": "dye", "name": "Thuốc nhuộm đỏ thẫm", "hue": 355, "sat_mul": 1.15, "val_mul": 1.4, "val_add": 0, "tint": Color(0.62, 0.14, 0.16), "price": 30, "desc": "Nhuộm vải thành đỏ thẫm."},
+	"dye_orange": {"slot": "dye", "name": "Thuốc nhuộm cam đất", "hue": 22, "sat_mul": 1.1, "val_mul": 1.5, "val_add": 0.03, "tint": Color(0.85, 0.5, 0.18), "price": 30, "desc": "Màu cam đất của lá thu."},
+	"dye_yellow": {"slot": "dye", "name": "Thuốc nhuộm vàng nghệ", "hue": 42, "sat_mul": 1, "val_mul": 1.55, "val_add": 0.05, "tint": Color(0.85, 0.7, 0.2), "price": 35, "desc": "Vàng nghệ ấm áp."},
+	"dye_green": {"slot": "dye", "name": "Thuốc nhuộm lục trúc", "hue": 130, "sat_mul": 1.05, "val_mul": 1.35, "val_add": 0, "tint": Color(0.25, 0.62, 0.32), "price": 35, "desc": "Xanh lục như lá trúc."},
+	"dye_jade": {"slot": "dye", "name": "Thuốc nhuộm thanh ngọc", "hue": 178, "sat_mul": 1.05, "val_mul": 1.4, "val_add": 0, "tint": Color(0.2, 0.62, 0.55), "price": 40, "desc": "Xanh ngọc thanh nhã."},
+	"dye_indigo": {"slot": "dye", "name": "Thuốc nhuộm chàm", "hue": 235, "sat_mul": 1, "val_mul": 0.75, "val_add": 0, "tint": Color(0.22, 0.25, 0.6), "price": 30, "desc": "Chàm đậm, màu áo thầy tu."},
+	"dye_violet": {"slot": "dye", "name": "Thuốc nhuộm tím", "hue": 275, "sat_mul": 1, "val_mul": 1.35, "val_add": 0, "tint": Color(0.5, 0.3, 0.7), "price": 45, "desc": "Tím nhạt, nhã nhặn."},
+	"dye_pink": {"slot": "dye", "name": "Thuốc nhuộm hồng đào", "hue": 330, "sat_mul": 0.75, "val_mul": 1.55, "val_add": 0.1, "tint": Color(0.9, 0.55, 0.65), "price": 45, "desc": "Hồng đào nhẹ."},
+	"dye_white": {"slot": "dye", "name": "Thuốc nhuộm trắng ngà", "hue": 210, "sat_mul": 0.12, "val_mul": 1.25, "val_add": 0.35, "tint": Color(0.92, 0.93, 0.95), "price": 60, "desc": "Trắng ngà thanh sạch."},
+	"dye_gray": {"slot": "dye", "name": "Thuốc nhuộm xám tro", "hue": 210, "sat_mul": 0.08, "val_mul": 1, "val_add": 0.1, "tint": Color(0.55, 0.57, 0.6), "price": 25, "desc": "Xám tro kín đáo."},
+	"dye_black": {"slot": "dye", "name": "Thuốc nhuộm mực đen", "hue": 250, "sat_mul": 0.15, "val_mul": 0.45, "val_add": 0, "tint": Color(0.12, 0.12, 0.16), "price": 55, "desc": "Đen như mực, trầm mặc."},
 }
 
 const STARTER := {"hair": "hair_topknot_black", "clothes": "outfit_plain", "shoes": "shoes_cloth_brown"}
@@ -83,6 +118,13 @@ func equip(id: String) -> void:
 	changed.emit()
 
 
+## Bỏ món đang mặc ở slot không bắt buộc (OPTIONAL_SLOTS, ví dụ kiếm đeo).
+func unequip(slot: String) -> void:
+	if OPTIONAL_SLOTS.has(slot) and equipped.has(slot):
+		equipped.erase(slot)
+		changed.emit()
+
+
 func to_dict() -> Dictionary:
 	return {"owned": owned, "equipped": equipped}
 
@@ -109,11 +151,80 @@ static func apply(character: Node, outfit: Dictionary) -> void:
 	_set_layer(character.get_node("HairFront"), "hairf", hair)
 	_set_layer(character.get_node("HairBack"), "hairb", hair)
 	_set_layer(character.get_node("Clothes"), "clothes", clothes)
+	_set_dye(character.get_node("Clothes"), clothes, ITEMS.get(outfit.get("dye", ""), {}))
 	character.get_node("Body").visible = not bool(clothes.get("full", false))   # bộ vẽ cả người che luôn thân trần
 	_set_layer(character.get_node("Shoes"), "shoes", shoes)
 	_set_aura(character, clothes.get("aura", {}))
+	_set_sword(character, ITEMS.get(outfit.get("sword", ""), {}))
+	_set_head(character, ITEMS.get(outfit.get("head", ""), {}))
+	_set_waist(character, ITEMS.get(outfit.get("waist", ""), {}))
 	if character.is_inside_tree():
 		character._sync_layers()
+
+
+const DYE_SHADER := preload("res://scripts/outfit_dye.gdshader")
+
+
+## Nhuộm áo vải nhuộm được ("dyeable") bằng shader; áo khác hoặc không chọn thuốc thì bỏ nhuộm (không đụng vào shader hào quang).
+static func _set_dye(layer: AnimatedSprite2D, clothes: Dictionary, dye: Dictionary) -> void:
+	var current := layer.material as ShaderMaterial
+	if bool(clothes.get("dyeable", false)) and not dye.is_empty():
+		var mat := current if current != null and current.shader == DYE_SHADER else ShaderMaterial.new()
+		mat.shader = DYE_SHADER
+		mat.set_shader_parameter("hue", float(dye["hue"]))
+		mat.set_shader_parameter("sat_mul", float(dye["sat_mul"]))
+		mat.set_shader_parameter("val_mul", float(dye["val_mul"]))
+		mat.set_shader_parameter("val_add", float(dye["val_add"]))
+		layer.material = mat
+	elif current != null and current.shader == DYE_SHADER:
+		layer.material = null
+
+## Vật treo thắt lưng: node WaistGear (waist_gear.gd); không có món thì gỡ.
+static func _set_waist(character: Node, item: Dictionary) -> void:
+	var node := character.get_node_or_null("WaistGear")
+	if item.is_empty():
+		if node != null:
+			character.remove_child(node)
+			node.queue_free()
+		return
+	if node == null:
+		node = preload("res://scripts/waist_gear.gd").new()
+		node.name = "WaistGear"
+		character.add_child(node)
+	node.configure(item)
+
+## Phụ kiện đầu: node HeadGear (head_gear.gd); không có món thì gỡ.
+static func _set_head(character: Node, item: Dictionary) -> void:
+	var node := character.get_node_or_null("HeadGear")
+	if item.is_empty():
+		if node != null:
+			character.remove_child(node)
+			node.queue_free()
+		return
+	if node == null:
+		node = preload("res://scripts/head_gear.gd").new()
+		node.name = "HeadGear"
+		character.add_child(node)
+	node.configure(item)
+
+## Kiếm đeo lưng: node BackSword (back_sword.gd) với màu vỏ theo món; không có món thì gỡ.
+static func _set_sword(character: Node, item: Dictionary) -> void:
+	var node := character.get_node_or_null("BackSword")
+	if item.is_empty():
+		if node != null:
+			character.remove_child(node)
+			node.queue_free()
+		return
+	if node == null:
+		node = preload("res://scripts/back_sword.gd").new()
+		node.name = "BackSword"
+		character.add_child(node)
+	node.configure_style(item["scabbard"], item["edge"], item["metal"], item["hilt"])
+	if item.has("glow"):
+		node.glow_color = item["glow"]
+		node.glow = 0.5
+	else:
+		node.glow = 0.0
 
 
 ## Bộ đồ có "aura" (color, color2, outline, rise, trail) thì gắn hào quang; không thì gỡ.
