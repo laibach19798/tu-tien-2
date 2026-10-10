@@ -169,6 +169,7 @@ const BASE_DEFS := {
 const COMPOUND_SIZE := Vector2(3600, 2800)
 const COMPOUND_ENTRY := Vector2(1800, 2420)
 const COMPOUND_GATE := Vector2(1800, 2700)
+const COMPOUND_PLATEAU := Rect2(240, 330, 3120, 2430)   # cao nguyên đi được; ngoài là biển mây
 # Các điện: foot = chân tòa nhà (giữa-đáy), cửa ở foot + (0, 55). Chức năng của từng điện xem MapBuilder._compound_npcs.
 const COMPOUND_HALLS := [
 	{"id": "main", "name": "Chưởng Môn Điện", "prop": "hall_main", "foot": Vector2(1800, 980), "sc": 1.9, "block": Vector2(320, 70)},

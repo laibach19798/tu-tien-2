@@ -3,14 +3,14 @@ extends SceneTree
 var main: Node
 var frame := 0
 const SHOTS := [
-	[40, "sect_kiem_tong", Vector2(1800, 2300)],
-	[70, "sect_kiem_tong", Vector2(1800, 1300)],
-	[100, "sect_kiem_tong", Vector2(1000, 2150)],
-	[130, "sect_kiem_tong", Vector2(2700, 2560)],
-	[160, "sect_kiem_tong", Vector2(600, 860)],
-	[190, "sect_xich_viem", Vector2(1800, 1760)],
-	[220, "sect_doc_mon", Vector2(1800, 1760)],
-	[250, "sect_huyen_minh", Vector2(1800, 1100)],
+	[40, "sect_kiem_tong", Vector2(1800, 2480)],
+	[70, "sect_kiem_tong", Vector2(1800, 2150)],
+	[100, "sect_kiem_tong", Vector2(1800, 1330)],
+	[130, "sect_kiem_tong", Vector2(1800, 800)],
+	[160, "sect_kiem_tong", Vector2(500, 600)],
+	[190, "sect_kiem_tong", Vector2(3250, 1500)],
+	[220, "sect_xich_viem", Vector2(1800, 1330)],
+	[250, "sect_huyen_minh", Vector2(1800, 2150)],
 ]
 
 

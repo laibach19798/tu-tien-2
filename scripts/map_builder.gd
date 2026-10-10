@@ -11,7 +11,8 @@ static func build(m: Node, id: String) -> void:
 	var xr := RandomNumberGenerator.new()
 	xr.seed = hash(id)
 	_ground(m, d, xr)
-	_border(m, d, xr)
+	if not d.has("sect"):
+		_border(m, d, xr)
 	m.gates = []
 	for g in d["gates"]:   # cổng ra: mặc định về chỗ đứng trước cổng ở thế giới gốc
 		var gg: Dictionary = (g as Dictionary).duplicate()
@@ -217,6 +218,7 @@ static func _ground(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void:
 		_paint_plazas(img, xr)
 	if d.has("sect"):
 		_paint_compound_plazas(img, d, xr)
+		_paint_sky(img, str(SectWar.SECTS[d["sect"]]["theme"]), xr)
 	var tex := ImageTexture.create_from_image(img)
 	if bool(d.get("war", false)) or d.has("sect"):
 		_ground_cache[d["name"]] = tex
@@ -625,6 +627,97 @@ static func refresh_territory(m: Node, tid: String) -> void:
 		_garrison(m, tid)
 
 
+# ---------------------------------------------------------------- Tiên môn: cao nguyên giữa biển mây
+const SKY := {
+	"meadow": [Color(0.40, 0.62, 0.92), Color(0.86, 0.94, 1.0)],
+	"lava": [Color(0.20, 0.06, 0.08), Color(0.78, 0.32, 0.20)],
+	"snow": [Color(0.55, 0.72, 0.95), Color(0.95, 0.98, 1.0)],
+	"swamp": [Color(0.12, 0.22, 0.20), Color(0.55, 0.72, 0.52)],
+	"cave": [Color(0.08, 0.05, 0.18), Color(0.45, 0.30, 0.65)],
+}
+const CLIFF := {
+	"meadow": Color(0.50, 0.50, 0.55), "lava": Color(0.22, 0.17, 0.17), "snow": Color(0.62, 0.70, 0.80),
+	"swamp": Color(0.28, 0.34, 0.26), "cave": Color(0.26, 0.22, 0.34),
+}
+
+
+## Ngoài cao nguyên là bầu trời chuyển màu, mép cao nguyên là vách đá gồ ghề có bóng đổ.
+static func _paint_sky(img: Image, theme: String, xr: RandomNumberGenerator) -> void:
+	var pl: Rect2 = Maps.COMPOUND_PLATEAU
+	var w := img.get_width()
+	var h := img.get_height()
+	var sky: Array = SKY[theme]
+	var cliff: Color = CLIFF[theme]
+	var noise := FastNoiseLite.new()
+	noise.seed = 77
+	noise.frequency = 0.012
+	var fine := FastNoiseLite.new()
+	fine.seed = 78
+	fine.frequency = 0.09
+	for y in h:
+		var sky_col: Color = (sky[0] as Color).lerp(sky[1], clampf(float(y) / h, 0.0, 1.0))
+		for x in w:
+			var wob := noise.get_noise_2d(x, y) * 70.0
+			var dx := minf(x - pl.position.x, pl.end.x - x) + wob
+			var dy := minf(y - pl.position.y, pl.end.y - y) + wob
+			var inside := minf(dx, dy)
+			if inside > 44.0:
+				continue
+			if inside > 0.0:
+				var t := 1.0 - inside / 44.0
+				var c := cliff.lerp(Color(0.12, 0.12, 0.16), t * 0.7)
+				c = c.lightened(fine.get_noise_2d(x, y) * 0.12)
+				if inside < 8.0:
+					c = c.darkened(0.25)
+				img.set_pixel(x, y, c)
+			else:
+				var f := fine.get_noise_2d(x * 0.5, y * 0.5) * 0.04
+				var sc := sky_col.lightened(f)
+				if inside > -34.0:
+					sc = sc.darkened(0.3 * (1.0 + inside / 34.0))
+				img.set_pixel(x, y, sc)
+
+
+static func _xt(name: String) -> Texture2D:
+	var path := "res://assets/props/%s.png" % name
+	return load(path) if ResourceLoader.exists(path) else null
+
+
+## Chặn người đi ra ngoài cao nguyên (vực mây).
+static func _plateau_blockers(m: Node, size: Vector2) -> void:
+	var pl: Rect2 = Maps.COMPOUND_PLATEAU
+	m.blockers.append(Rect2(0, 0, size.x, pl.position.y + 12.0))
+	m.blockers.append(Rect2(0, pl.end.y - 18.0, size.x, size.y - pl.end.y + 18.0))
+	m.blockers.append(Rect2(0, 0, pl.position.x + 12.0, size.y))
+	m.blockers.append(Rect2(pl.end.x - 12.0, 0, size.x - pl.end.x + 12.0, size.y))
+
+
+static func _tienfx(m: Node, d: Dictionary, col: Color, theme: String) -> void:
+	var size: Vector2 = d["size"]
+	var pl: Rect2 = Maps.COMPOUND_PLATEAU
+	var sky := TienFx.new()
+	sky.kind = "sky"
+	sky.size = size
+	sky.plateau = pl
+	sky.tint = Color(1, 1, 1) if theme != "cave" and theme != "lava" else Color(0.85, 0.75, 0.95)
+	var isle_a := _xt("xt_isle_a")
+	var isle_b := _xt("xt_isle_b")
+	var spots := [[600.0, 170.0, 0], [1250.0, 120.0, 1], [2350.0, 130.0, 0], [3000.0, 175.0, 1],
+		[110.0, 1150.0, 1], [3490.0, 1500.0, 0], [120.0, 2150.0, 0], [3480.0, 880.0, 1]]
+	m.layer_ground.add_child(sky)
+	for sp in spots:
+		var tex: Texture2D = isle_a if int(sp[2]) == 0 else isle_b
+		if tex != null:
+			sky.add_island(tex, Vector2(sp[0], sp[1]), 0.95, 7.0)
+	var mist := TienFx.new()
+	mist.kind = "mist"
+	mist.size = size
+	mist.plateau = pl
+	mist.tint = col.lerp(Color.WHITE, 0.55)
+	m._map_root.add_child(mist)
+	_plateau_blockers(m, size)
+
+
 # ---------------------------------------------------------------- Tông môn (map riêng)
 ## Sân lát đá trước từng điện và quảng trường lớn giữa tông môn.
 static func _paint_compound_plazas(img: Image, d: Dictionary, xr: RandomNumberGenerator) -> void:
@@ -766,6 +859,7 @@ static func _compound(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void
 		if ResourceLoader.exists("res://assets/props/pavilion.png"):
 			var pv: Sprite2D = m._prop("pavilion", pp, Vector2(150, 40), 1.4)
 			_recolor(pv, roof)
+	_tien_architecture(m, d, xr, col, roof)
 	var yy := 2350.0
 	while yy > 1150.0:
 		for sx in [-140.0, 140.0]:
@@ -784,10 +878,14 @@ static func _compound(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void
 	var plazas: Array = [[Vector2(1800, 2200), 560.0, 200.0], [Vector2(1800, 1100), 520.0, 220.0]]
 	for hall in Maps.COMPOUND_HALLS:
 		plazas.append([(hall["foot"] as Vector2) + Vector2(0, 40), 250.0, 110.0])
+	var extra_rects: Array = [Rect2(1360, 400, 880, 420), Rect2(1450, 1980, 700, 220), Rect2(1380, 2200, 840, 200), Rect2(1140, 1130, 1320, 240)]
 	var clear := func(p: Vector2) -> bool:
-		if p.x < 140.0 or p.y < 260.0 or p.x > 3460.0 or p.y > 2640.0:
+		if not Maps.COMPOUND_PLATEAU.grow(-110.0).has_point(p):
 			return false
 		for r in rects:
+			if (r as Rect2).has_point(p):
+				return false
+		for r in extra_rects:
 			if (r as Rect2).has_point(p):
 				return false
 		if Rect2(1380, 1500, 840, 300).has_point(p) or _path_dist(p, lines) < 100.0 or p.distance_to(Maps.COMPOUND_GATE) < 300.0:
@@ -797,10 +895,57 @@ static func _compound(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void
 				return false
 		return not m._is_blocked(Rect2(p.x - 50, p.y - 40, 100, 50))
 	_place_theme_props(m, d, xr, str(h["theme"]), Vector2(1800, 1450), 1700.0, 1250.0, lines, 5.0, clear)
+	_tienfx(m, d, col, str(h["theme"]))
 	if sid == SectWar.PLAYER:
 		_compound_npcs(m)
 	else:
 		_compound_hostiles(m, sid)
+
+
+## Kiến trúc tiên môn: đại môn, nhị môn, tháp chín tầng giữa mây, đỉnh đồng, tiên hạc, kiếm bia, đào tiên, đèn linh, tháp ngọc.
+static func _tien_architecture(m: Node, d: Dictionary, xr: RandomNumberGenerator, col: Color, roof: Dictionary) -> void:
+	var cyan := Color(0.5, 0.9, 1.0)
+	var pl := _xt("xt_pailou")
+	if pl != null:
+		var s: Sprite2D = m._prop("xt_pailou", Vector2(1800, 2400), Vector2.ZERO, 1.25, false)
+		_recolor(s, roof)
+		var half := pl.get_width() * 1.25 * 0.5
+		m.blockers.append(Rect2(1800 - half, 2370, half - 105.0, 36))
+		m.blockers.append(Rect2(1800 + 105.0, 2370, half - 105.0, 36))
+		m.atmo.add_light(Vector2(1800, 2300), cyan, 3.0, 0.8)
+		m.no_decor.append(Rect2(1800 - half, 2150, half * 2, 300))
+	var ig := _xt("xt_inner_gate")
+	if ig != null:
+		var s2: Sprite2D = m._prop("xt_inner_gate", Vector2(1800, 2040), Vector2.ZERO, 1.1, false)
+		_recolor(s2, roof)
+		var half2 := ig.get_width() * 1.1 * 0.5
+		m.blockers.append(Rect2(1800 - half2, 2015, half2 - 70.0, 30))
+		m.blockers.append(Rect2(1800 + 70.0, 2015, half2 - 70.0, 30))
+	_put(m, "xt_sky_tower", Vector2(1800, 640), Vector2(120, 50), 1.25, cyan)
+	for sx in [-1.0, 1.0]:
+		_put(m, "xt_stupa", Vector2(1800 + sx * 980.0, 1260), Vector2(34, 14), 1.4, cyan)
+		_put(m, "xt_huabiao", Vector2(1800 + sx * 330.0, 2330), Vector2(30, 14), 1.3)
+		_put(m, "xt_crane", Vector2(1800 + sx * 560.0, 2290), Vector2(110, 16), 1.2)
+		_put(m, "xt_ding", Vector2(1800 + sx * 250.0, 1210), Vector2(80, 20), 1.1, cyan)
+		_put(m, "xt_peach", Vector2(1800 + sx * 1480.0, 1010), Vector2(40, 18), 1.2, Color(1.0, 0.6, 0.8))
+		_put(m, "xt_peach", Vector2(1800 + sx * 1120.0, 760), Vector2(40, 18), 1.0, Color(1.0, 0.6, 0.8))
+	_put(m, "xt_sword", Vector2(1300, 2290), Vector2(70, 18), 1.3, cyan)
+	_put(m, "xt_sword", Vector2(2300, 2290), Vector2(70, 18), 1.3, cyan)
+	for hall in Maps.COMPOUND_HALLS:
+		if hall["id"] == "main":
+			continue
+		var f: Vector2 = hall["foot"]
+		for sx in [-1.0, 1.0]:
+			_put(m, "xt_lamp", f + Vector2(sx * 190.0, 70), Vector2(20, 10), 1.1, cyan)
+
+
+static func _put(m: Node, name: String, foot: Vector2, block: Vector2, sc: float, glow := Color(0, 0, 0, 0)) -> void:
+	var tex := _xt(name)
+	if tex == null:
+		return
+	m._prop(name, foot, block, sc, false)
+	if glow.a > 0.0:
+		m.atmo.add_light(foot + Vector2(0, -tex.get_height() * sc * 0.4), glow, 1.6 + sc, 0.7)
 
 
 ## Chức năng từng điện của Kiếm Tông: mỗi điện có một người phụ trách (hoặc vật thể) ở cửa.
