@@ -168,7 +168,16 @@ func _refresh_preview() -> void:
 		var id: String = _preview_outfit.get(slot, "")
 		if id != "" and Wardrobe.ITEMS.has(id):
 			parts.append(Wardrobe.ITEMS[id]["name"])
-	_preview_name.text = "%s\n%s" % [_dir_names[_dirs[_dir_i]], "\n".join(parts)]
+	var set_lines: Array = []
+	for st in Wardrobe.set_status(_preview_outfit):
+		if int(st["count"]) > 0:
+			var line := "Bộ %s %d/%d" % [st["name"], st["count"], st["total"]]
+			if not (st["bonus"] as Dictionary).is_empty():
+				line += ": " + Wardrobe.bonus_text(st["bonus"])
+			elif int(st["next_need"]) > 0:
+				line += " (cần %d món)" % int(st["next_need"])
+			set_lines.append(line)
+	_preview_name.text = "%s\n%s%s" % [_dir_names[_dirs[_dir_i]], "\n".join(parts), ("\n\n" + "\n".join(set_lines)) if not set_lines.is_empty() else ""]
 
 
 func refresh() -> void:
@@ -222,7 +231,19 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 		tag.add_child(UIKit.label("Đã có", 12, UIKit.JADE))
 		nrow.add_child(tag)
 	col.add_child(nrow)
-	var dl := UIKit.label(str(d["desc"]), 13, UIKit.MUTED)
+	var desc_text := str(d["desc"])
+	if d.has("unlock") and not own:
+		var qid := str((d["unlock"] as Dictionary).get("quest", ""))
+		var qtitle := qid
+		for qd in QuestLog.QUESTS:
+			if qd["id"] == qid:
+				qtitle = str(qd["title"])
+		desc_text += "\nMở khóa: hoàn thành nhiệm vụ «%s»" % qtitle
+	if d.has("drop") and not own:
+		var dd: Dictionary = d["drop"]
+		var mob_name := str((Monster.KINDS.get(str(dd.get("mob", "")), {}) as Dictionary).get("name", "quái"))
+		desc_text += "\nChỉ rơi từ: %s (%d%%)" % [mob_name, int(round(float(dd.get("chance", 0.0)) * 100.0))]
+	var dl := UIKit.label(desc_text, 13, UIKit.MUTED)
 	dl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dl.custom_minimum_size = Vector2(200, 0)
 	col.add_child(dl)
@@ -240,6 +261,9 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 	elif own:
 		act.text = "Mặc"
 		act.pressed.connect(_equip.bind(id))
+	elif d.has("unlock") or d.has("drop"):
+		act.text = "Khóa"
+		act.disabled = true
 	else:
 		act.text = "Mua · %d" % int(d["price"])
 		act.disabled = inv.stones < int(d["price"])

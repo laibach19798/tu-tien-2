@@ -142,8 +142,11 @@ func cast(i: int) -> void:
 		"storm": _do_storm()
 
 
+var dmg_mult := 1.0   # thưởng bộ trang phục
+
+
 func _power(base: float) -> float:
-	return base * (1.0 + 0.12 * cult.step_index())
+	return base * (1.0 + 0.12 * cult.step_index()) * dmg_mult
 
 
 func hit_target(t: Node, dmg: float, col := Color(0.6, 0.95, 1.0), big := false) -> void:

@@ -14,6 +14,7 @@ var layer := 1          # tầng 1..9
 var xp := 0.0           # tu vi trong tầng hiện tại
 var qi := 0.0           # linh khí đã hấp thụ, chờ luyện hoá
 var ready_breakthrough := false
+var xp_mult := 1.0       # thưởng bộ trang phục: tu vi nhận được nhân hệ số này
 
 
 func step_index() -> int:
@@ -53,7 +54,7 @@ func meditate(delta: float, density: float) -> void:
 func add_xp(amount: float) -> void:
 	if ready_breakthrough:
 		return
-	xp += amount
+	xp += amount * xp_mult
 	while xp >= xp_needed():
 		if layer < LAYERS:
 			xp -= xp_needed()

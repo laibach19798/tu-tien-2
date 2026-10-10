@@ -5,6 +5,7 @@ class_name QuestLog
 
 signal changed
 signal message(text: String)
+signal outfits_unlocked(ids: Array)   # trang phục mở khóa khi hoàn thành nhiệm vụ
 
 const QUESTS := [
 	{
@@ -340,8 +341,13 @@ func complete(id: String) -> void:
 	for k in its:
 		inv.add(k, int(its[k]))
 		parts.append("%s x%d" % [Items.item_name(k), int(its[k])])
+	var unlocked := Wardrobe.items_unlocked_by(id)
+	for oid in unlocked:
+		parts.append("trang phục %s" % Wardrobe.ITEMS[oid]["name"])
 	states[id] = "done"
 	message.emit("Hoàn thành: %s  (+%s)" % [q["title"], ", ".join(parts)])
+	if not unlocked.is_empty():
+		outfits_unlocked.emit(unlocked)
 	changed.emit()
 
 

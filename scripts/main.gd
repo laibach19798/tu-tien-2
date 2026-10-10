@@ -558,6 +558,9 @@ const QI_ZONES := [
 
 var cult := Cultivation.new()
 var _last_realm := 1
+var set_speed_mult := 1.0   # thưởng bộ trang phục
+var _active_sets: Array = []
+var _sets_ready := false   # sau khi nạp xong mới báo "kích hoạt bộ"
 var vitals := Vitals.new()
 var monsters: Array = []
 var alchemy: CanvasLayer
@@ -599,10 +602,14 @@ func _build_hud() -> void:
 	vitals.hurt.connect(_on_player_hurt)
 	Sfx.setup(self)
 	vitals.died.connect(_on_player_died)
-	wardrobe.changed.connect(func(): Wardrobe.apply(player, wardrobe.equipped))
+	wardrobe.changed.connect(func():
+		Wardrobe.apply(player, wardrobe.equipped)
+		_apply_set_bonus(true))
 	cult.message.connect(hud.toast)
 	inv.message.connect(hud.toast)
 	quests.message.connect(hud.toast)
+	quests.outfits_unlocked.connect(_on_outfits_unlocked)
+	quests.changed.connect(_grant_quest_outfits)
 	_load_game()
 	hud.update_status(cult, false, 1.0)
 	hud.update_hp(vitals.hp, vitals.max_hp)
@@ -613,6 +620,8 @@ func _build_hud() -> void:
 	Wardrobe.apply(player, wardrobe.equipped)
 	_last_realm = cult.realm
 	_sync_aura_power()
+	_apply_set_bonus(false)
+	_sets_ready = true
 	cult.changed.connect(_sync_aura_power)
 	# Hào quang thiền định (con đầu tiên của nhân vật để vẽ phía sau)
 	aura = preload("res://scripts/aura.gd").new()
@@ -867,7 +876,7 @@ func _physics_process(delta: float) -> void:
 		var run := Input.is_key_pressed(KEY_SHIFT)
 		action = "run" if run else "walk"
 		direction = Dir.from_vector(v, direction)
-		var step := v * (RUN_SPEED if run else WALK_SPEED) * delta
+		var step := v * (RUN_SPEED if run else WALK_SPEED) * set_speed_mult * delta
 		var before := player.position
 		_move_axis(Vector2(step.x, 0.0))
 		_move_axis(Vector2(0.0, step.y))
@@ -969,6 +978,7 @@ func _build_gameplay() -> void:
 	school = SwordSchool.new()
 	add_child(school)
 	school.setup(self, player, cult, hud, fx_layer)
+	_apply_set_bonus(false)
 	school.from_dict(_pending_school)
 	school.message.connect(hud.toast)
 	_spawn_npc("swordmaster", "Kiếm sư Lăng Tiêu", {"hair": "hair_topknot_silver", "clothes": "outfit_plain", "shoes": "shoes_boot_black", "sword": "sword_black"}, Vector2(1050, 1150))
@@ -1264,6 +1274,9 @@ func on_monster_killed(m: Monster) -> void:
 	for id in drops:
 		if rng.randf() < float(drops[id]):
 			_drop(str(id), 1, m.position)
+	for od in Wardrobe.items_dropped_by(m.kind_id):   # trang phục hiếm rơi từ quái (chỉ khi chưa có)
+		if not wardrobe.is_owned(str(od["id"])) and rng.randf() < float(od["chance"]):
+			_drop(str(od["id"]), 1, m.position + Vector2(rng.randf_range(-14.0, 14.0), 6.0))
 	float_text(m.position + Vector2(0, -70), "+%d tu vi" % int(k["xp"]), UIKit.XP_GOLD)
 
 
@@ -1349,3 +1362,32 @@ func _sync_aura_power() -> void:
 		if a != null:
 			a.burst()
 	_last_realm = cult.realm
+
+## Thưởng bộ trang phục: áp lên tu vi, khí huyết, sát thương và tốc độ; báo khi vừa kích hoạt một bộ.
+func _apply_set_bonus(announce: bool) -> void:
+	var b := Wardrobe.total_bonus(wardrobe.equipped)
+	cult.xp_mult = 1.0 + float(b["xp"])
+	vitals.set_hp_bonus(float(b["hp"]))
+	set_speed_mult = 1.0 + float(b["speed"])
+	if school != null:
+		school.dmg_mult = 1.0 + float(b["dmg"])
+	var now: Array = []
+	for st in Wardrobe.set_status(wardrobe.equipped):
+		if not (st["bonus"] as Dictionary).is_empty():
+			now.append(str(st["id"]))
+			if announce and _sets_ready and not _active_sets.has(str(st["id"])):
+				hud.toast("Bộ %s (%d/%d): %s" % [st["name"], st["count"], st["total"], Wardrobe.bonus_text(st["bonus"])])
+	_active_sets = now
+
+## Trang phục mở khóa khi hoàn thành nhiệm vụ: thêm vào kho và báo người chơi.
+func _on_outfits_unlocked(ids: Array) -> void:
+	for id in ids:
+		if wardrobe.grant(str(id)):
+			hud.toast("Mở khóa trang phục: %s" % Wardrobe.ITEMS[id]["name"])
+
+## Cấp lại trang phục của các nhiệm vụ đã xong (save cũ, hoặc nhiệm vụ làm xong trước khi có tính năng).
+func _grant_quest_outfits() -> void:
+	for q in QuestLog.QUESTS:
+		if quests.states.get(q["id"], "") == "done":
+			for id in Wardrobe.items_unlocked_by(str(q["id"])):
+				wardrobe.grant(id)

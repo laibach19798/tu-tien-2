@@ -88,6 +88,8 @@ func _draw() -> void:
 			_draw_bell(a0, float(_theta[0]), back)
 		"gourd":
 			_draw_gourd(a0, float(_theta[0]), back)
+		"fang":
+			_draw_fang(a0, float(_theta[0]), back)
 		"both":
 			_draw_jade(a0, float(_theta[0]), back)
 			_draw_bell(a1, float(_theta[1]), back)
@@ -146,3 +148,14 @@ func _draw_gourd(anchor: Vector2, th: float, back: bool) -> void:
 	_px(e.x - 2.0, e.y + 8.0, 4.0, 1.0, c.darkened(0.3))
 	_px(e.x - 2.0, e.y + 4.0, 1.0, 3.0, c.lightened(0.35))      # bóng sáng
 	_px(e.x - 3.0, e.y + 3.0, 6.0, 1.0, col2)                   # dây buộc ngang eo hồ lô
+
+func _draw_fang(anchor: Vector2, th: float, back: bool) -> void:
+	var e := _end(anchor, th, CORD - 1.0)
+	_cord(anchor, e)
+	var c := col
+	_px(e.x - 1.0, e.y, 3.0, 2.0, col2)                  # hạt đỏ buộc dây
+	_px(e.x - 2.0, e.y + 2.0, 4.0, 2.0, c)               # gốc nanh
+	_px(e.x - 1.0, e.y + 4.0, 3.0, 2.0, c)
+	_px(e.x - 1.0, e.y + 6.0, 2.0, 1.0, c.darkened(0.15))
+	_px(e.x, e.y + 7.0, 1.0, 1.0, c.darkened(0.3))       # mũi nanh
+	_px(e.x - 2.0, e.y + 2.0, 1.0, 3.0, c.lightened(0.3))
