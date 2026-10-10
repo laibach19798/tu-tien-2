@@ -33,7 +33,7 @@ func _ready() -> void:
 	top.add_theme_constant_override("separation", 8)
 	v.add_child(top)
 	var group := ButtonGroup.new()
-	for t in [["char", "Nhân vật  (P)"], ["quest", "Nhiệm vụ  (Q)"]]:
+	for t in [["char", "Nhân vật  (P)"], ["quest", "Nhiệm vụ  (Q)"], ["collect", "Sưu tầm  (O)"]]:
 		var b := Button.new()
 		b.text = t[1]
 		b.toggle_mode = true
@@ -91,8 +91,14 @@ func _unhandled_input(event: InputEvent) -> void:
 				close_ui()
 			else:
 				_set_tab("quest")
+		KEY_O:
+			if _tab == "collect":
+				close_ui()
+			else:
+				_set_tab("collect")
 		KEY_TAB:
-			_set_tab("quest" if _tab == "char" else "char")
+			var order := ["char", "quest", "collect"]
+			_set_tab(order[(order.find(_tab) + 1) % order.size()])
 		KEY_LEFT, KEY_A:
 			_rotate(-1)
 		KEY_RIGHT, KEY_D:
@@ -120,10 +126,13 @@ func _build() -> void:
 		_content.remove_child(c)
 		c.queue_free()
 	_preview = null
-	if _tab == "char":
-		_build_char()
-	else:
-		_build_quests()
+	match _tab:
+		"char":
+			_build_char()
+		"quest":
+			_build_quests()
+		_:
+			_build_collect()
 
 
 func _row(parent: Control, k: String, v: String, vc := UIKit.PAPER) -> void:
@@ -210,6 +219,7 @@ func _build_char() -> void:
 	_row(stats, "Khí huyết tối đa", "%d" % roundi(main.vitals.max_hp))
 	_row(stats, "Linh khí tối đa", "%d" % roundi(cult.qi_max()))
 	_row(stats, "Linh thạch", "%d" % main.inv.stones, UIKit.STONE_TXT)
+	_row(stats, "Danh hiệu", Wardrobe.title_name(main.wardrobe.title) if main.wardrobe.title != "" else "—", UIKit.GOLD)
 	_row(stats, "Chức vị Kiếm Tông", Sect.rank_name(main.inv.merit_total), UIKit.JADE)
 	_row(stats, "Cống hiến", "%d  (tổng %d)" % [main.inv.merit, main.inv.merit_total], Color(1.0, 0.82, 0.35))
 	mid.add_child(HSeparator.new())
@@ -274,6 +284,110 @@ func _skill_card(i: int) -> Control:
 		ic = UIKit.RED
 	col.add_child(UIKit.label(info, 14, ic))
 	return pc
+
+
+# ---------------------------------------------------------------- tab sưu tầm
+func _build_collect() -> void:
+	var w: Wardrobe = main.wardrobe
+	var h := HBoxContainer.new()
+	h.set_anchors_preset(Control.PRESET_FULL_RECT)
+	h.add_theme_constant_override("separation", 16)
+	_content.add_child(h)
+	# --- trái: các bộ trang phục
+	var sc := ScrollContainer.new()
+	sc.custom_minimum_size = Vector2(600, 0)
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	h.add_child(sc)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 8)
+	sc.add_child(list)
+	for sid in Wardrobe.SETS:
+		list.add_child(_set_card(w, str(sid)))
+	# --- phải: danh hiệu
+	var right := PanelContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), UIKit.BLACK, 2, 0, Vector2(14, 12)))
+	h.add_child(right)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	right.add_child(v)
+	v.add_child(UIKit.Banner.new("Danh hiệu", 22, UIKit.GOLD, true))
+	var total := Wardrobe.ITEMS.size()
+	v.add_child(UIKit.label("Trang phục đã sưu tầm: %d / %d" % [w.owned.size(), total], 15, UIKit.MUTED))
+	v.add_child(HSeparator.new())
+	for tid in Wardrobe.all_title_ids():
+		v.add_child(_title_row(w, str(tid)))
+
+
+func _set_card(w: Wardrobe, sid: String) -> Control:
+	var s: Dictionary = Wardrobe.SETS[sid]
+	var pr := w.set_progress(sid)
+	var done: bool = int(pr["have"]) == int(pr["total"])
+	var pc := PanelContainer.new()
+	pc.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), UIKit.GOLD if done else UIKit.BLACK, 2, 0, Vector2(12, 8)))
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 2)
+	pc.add_child(v)
+	var head := HBoxContainer.new()
+	var nm := UIKit.label("Bộ %s" % str(s["name"]), 19, UIKit.GOLD if done else UIKit.PAPER)
+	nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.add_child(nm)
+	head.add_child(UIKit.label("%d / %d" % [pr["have"], pr["total"]], 17, UIKit.JADE if done else UIKit.MUTED))
+	v.add_child(head)
+	var tiers: Array = (s["bonus"] as Dictionary).keys()
+	tiers.sort()
+	var worn := 0
+	for slot in s["pieces"]:
+		if str(w.equipped.get(slot, "")) == str(s["pieces"][slot]):
+			worn += 1
+	for need in tiers:
+		var on := worn >= int(need)
+		v.add_child(UIKit.label("%d món: %s" % [need, Wardrobe.bonus_text(s["bonus"][need])], 14, UIKit.JADE if on else UIKit.MUTED))
+	for slot in s["pieces"]:
+		var id := str(s["pieces"][slot])
+		var have := w.is_owned(id)
+		var how := "" if have else Wardrobe.acquire_text(id, true)
+		if not have and how == "":
+			how = "Tiệm may, %d linh thạch" % int(Wardrobe.ITEMS[id]["price"])
+		var line := "• %s: %s" % [Wardrobe.SLOT_NAMES[slot], Wardrobe.ITEMS[id]["name"]]
+		if not have:
+			line += "  —  " + how
+		var pl := UIKit.label(line, 14, UIKit.PAPER if have else UIKit.MUTED)
+		pl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		v.add_child(pl)
+	return pc
+
+
+func _title_row(w: Wardrobe, tid: String) -> Control:
+	var got := w.earned_titles.has(tid)
+	var hb := HBoxContainer.new()
+	hb.add_theme_constant_override("separation", 8)
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_theme_constant_override("separation", 0)
+	col.add_child(UIKit.label(Wardrobe.title_name(tid) if got else "???", 17, UIKit.GOLD if got else UIKit.MUTED))
+	var hl := UIKit.label(Wardrobe.title_how(tid), 13, UIKit.MUTED)
+	hl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hl.custom_minimum_size = Vector2(190, 0)
+	col.add_child(hl)
+	hb.add_child(col)
+	if got:
+		var b := Button.new()
+		b.focus_mode = Control.FOCUS_NONE
+		b.custom_minimum_size = Vector2(76, 34)
+		if w.title == tid:
+			b.text = "Bỏ"
+			b.pressed.connect(func():
+				w.set_title("")
+				_build())
+		else:
+			b.text = "Đeo"
+			b.pressed.connect(func():
+				w.set_title(tid)
+				_build())
+		hb.add_child(b)
+	return hb
 
 
 # ---------------------------------------------------------------- tab nhiệm vụ

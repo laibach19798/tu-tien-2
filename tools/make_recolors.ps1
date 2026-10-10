@@ -61,7 +61,8 @@ $variants = @(
   @("thanh",    178, 0.9, 1.05, 0.0),
   @("bachvan",  195, 0.30, 1.2, 0.30),
   @("tudien",   262, 1.2, 0.6, 0.0),
-  @("langvuong", 8, 1.15, 0.75, 0.0)
+  @("langvuong", 8, 1.15, 0.75, 0.0),
+  @("linhmach", 203, 1.5, 1.2, 0.06)
 )
 foreach ($v in $variants) {
   foreach ($a in "idle","walk","run","slash") {

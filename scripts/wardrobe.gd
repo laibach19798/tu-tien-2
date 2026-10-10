@@ -4,6 +4,7 @@ class_name Wardrobe
 ## Ảnh lớp trang phục là thang xám (tools/gen_fashion.ps1), màu được tô bằng modulate.
 
 signal changed
+signal title_earned(title_name: String, how: String)   # vừa đạt một danh hiệu mới
 
 const SLOTS := ["hair", "clothes", "dye", "shoes", "head", "waist", "sword"]
 # slot không bắt buộc: có thể không mặc món nào
@@ -14,26 +15,39 @@ const SLOT_NAMES := {"hair": "Tóc", "clothes": "Áo", "dye": "Nhuộm", "shoes"
 # pieces: slot -> id món; bonus theo số món: dmg (sát thương), xp (tu vi nhận được), hp (khí huyết tối đa), speed (tốc độ chạy)
 const SETS := {
 	"giang_ho": {
-		"name": "Giang Hồ",
+		"name": "Giang Hồ", "title": "Giang Hồ Khách",
 		"pieces": {"clothes": "outfit_lam", "head": "head_band_white", "waist": "waist_gourd", "sword": "sword_iron"},
 		"bonus": {2: {"speed": 0.06}, 4: {"speed": 0.12, "hp": 0.10}},
 	},
 	"kiem_tu": {
-		"name": "Kiếm Tu",
+		"name": "Kiếm Tu", "title": "Kiếm Tu Hắc Y",
 		"pieces": {"clothes": "outfit_do", "head": "head_band_red", "shoes": "shoes_boot_black", "sword": "sword_black"},
 		"bonus": {2: {"dmg": 0.08}, 4: {"dmg": 0.22, "speed": 0.05}},
 	},
 	"dao_si": {
-		"name": "Đạo Sĩ",
+		"name": "Đạo Sĩ", "title": "Đạo Sĩ Thanh Tịnh",
 		"pieces": {"clothes": "outfit_trang", "hair": "hair_topknot_silver", "head": "head_crown_gold", "waist": "waist_jade", "shoes": "shoes_cloth_white"},
 		"bonus": {2: {"xp": 0.10}, 3: {"xp": 0.18, "hp": 0.08}, 5: {"xp": 0.30, "hp": 0.15}},
 	},
 	"tien_nhan": {
-		"name": "Tiên Nhân",
+		"name": "Tiên Nhân", "title": "Tiên Nhân Hạ Phàm",
 		"pieces": {"clothes": "tien_bao_bach_van", "hair": "hair_long_silver", "head": "head_halo", "waist": "waist_jade_white", "sword": "sword_frost"},
 		"bonus": {3: {"xp": 0.15, "dmg": 0.10}, 5: {"xp": 0.35, "dmg": 0.25, "hp": 0.20}},
 	},
+	"lang_vuong": {
+		"name": "Lang Vương", "title": "Thợ Săn Lang Vương",
+		"pieces": {"clothes": "outfit_wolf_king", "waist": "waist_wolf_fang", "head": "head_band_wolf", "shoes": "shoes_boot_wolf", "sword": "sword_wolf"},
+		"bonus": {2: {"dmg": 0.06}, 3: {"dmg": 0.12, "speed": 0.04}, 5: {"dmg": 0.25, "hp": 0.10, "speed": 0.06}},
+	},
+	"linh_mach": {
+		"name": "Linh Mạch", "title": "Hành Giả Linh Mạch",
+		"pieces": {"clothes": "outfit_linh_mach", "head": "head_pin_crystal", "waist": "waist_crystal", "shoes": "shoes_boot_crystal", "sword": "sword_crystal"},
+		"bonus": {2: {"xp": 0.08}, 3: {"xp": 0.15, "hp": 0.08}, 5: {"xp": 0.30, "hp": 0.12, "speed": 0.04}},
+	},
 }
+const REGION_NAMES := {"cave": "Hang Linh Mạch"}
+# mốc số trang phục đã sưu tầm -> danh hiệu (danh hiệu theo bộ: SETS[...]["title"])
+const MILESTONES := [[15, "Người Mê Y Phục"], [30, "Chủ Nhân Y Quán"], [50, "Thiên Y Vô Phùng"]]
 const BONUS_LABELS := {"dmg": "sát thương", "xp": "tu vi nhận được", "hp": "khí huyết", "speed": "tốc độ"}
 # style trùng với tên file trong character/fashion/frames/
 const ITEMS := {
@@ -98,12 +112,23 @@ const ITEMS := {
 	# --- Chỉ rơi từ quái ---
 	"waist_wolf_fang": {"slot": "waist", "name": "Nanh sói bội", "drop": {"mob": "wolf", "chance": 0.06}, "kind": "fang", "col": Color(0.95, 0.93, 0.85), "col2": Color(0.8, 0.2, 0.2), "tint": Color(0.95, 0.93, 0.85), "price": 0, "desc": "Chiếc nanh sói đục lỗ xâu dây đỏ, chiến lợi phẩm của kẻ săn sói."},
 	"outfit_wolf_king": {"slot": "clothes", "name": "Áo Lang Vương", "drop": {"mob": "wolf_king", "chance": 0.35}, "style": "langvuong", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Áo may từ da Hắc Lang Vương, đỏ sẫm như máu, chỉ rơi từ thủ lĩnh bầy sói."},
+	"shoes_boot_wolf": {"slot": "shoes", "name": "Hài Lang Vương", "drop": {"mob": "wolf_king", "chance": 0.3}, "style": "boot", "tint": Color(0.45, 0.10, 0.12), "price": 0, "desc": "Hài cao cổ đỏ sẫm bọc da sói, bước đi êm như thú săn mồi."},
+	"head_band_wolf": {"slot": "head", "name": "Khăn trán Lang Vương", "drop": {"mob": "wolf_king", "chance": 0.3}, "gear": "band", "col": Color(0.5, 0.08, 0.1), "col2": Color(0.95, 0.93, 0.85), "tint": Color(0.5, 0.08, 0.1), "price": 0, "desc": "Khăn đỏ sẫm cài nanh sói, đuôi khăn phần phật như bờm sói."},
+	"sword_wolf": {"slot": "sword", "name": "Huyết Lang kiếm", "drop": {"mob": "wolf_king", "chance": 0.2}, "scabbard": Color(0.35, 0.08, 0.10), "edge": Color(0.7, 0.2, 0.2), "metal": Color(0.95, 0.9, 0.8), "hilt": Color(0.2, 0.05, 0.07), "glow": Color(1.0, 0.25, 0.2), "tint": Color(0.35, 0.08, 0.10), "price": 0, "desc": "Vỏ kiếm đỏ máu, sát khí của Hắc Lang Vương còn vương lại."},
+	# --- Bộ Linh Mạch: chỉ rơi từ yêu tướng canh Hang Linh Mạch ---
+	"outfit_linh_mach": {"slot": "clothes", "name": "Áo Linh Mạch", "drop": {"mob": "goblin_elite", "chance": 0.07, "region": "cave"}, "style": "linhmach", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Áo xanh lam thấm linh khí của mạch ngầm, lấp lánh như tinh thạch."},
+	"head_pin_crystal": {"slot": "head", "name": "Trâm tinh thạch", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "cave"}, "gear": "pin", "col": Color(0.45, 0.85, 1.0), "col2": Color(0.9, 0.97, 1.0), "tint": Color(0.45, 0.85, 1.0), "price": 0, "desc": "Trâm cài tóc mài từ tinh thạch trong hang, toả ánh xanh nhạt."},
+	"waist_crystal": {"slot": "waist", "name": "Linh tinh bội", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "cave"}, "kind": "jade", "col": Color(0.4, 0.85, 1.0), "col2": Color(0.85, 0.95, 1.0), "tint": Color(0.4, 0.85, 1.0), "price": 0, "desc": "Bội tinh thạch xanh băng, tua bạc khẽ sáng trong bóng tối."},
+	"shoes_boot_crystal": {"slot": "shoes", "name": "Hài tinh thạch", "drop": {"mob": "goblin_elite", "chance": 0.12, "region": "cave"}, "style": "boot", "tint": Color(0.35, 0.65, 0.85), "price": 0, "desc": "Hài cao cổ khảm mảnh tinh thạch, bước nhẹ như lướt trên linh mạch."},
+	"sword_crystal": {"slot": "sword", "name": "Tinh Thạch kiếm", "drop": {"mob": "goblin_elite", "chance": 0.06, "region": "cave"}, "scabbard": Color(0.2, 0.45, 0.65), "edge": Color(0.7, 0.95, 1.0), "metal": Color(0.9, 0.98, 1.0), "hilt": Color(0.12, 0.3, 0.45), "glow": Color(0.4, 0.85, 1.0), "tint": Color(0.2, 0.45, 0.65), "price": 0, "desc": "Vỏ kiếm xanh thẫm toả linh quang, rèn từ lõi tinh thạch của hang."},
 }
 
 const STARTER := {"hair": "hair_topknot_black", "clothes": "outfit_plain", "shoes": "shoes_cloth_brown"}
 
 var owned: Array = []
 var equipped: Dictionary = {}
+var earned_titles: Array = []   # "set:<id bộ>" hoặc "mile:<mốc>"
+var title := ""                 # danh hiệu đang đeo ("" = không đeo)
 
 
 func _init() -> void:
@@ -113,6 +138,8 @@ func _init() -> void:
 func reset() -> void:
 	owned = STARTER.values()
 	equipped = STARTER.duplicate()
+	earned_titles = []
+	title = ""
 
 
 static func items_of(slot: String) -> Array:
@@ -147,7 +174,7 @@ static func items_dropped_by(mob: String) -> Array:
 	for id in ITEMS:
 		var d: Dictionary = ITEMS[id].get("drop", {})
 		if str(d.get("mob", "")) == mob:
-			out.append({"id": id, "chance": float(d.get("chance", 0.0))})
+			out.append({"id": id, "chance": float(d.get("chance", 0.0)), "region": str(d.get("region", ""))})
 	return out
 
 ## Thêm món vào kho (không tốn linh thạch). Trả true nếu vừa mới có.
@@ -155,13 +182,16 @@ func grant(id: String) -> bool:
 	if not ITEMS.has(id) or owned.has(id):
 		return false
 	owned.append(id)
+	_check_titles(false)
 	changed.emit()
 	return true
+
 
 func buy(id: String, inv: Inventory) -> bool:
 	if is_owned(id) or ITEMS[id].has("unlock") or ITEMS[id].has("drop") or not inv.spend_stones(int(ITEMS[id]["price"])):   # món mở khóa bằng nhiệm vụ không mua được
 		return false
 	owned.append(id)
+	_check_titles(false)
 	changed.emit()
 	return true
 
@@ -181,7 +211,7 @@ func unequip(slot: String) -> void:
 
 
 func to_dict() -> Dictionary:
-	return {"owned": owned, "equipped": equipped}
+	return {"owned": owned, "equipped": equipped, "titles": earned_titles, "title": title}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -195,7 +225,96 @@ func from_dict(d: Dictionary) -> void:
 		var id := str(e[slot])
 		if ITEMS.has(id) and owned.has(id) and ITEMS[id]["slot"] == str(slot):
 			equipped[str(slot)] = id
+	for tid in d.get("titles", []):
+		if title_name(str(tid)) != "" and not earned_titles.has(str(tid)):
+			earned_titles.append(str(tid))
+	_check_titles(true)   # save cũ: tính lại danh hiệu đã đạt, không báo
+	if d.has("title"):
+		var want := str(d["title"])
+		title = want if earned_titles.has(want) else ""
 	changed.emit()
+
+
+## Mô tả cách có được món (rỗng nếu mua được ở tiệm may).
+static func acquire_text(id: String, short := false) -> String:
+	var d: Dictionary = ITEMS[id]
+	if d.has("unlock"):
+		var qid := str((d["unlock"] as Dictionary).get("quest", ""))
+		var qtitle := qid
+		for qd in QuestLog.QUESTS:
+			if qd["id"] == qid:
+				qtitle = str(qd["title"])
+		return ("Nhiệm vụ: %s" if short else "Mở khóa: hoàn thành nhiệm vụ \"%s\"") % qtitle
+	if d.has("drop"):
+		var dd: Dictionary = d["drop"]
+		var mob_name := str((Monster.KINDS.get(str(dd.get("mob", "")), {}) as Dictionary).get("name", "quái"))
+		var where := ""
+		if dd.has("region"):
+			where = " ở %s" % REGION_NAMES.get(str(dd["region"]), "")
+		return ("Rơi từ %s%s (%d%%)" if short else "Chỉ rơi từ: %s%s (%d%%)") % [mob_name, where, int(round(float(dd.get("chance", 0.0)) * 100.0))]
+	return ""
+
+
+## Số món của bộ đã có: {have, total, missing: [id món còn thiếu]}.
+func set_progress(sid: String) -> Dictionary:
+	var pieces: Dictionary = SETS[sid]["pieces"]
+	var missing: Array = []
+	for slot in pieces:
+		if not owned.has(str(pieces[slot])):
+			missing.append(str(pieces[slot]))
+	return {"have": pieces.size() - missing.size(), "total": pieces.size(), "missing": missing}
+
+
+## Tên danh hiệu theo id ("" nếu id không hợp lệ).
+static func title_name(tid: String) -> String:
+	if tid.begins_with("set:"):
+		return str((SETS.get(tid.substr(4), {}) as Dictionary).get("title", ""))
+	if tid.begins_with("mile:"):
+		for m in MILESTONES:
+			if "mile:%d" % int(m[0]) == tid:
+				return str(m[1])
+	return ""
+
+
+static func title_how(tid: String) -> String:
+	if tid.begins_with("set:"):
+		return "Thu thập đủ bộ %s" % str((SETS.get(tid.substr(4), {}) as Dictionary).get("name", ""))
+	if tid.begins_with("mile:"):
+		return "Sưu tầm %d món trang phục" % int(tid.substr(5))
+	return ""
+
+
+## Mọi danh hiệu có thể đạt, theo thứ tự hiển thị.
+static func all_title_ids() -> Array:
+	var out: Array = []
+	for sid in SETS:
+		out.append("set:" + str(sid))
+	for m in MILESTONES:
+		out.append("mile:%d" % int(m[0]))
+	return out
+
+
+func set_title(tid: String) -> void:
+	if tid == "" or earned_titles.has(tid):
+		title = tid
+		changed.emit()
+
+
+func _check_titles(silent: bool) -> void:
+	for tid in all_title_ids():
+		if earned_titles.has(tid) or not _title_met(str(tid)):
+			continue
+		earned_titles.append(tid)
+		if title == "":
+			title = tid
+		if not silent:
+			title_earned.emit(title_name(tid), title_how(tid))
+
+
+func _title_met(tid: String) -> bool:
+	if tid.begins_with("set:"):
+		return int(set_progress(tid.substr(4))["have"]) == int(set_progress(tid.substr(4))["total"])
+	return owned.size() >= int(tid.substr(5))
 
 
 ## Trạng thái các bộ trang phục khi mặc outfit (slot -> id): [{id, name, count, total, bonus(đã đạt), next_need, next_bonus}].

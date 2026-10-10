@@ -255,7 +255,7 @@ func _build_hints() -> void:
 	box.modulate = Color(1, 1, 1, 0.82)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(box)
-	for h in [["WASD", "Di chuyển"], ["Shift", "Chạy"], ["F", "Thiền"], ["B", "Đột phá"], ["E", "Tương tác"], ["P", "Nhân vật"], ["Q", "Nhiệm vụ"], ["M", "Bản đồ"], ["I", "Túi đồ"], ["C", "Tủ đồ"], ["T", "Tua thời gian"], ["Esc", "Tạm dừng"]]:
+	for h in [["WASD", "Di chuyển"], ["Shift", "Chạy"], ["F", "Thiền"], ["B", "Đột phá"], ["E", "Tương tác"], ["P", "Nhân vật"], ["Q", "Nhiệm vụ"], ["O", "Sưu tầm"], ["M", "Bản đồ"], ["I", "Túi đồ"], ["C", "Tủ đồ"], ["T", "Tua thời gian"], ["Esc", "Tạm dừng"]]:
 		box.add_child(UIKit.KeyCap.new(h[0], h[1], 12))
 
 

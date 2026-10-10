@@ -609,6 +609,9 @@ func _build_hud() -> void:
 	inv.message.connect(hud.toast)
 	quests.message.connect(hud.toast)
 	quests.outfits_unlocked.connect(_on_outfits_unlocked)
+	wardrobe.title_earned.connect(func(tname: String, how: String):
+		hud.toast("Đạt danh hiệu \"%s\" — %s" % [tname, how])
+		Sfx.play("levelup"))
 	quests.changed.connect(_grant_quest_outfits)
 	_load_game()
 	hud.update_status(cult, false, 1.0)
@@ -677,9 +680,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_F1:
 			meditating = false
 			debug_menu.open_menu()
-		elif event.keycode == KEY_P or event.keycode == KEY_Q:
+		elif event.keycode == KEY_P or event.keycode == KEY_Q or event.keycode == KEY_O:
 			meditating = false
-			journal.open_ui("char" if event.keycode == KEY_P else "quest")
+			journal.open_ui({KEY_P: "char", KEY_Q: "quest", KEY_O: "collect"}[event.keycode])
 		elif event.keycode == KEY_F:
 			meditating = not meditating
 			if meditating:
@@ -1275,6 +1278,8 @@ func on_monster_killed(m: Monster) -> void:
 		if rng.randf() < float(drops[id]):
 			_drop(str(id), 1, m.position)
 	for od in Wardrobe.items_dropped_by(m.kind_id):   # trang phục hiếm rơi từ quái (chỉ khi chưa có)
+		if str(od["region"]) != "" and not in_drop_region(m.position, str(od["region"])):
+			continue
 		if not wardrobe.is_owned(str(od["id"])) and rng.randf() < float(od["chance"]):
 			_drop(str(od["id"]), 1, m.position + Vector2(rng.randf_range(-14.0, 14.0), 6.0))
 	float_text(m.position + Vector2(0, -70), "+%d tu vi" % int(k["xp"]), UIKit.XP_GOLD)
@@ -1362,6 +1367,14 @@ func _sync_aura_power() -> void:
 		if a != null:
 			a.burst()
 	_last_realm = cult.realm
+
+## Vị trí p có thuộc vùng rơi đồ region không (khớp Wardrobe.REGION_NAMES).
+func in_drop_region(p: Vector2, region: String) -> bool:
+	match region:
+		"cave":
+			return p.distance_to(WorldExpansion.CAVE) < 450.0
+	return false
+
 
 ## Thưởng bộ trang phục: áp lên tu vi, khí huyết, sát thương và tốc độ; báo khi vừa kích hoạt một bộ.
 func _apply_set_bonus(announce: bool) -> void:

@@ -232,17 +232,9 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 		nrow.add_child(tag)
 	col.add_child(nrow)
 	var desc_text := str(d["desc"])
-	if d.has("unlock") and not own:
-		var qid := str((d["unlock"] as Dictionary).get("quest", ""))
-		var qtitle := qid
-		for qd in QuestLog.QUESTS:
-			if qd["id"] == qid:
-				qtitle = str(qd["title"])
-		desc_text += "\nMở khóa: hoàn thành nhiệm vụ «%s»" % qtitle
-	if d.has("drop") and not own:
-		var dd: Dictionary = d["drop"]
-		var mob_name := str((Monster.KINDS.get(str(dd.get("mob", "")), {}) as Dictionary).get("name", "quái"))
-		desc_text += "\nChỉ rơi từ: %s (%d%%)" % [mob_name, int(round(float(dd.get("chance", 0.0)) * 100.0))]
+	if not own and Wardrobe.acquire_text(id) != "":
+		desc_text += "
+" + Wardrobe.acquire_text(id)
 	var dl := UIKit.label(desc_text, 13, UIKit.MUTED)
 	dl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	dl.custom_minimum_size = Vector2(200, 0)
