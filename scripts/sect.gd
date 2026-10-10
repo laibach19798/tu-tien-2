@@ -11,7 +11,7 @@ const RANKS := [
 ]
 
 ## Điểm cống hiến nhận khi hạ quái (chỉ tính khi đã là người của Kiếm Tông).
-const KILL_MERIT := {"wolf_dark": 1, "goblin_elite": 3, "wolf_king": 40}
+const KILL_MERIT := {"wolf_dark": 1, "goblin_elite": 3, "wolf_king": 40, "sect_disciple": 2, "sect_elder": 8}
 
 ## Hàng của Tàng Bảo Các: "item" = vật phẩm trong túi, "wear" = trang phục (id trong Wardrobe.ITEMS). cost = điểm cống hiến, rank = chức vị tối thiểu.
 const SHOP := [

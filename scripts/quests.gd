@@ -98,14 +98,14 @@ const QUESTS := [
 	},
 	{
 		"id": "q8", "title": "Tiến vào Kiếm Tông", "giver": "swordmaster", "turn_in": "sect_head", "free": true, "after": "q5",
-		"desc": "Đến sân Kiếm Tông ở thung lũng phía nam (đi theo đường nam của quảng trường) và gặp Chưởng môn",
+		"desc": "Vào Tiểu Thế Giới qua cổng ở sân Kiếm Tông (thung lũng phía nam, đi theo đường nam của quảng trường) và gặp Chưởng môn",
 		"obj": {"type": "visit", "area": "sect", "target": 1},
 		"intro": [
 			"Ngươi đã ra dáng người luyện kiếm. Đã đến lúc nhìn thấy Kiếm Tông thật sự.",
-			"Theo con đường phía nam quảng trường, qua cổng núi là tới thung lũng của tông môn. Chưởng môn Thanh Huyền đang chờ.",
+			"Theo con đường phía nam quảng trường, qua cổng núi là tới thung lũng của tông môn. Cuối sân có cổng dẫn vào Tiểu Thế Giới, nơi Kiếm Tông đang tranh địa bàn với bốn tông khác. Chưởng môn Thanh Huyền đang chờ ở đó.",
 			"Sói hoang ở Sói Lĩnh, ngoài làng. Nhớ mang đan dược hồi huyết theo.",
 		],
-		"remind": "Cứ đi thẳng đường nam của quảng trường, qua cổng núi là tới Kiếm Tông.",
+		"remind": "Cứ đi thẳng đường nam của quảng trường, qua cổng núi tới sân Kiếm Tông rồi bước vào điểm sáng ở cuối sân để vào Tiểu Thế Giới.",
 		"ready": ["Ngươi tới rồi. Lăng Tiêu đã nhắn trước. Kiếm Tông rộng cửa đón người có tâm, lấy chút lộ phí này mà dùng."],
 		"reward": {"stones": 100, "merit": 30, "items": {"dan_tu_vi": 2}},
 	},
@@ -196,6 +196,31 @@ const QUESTS := [
 		"ready": ["Ba viên Yêu đan đều thượng phẩm. Tông môn ghi nhớ công của ngươi."],
 		"reward": {"stones": 150, "merit": 70},
 	},
+	{
+		"id": "q16", "title": "Mở rộng địa bàn", "giver": "sect_head", "turn_in": "sect_head", "free": true, "after": "q8",
+		"desc": "Chiếm thêm địa bàn trong Tiểu Thế Giới để Kiếm Tông giữ tổng cộng 4 địa bàn (hạ lính canh rồi cắm cờ)",
+		"obj": {"type": "territory", "target": 4},
+		"intro": [
+			"Tiểu Thế Giới là nơi năm tông tranh giành địa bàn. Mỗi địa bàn đều nộp cống phẩm đều đặn cho tông đang giữ.",
+			"Kiếm Tông hiện chỉ có hai nơi. Hãy chiếm thêm: hạ lính canh của tông địch hoặc yêu thú ở địa bàn vô chủ, rồi cắm cờ tại cột cờ giữa địa bàn.",
+			"Nhớ rằng địch cũng sẽ tập kích ta. Nghe tin báo thì về giữ, kẻo mất địa bàn.",
+		],
+		"remind": "Chiếm đủ bốn địa bàn: hạ hết lính canh rồi nhấn E ở cột cờ. Nhấn G để xem thế cục chiến sự.",
+		"ready": ["Bốn địa bàn! Kiếm Tông đang mạnh lên thấy rõ. Đây là thưởng của tông môn."],
+		"reward": {"stones": 300, "merit": 120, "items": {"dan_ho_the": 2}},
+	},
+	{
+		"id": "q17", "title": "Thế chân vạc", "giver": "sect_head", "turn_in": "sect_head", "free": true, "after": "q16",
+		"desc": "Đưa Kiếm Tông lên giữ 6 địa bàn trong Tiểu Thế Giới",
+		"obj": {"type": "territory", "target": 6},
+		"intro": [
+			"Có bốn địa bàn rồi thì đừng dừng lại. Tông nào nắm sáu nơi trở lên là bên thế mạnh nhất Tiểu Thế Giới.",
+			"Tám địa bàn thì là bá chủ, không tông nào dám cản. Cố lên.",
+		],
+		"remind": "Cần giữ sáu địa bàn cùng lúc. Địch tập kích thì về giữ, đừng để mất.",
+		"ready": ["Sáu địa bàn trong tay, thế chân vạc đã thành. Nhận thưởng đi."],
+		"reward": {"stones": 600, "merit": 250, "items": {"dan_truc_co": 1, "yeu_dan": 3}},
+	},
 ]
 var states: Dictionary = {}   # id -> "active" | "done"
 var meditate_time := 0.0
@@ -207,6 +232,7 @@ var base: Dictionary = {}   # nhiệm vụ có "since": tiến độ tính từ 
 var inv: Inventory
 var cult: Cultivation
 var _last_sec := -1
+var war_owned := 0   # số địa bàn Kiếm Tông đang giữ (cập nhật từ SectWar)
 
 
 func setup(p_inv: Inventory, p_cult: Cultivation) -> void:
@@ -243,6 +269,7 @@ func progress(q: Dictionary) -> Vector2i:
 		"reach": cur = cult.step_index() + 1
 		"hits", "kills", "craft": cur = _counter(o) - (int(base.get(q["id"], 0)) if q.get("since", false) else 0)
 		"visit": cur = 1 if visited.get(o["area"], false) else 0
+		"territory": cur = war_owned
 	return Vector2i(mini(cur, target), target)
 
 

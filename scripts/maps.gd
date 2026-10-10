@@ -11,6 +11,7 @@ const OVERWORLD_GATES := [
 	{"pos": Vector2(430, 2290), "to": "dam_lay", "label": "Đầm Lầy Độc", "tint": Color(0.7, 1.0, 0.6)},
 	{"pos": Vector2(3580, 510), "to": "tuyet_coc", "label": "Hắc Lang Cốc", "tint": Color(0.7, 0.9, 1.0)},
 	{"pos": Vector2(3340, 2310), "to": "linh_mach_dong", "label": "Linh Mạch Động", "tint": Color(0.6, 0.9, 1.0)},
+	{"pos": Vector2(1190, 2360), "to": "tieu_gioi", "label": "Tiểu Thế Giới", "tint": Color(1.0, 0.85, 0.5)},
 ]
 
 # Mỗi map:
@@ -130,6 +131,36 @@ const DEFS := {
 		"areas": [[Vector2(260, 830), 200.0, "Cửa động"], [Vector2(1150, 820), 300.0, "Tâm linh mạch"], [Vector2(900, 400), 300.0, "Hốc đá bắc"],
 			[Vector2(1100, 1250), 300.0, "Hốc đá nam"], [Vector2(1800, 1200), 300.0, "Động sâu"]],
 		"mm": Color(0.22, 0.24, 0.32),
+	},
+	"tieu_gioi": {
+		"name": "Tiểu Thế Giới", "war": true, "size": Vector2(4480, 3200), "music": "sect", "surface": "grass",
+		"entry": Vector2(330, 2740),
+		"ground": Color(0.42, 0.62, 0.36), "ground2": Color(0.55, 0.62, 0.34), "path_col": Color(0.78, 0.66, 0.46), "rock_col": Color(0.52, 0.55, 0.52),
+		"tiles": "meadow",
+		"path": [
+			[Vector2(190, 2740), Vector2(560, 2700), Vector2(1050, 2500), Vector2(1500, 2450), Vector2(2200, 2600), Vector2(3100, 2400), Vector2(3900, 2560)],
+			[Vector2(560, 2600), Vector2(800, 2100), Vector2(1050, 1650), Vector2(1250, 1400), Vector2(1350, 900), Vector2(900, 700), Vector2(560, 700)],
+			[Vector2(1350, 900), Vector2(1700, 520), Vector2(2240, 380), Vector2(2800, 600), Vector2(3900, 760)],
+			[Vector2(2240, 380), Vector2(2240, 1100), Vector2(2240, 1600), Vector2(2200, 2600)],
+			[Vector2(2800, 600), Vector2(3300, 1300), Vector2(3600, 1850), Vector2(3900, 2560)],
+			[Vector2(2240, 1600), Vector2(3300, 1300)],
+			[Vector2(2240, 1600), Vector2(3100, 2400)],
+			[Vector2(1250, 1400), Vector2(2240, 1600)],
+		],
+		"path_w": 96.0,
+		"props": [], "groups": [], "herbs": 30,
+		"qi": [{"pos": Vector2(560, 2420), "r": 220.0, "density": 3.0}, {"pos": Vector2(2240, 1600), "r": 260.0, "density": 5.0}],
+		"safe": [[Vector2(560, 2560), 340.0]],
+		"gates": [{"pos": Vector2(190, 2740), "to": "overworld", "label": "Về làng", "tint": Color(1.0, 0.85, 0.5)}],
+		"areas": [
+			[Vector2(560, 2560), 380.0, "Kiếm Tông"], [Vector2(560, 700), 380.0, "Xích Viêm Tông"], [Vector2(2240, 380), 380.0, "Hàn Băng Cung"],
+			[Vector2(3900, 760), 380.0, "Độc Môn"], [Vector2(3900, 2560), 380.0, "Huyền Minh Giáo"],
+			[Vector2(1500, 2450), 260.0, "Linh Tuyền Nam Sơn"], [Vector2(1050, 1650), 260.0, "Trúc Lâm Biên Giới"], [Vector2(1350, 900), 260.0, "Mỏ Hỏa Tinh"],
+			[Vector2(1250, 1400), 260.0, "Lò Địa Hỏa"], [Vector2(1700, 520), 260.0, "Băng Tuyền"], [Vector2(2800, 600), 260.0, "Tuyết Đỉnh"],
+			[Vector2(3300, 1300), 260.0, "Đầm Độc"], [Vector2(3600, 1850), 260.0, "Vườn Độc Thảo"], [Vector2(3100, 2400), 260.0, "Huyết Trì"],
+			[Vector2(3500, 2950), 260.0, "Âm Phủ Động"], [Vector2(2240, 1600), 320.0, "Thiên Mạch"], [Vector2(2200, 2600), 300.0, "Cổ Chiến Trường"],
+		],
+		"mm": Color(0.40, 0.58, 0.34),
 	},
 }
 

@@ -60,7 +60,7 @@ const ITEMS := {
 	"hair_long_silver": {"slot": "hair", "name": "Tóc dài - bạc", "style": "long", "tint": Color(0.85, 0.88, 0.95), "price": 140, "desc": "Tóc bạc buông dài, phong thái tiên nhân."},
 	# --- Áo ---
 	"outfit_plain": {"slot": "clothes", "name": "Áo thường", "style": "test", "full": true, "tint": Color(1, 1, 1), "price": 0, "desc": "Bộ trang phục thường, không có hào quang."},
-	"tien_bao": {"slot": "clothes", "unlock": {"quest": "q4"}, "name": "Tiên bào", "style": "test", "full": true, "aura": {"color": Color(1.0, 0.55, 0.2), "color2": Color(1.0, 0.95, 0.6), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 240, "desc": "Tiên bào có hào quang linh lực rực rỡ bao quanh."},
+	"tien_bao": {"slot": "clothes", "unlock": {"quest": "q4"}, "name": "Tiên bào", "style": "tienbao", "full": true, "aura": {"color": Color(1.0, 0.55, 0.2), "color2": Color(1.0, 0.95, 0.6), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 240, "desc": "Tiên bào có hào quang linh lực rực rỡ bao quanh."},
 	"outfit_lam": {"slot": "clothes", "name": "Áo vải nhuộm được", "style": "lam", "full": true, "dyeable": true, "tint": Color(1, 1, 1), "price": 20, "desc": "Áo vải màu lam, giản dị."},
 	"outfit_do": {"slot": "clothes", "name": "Áo đỏ thẫm", "style": "do", "full": true, "tint": Color(1, 1, 1), "price": 30, "desc": "Áo vải nhuộm đỏ thẫm."},
 	"outfit_luc": {"slot": "clothes", "name": "Áo lục", "style": "luc", "full": true, "tint": Color(1, 1, 1), "price": 30, "desc": "Áo xanh lục như lá trúc."},
@@ -69,7 +69,7 @@ const ITEMS := {
 	"outfit_trang": {"slot": "clothes", "name": "Áo trắng", "style": "trang", "full": true, "tint": Color(1, 1, 1), "price": 60, "desc": "Áo trắng thanh sạch."},
 	"outfit_xam": {"slot": "clothes", "drop": {"mob": "goblin", "chance": 0.06}, "name": "Áo xám tro", "style": "xam", "full": true, "tint": Color(1, 1, 1), "price": 25, "desc": "Áo xám tro kín đáo."},
 	"outfit_thanh": {"slot": "clothes", "name": "Áo thanh ngọc", "style": "thanh", "full": true, "tint": Color(1, 1, 1), "price": 50, "desc": "Áo màu xanh ngọc thanh nhã."},
-	"tien_bao_bach_van": {"slot": "clothes", "unlock": {"quest": "q15"}, "name": "Tiên bào Bạch Vân", "style": "bachvan", "full": true, "aura": {"color": Color(0.6, 0.9, 1.0), "color2": Color(1.0, 1.0, 1.0), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 300, "desc": "Tiên bào trắng như mây, hào quang xanh băng."},
+	"tien_bao_bach_van": {"slot": "clothes", "unlock": {"quest": "q15"}, "name": "Tiên bào Bạch Vân", "style": "tienbao", "full": true, "aura": {"color": Color(0.6, 0.9, 1.0), "color2": Color(1.0, 1.0, 1.0), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 300, "desc": "Tiên bào trắng như mây, hào quang xanh băng."},
 	"tien_bao_tu_dien": {"slot": "clothes", "unlock": {"quest": "q13"}, "name": "Tiên bào Tử Điện", "style": "tudien", "full": true, "aura": {"color": Color(0.7, 0.4, 1.0), "color2": Color(1.0, 0.85, 0.4), "outline": 1.0, "qi_cape": true}, "tint": Color(1, 1, 1), "price": 360, "desc": "Tiên bào tím sẫm, linh lực tím vàng như sấm."},
 	# --- Giày ---
 	"shoes_cloth_brown": {"slot": "shoes", "name": "Giày vải - nâu", "style": "cloth", "tint": Color(0.50, 0.34, 0.22), "price": 0, "desc": "Giày vải đơn giản."},
@@ -273,6 +273,8 @@ static func title_name(tid: String) -> String:
 		for m in MILESTONES:
 			if "mile:%d" % int(m[0]) == tid:
 				return str(m[1])
+	if tid == "war:ba_chu":
+		return "Bá Chủ Tiểu Thế Giới"
 	return ""
 
 
@@ -281,6 +283,8 @@ static func title_how(tid: String) -> String:
 		return "Thu thập đủ bộ %s" % str((SETS.get(tid.substr(4), {}) as Dictionary).get("name", ""))
 	if tid.begins_with("mile:"):
 		return "Sưu tầm %d món trang phục" % int(tid.substr(5))
+	if tid == "war:ba_chu":
+		return "Giữ 8 địa bàn trong Tiểu Thế Giới"
 	return ""
 
 
@@ -291,6 +295,7 @@ static func all_title_ids() -> Array:
 		out.append("set:" + str(sid))
 	for m in MILESTONES:
 		out.append("mile:%d" % int(m[0]))
+	out.append("war:ba_chu")
 	return out
 
 
@@ -311,7 +316,20 @@ func _check_titles(silent: bool) -> void:
 			title_earned.emit(title_name(tid), title_how(tid))
 
 
+## Cấp danh hiệu không dựa vào kho đồ (ví dụ chiến công).
+func grant_title(tid: String) -> void:
+	if earned_titles.has(tid) or title_name(tid) == "":
+		return
+	earned_titles.append(tid)
+	if title == "":
+		title = tid
+	title_earned.emit(title_name(tid), title_how(tid))
+	changed.emit()
+
+
 func _title_met(tid: String) -> bool:
+	if tid.begins_with("war:"):
+		return false
 	if tid.begins_with("set:"):
 		return int(set_progress(tid.substr(4))["have"]) == int(set_progress(tid.substr(4))["total"])
 	return owned.size() >= int(tid.substr(5))

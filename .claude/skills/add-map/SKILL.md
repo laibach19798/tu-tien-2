@@ -14,3 +14,6 @@ Thế giới gốc ("overworld": làng, Hắc Lâm, Kiếm Tông, Hang Linh Mạ
 5. **Đồ rơi theo map**: `drop.region` trong `Wardrobe.ITEMS` là id map (ví dụ `"linh_mach_dong"`); thêm tên vào `Wardrobe.REGION_NAMES`.
 6. **Nhiệm vụ / lời thoại** nhắc vị trí quái: sửa trong `quests.gd` và `main.gd` (`_lore`).
 7. Kiểm tra: `tools/map_test.gd` (cổng, quái, đồ rơi, lưu/tải), chụp ảnh bằng `tools/map_demo.gd --write-movie`. Sau khi thêm/đổi ảnh PHẢI chạy `godot --headless --path . --import` (ảnh đổi mà chưa import lại thì game vẫn dùng bản cũ).
+
+## Tiểu Thế Giới (chiến sự tông môn)
+Map `tieu_gioi` (`"war": true`) dùng `MapBuilder._war_world`; dữ liệu 5 tông và 12 địa bàn nằm trong `scripts/sect_war.gd` (`SECTS`, `TERRITORIES`). Thêm địa bàn: thêm vào `TERRITORIES` (id, name, pos, owner, theme, type, income, guards cho địa bàn vô chủ) và tên vùng vào `areas` của map. Thêm tông: thêm vào `SECTS` (hq, color, theme, bộ trang phục disciple/elder). Chủ đề nền (`theme`) là tên bộ ảnh trong `assets/ground/` (meadow, swamp, snow, cave, lava, cobble). Test: `tools/war_test.gd`.
