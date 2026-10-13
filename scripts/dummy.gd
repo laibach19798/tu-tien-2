@@ -50,6 +50,25 @@ func take_hit(dmg: float, from: Vector2) -> bool:
 	return true
 
 
+## Sát thương theo thời gian (thiêu đốt) và làm chậm: mộc nhân không di chuyển nên làm chậm không có tác dụng.
+func apply_slow(_mult: float, _dur: float) -> void:
+	pass
+
+
+func take_dot(dmg: float) -> void:
+	if not alive:
+		return
+	hp -= dmg
+	_flash = 0.6
+	_show_number(dmg)
+	got_hit.emit(dmg)
+	if hp <= 0.0:
+		alive = false
+		var tw := create_tween()
+		tw.tween_property(self, "rotation", 1.45, 0.35).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		tw.tween_interval(4.0)
+		tw.tween_callback(_respawn)
+
 func _respawn() -> void:
 	rotation = 0.0
 	hp = max_hp

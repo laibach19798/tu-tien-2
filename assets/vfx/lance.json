@@ -1,0 +1,209 @@
+{
+ "frames": [
+  {
+   "filename": "xc-lance 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-lance 1.png",
+   "frame": {
+    "x": 260,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-lance 2.png",
+   "frame": {
+    "x": 520,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-lance 3.png",
+   "frame": {
+    "x": 0,
+    "y": 40,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-lance 4.png",
+   "frame": {
+    "x": 260,
+    "y": 40,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-lance 5.png",
+   "frame": {
+    "x": 520,
+    "y": 40,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-lance 6.png",
+   "frame": {
+    "x": 0,
+    "y": 80,
+    "w": 260,
+    "h": 40
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 260,
+    "h": 40
+   },
+   "sourceSize": {
+    "w": 260,
+    "h": 40
+   },
+   "pivot": {
+    "x": 0.046153846153846156,
+    "y": 0.5
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-lance.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 780,
+   "h": 120
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 12,
+   "y": 20
+  },
+  "frameTags": [
+   {
+    "name": "xc-lance",
+    "from": 0,
+    "to": 6,
+    "direction": "forward"
+   }
+  ]
+ }
+}

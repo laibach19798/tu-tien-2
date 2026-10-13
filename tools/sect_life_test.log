@@ -1,0 +1,81 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS: four social NPCs
+PASS: walkable schedule 0.3 / mac_tran
+PASS: walkable schedule 0.3 / thanh_dao
+PASS: walkable schedule 0.3 / luc_an
+PASS: walkable schedule 0.3 / han_phong
+PASS: walkable schedule 0.55 / mac_tran
+PASS: walkable schedule 0.55 / thanh_dao
+PASS: walkable schedule 0.55 / luc_an
+PASS: walkable schedule 0.55 / han_phong
+PASS: walkable schedule 0.85 / mac_tran
+PASS: walkable schedule 0.85 / thanh_dao
+PASS: walkable schedule 0.85 / luc_an
+PASS: walkable schedule 0.85 / han_phong
+PASS: board blocks gameplay input
+PASS: H closes board
+PASS: daily social action cannot be farmed
+PASS: one gift per person per day
+PASS: ordinary social actions capped below trust
+PASS: new day clears social limits
+PASS: rescue training hook
+PASS: rescue starts expedition
+PASS: rescue rescue NPC in map
+PASS: rescue chosen
+PASS: unrelated enemy ignored
+PASS: wrong map kill ignored
+PASS: rescue save restores active quest and map
+PASS: rescue actual monster death counted
+PASS: rescue field completed
+PASS: rank gated until exam
+PASS: report reward not duplicated
+PASS: failed exam is retryable
+PASS: exam grants inner rank
+PASS: rank reward only once
+PASS: mentor manual only once
+PASS: branch gratitude only once
+PASS: completed progress roundtrip
+PASS: small talk preserves major memory
+PASS: together training hook
+PASS: together starts expedition
+PASS: together rescue NPC in map
+PASS: cooperation requires respect
+PASS: together chosen
+PASS: unrelated enemy ignored
+PASS: wrong map kill ignored
+PASS: together save restores active quest and map
+PASS: together actual monster death counted
+PASS: together field completed
+PASS: rank gated until exam
+PASS: report reward not duplicated
+PASS: failed exam is retryable
+PASS: exam grants inner rank
+PASS: rank reward only once
+PASS: mentor manual only once
+PASS: branch gratitude only once
+PASS: completed progress roundtrip
+PASS: small talk preserves major memory
+PASS: compete training hook
+PASS: compete starts expedition
+PASS: compete rescue NPC in map
+PASS: compete chosen
+PASS: unrelated enemy ignored
+PASS: wrong map kill ignored
+PASS: compete save restores active quest and map
+PASS: compete actual monster death counted
+PASS: compete field completed
+PASS: rank gated until exam
+PASS: report reward not duplicated
+PASS: failed exam is retryable
+PASS: exam grants inner rank
+PASS: rank reward only once
+PASS: mentor manual only once
+PASS: branch gratitude only once
+PASS: completed progress roundtrip
+PASS: abandonment has lasting consequence
+PASS: old save keeps rank without duplicate rewards
+PASS: new save preserves exam requirement
+SECT LIFE TEST: 0 failures

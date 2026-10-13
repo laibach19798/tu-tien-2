@@ -1,0 +1,14 @@
+== rolled: 3000 tổ hợp có Công Pháp ==
+cong      giải thích 15.5% phương sai
+tam       giải thích 2.5% phương sai
+than      giải thích 4.2% phương sai
+artifact  giải thích 1.0% phương sai
+cặp Công+Tâm giải thích 40.4% | cả bộ Công+Tâm+Thân giải thích 60.0%
+min 0.31 | p10 0.76 | p50 1.00 | p90 1.41 | max 2.63 | <0.5: 0.9%
+cong dao_cut=1.27 kiem_cut=1.18 ngu_fire=1.13 ngu_water=1.11 hon_seal=1.00 hon_clone=0.98 the_fist=0.98 dao_break=0.95 the_quake=0.95 kiem_wave=0.94
+tam the_blood=1.15 ngu_cycle=1.08 dao_blood=1.07 kiem_flow=1.06 dao_victory=1.06 hon_echo=1.04 kiem_heart=1.02 the_guard=1.02 hon_heart=1.00 ngu_wood=0.99
+than kiem_step=1.17 the_step=1.09 ngu_waterstep=1.08 dao_retreat=1.07 kiem_guard=1.05 dao_chase=1.05 hon_step=1.03 ngu_earth=1.00 hon_mirror=0.99 the_leap=0.96
+hệ số phối hợp Công x Tâm: p5 0.85 | p50 0.98 | p95 1.24 | min 0.79 | max 1.59
+mạnh nhất: 1.59 the_fist+the_blood, 1.30 dao_cut+dao_blood, 1.26 kiem_cut+kiem_flow, 1.25 dao_cut+ngu_cycle, 1.24 dao_break+the_blood, 1.23 ngu_fire+dao_blood
+kém nhất : 0.79 ngu_fire+the_blood, 0.84 kiem_wave+the_blood, 0.84 dao_cut+kiem_heart, 0.84 kiem_cut+ngu_cycle, 0.85 the_fist+kiem_flow, 0.85 hon_seal+ngu_cycle
+Công x Thân: min 0.91 | max 1.09

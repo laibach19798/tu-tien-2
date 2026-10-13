@@ -92,11 +92,13 @@ func close_shop() -> void:
 func refresh() -> void:
 	if not visible or inv == null:
 		return
-	var rank := Sect.rank_of(inv.merit_total)
+	var rank := inv.sect_rank()
 	_merit.text = "%d  cống hiến" % inv.merit
-	_rank.text = "   Chức vị: %s" % Sect.rank_name(inv.merit_total)
+	_rank.text = "   Chức vị: %s" % inv.sect_rank_name()
 	var need := Sect.to_next(inv.merit_total)
 	_next.text = "Còn %d điểm tổng cống hiến nữa để thăng chức tiếp theo." % need if need > 0 else "Đã đạt chức vị cao nhất."
+	if not inv.inner_exam_passed:
+		_next.text = "Nội môn: đủ 100 tổng cống hiến và vượt khảo hạch Mặc Trần. Nhấn H xem sư môn."
 	for rows in [_buy_rows, _give_rows]:
 		for c in rows.get_children():
 			rows.remove_child(c)
@@ -179,7 +181,7 @@ func _card(parent: Control, icon: Control, title: String, desc: String, price: i
 
 func _buy(e: Dictionary) -> void:
 	var id: String = e["id"]
-	if Sect.rank_of(inv.merit_total) < int(e["rank"]) or not inv.spend_merit(int(e["cost"])):
+	if inv.sect_rank() < int(e["rank"]) or not inv.spend_merit(int(e["cost"])):
 		return
 	if e["kind"] == "item":
 		inv.add(id, 1)

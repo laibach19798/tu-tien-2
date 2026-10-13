@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "balance_status": "Đặt theo ước lượng. Mỗi con số là mỗi ngày game (360 giây). Trạng thái: dồi dào ≥ 25 ngày nuôi, đủ dùng ≥ 8 ngày, dưới đó là eo hẹp.",
+  "balance": {
+    "tithe_rate": 0.25,
+    "reserve_days": 3,
+    "catchup_days_cap": 40,
+    "donation_merit_cap_per_day": 40,
+    "donation_merit_div": 5,
+    "status_rich": 2.5,
+    "status_ok": 0.8,
+    "ledger_limit": 60,
+    "surplus_cap_days": 20,
+    "surplus_spend": 0.1
+  },
+  "sects": {
+    "kiem_tong": {
+      "members": 60,
+      "upkeep_per_member": 0.9,
+      "start": {
+        "stones": 600,
+        "thiet_tinh": 6,
+        "linh_thao": 20,
+        "yeu_dan": 3
+      },
+      "produce": [
+        {
+          "item": "thiet_tinh",
+          "qty": 1,
+          "every": 1
+        }
+      ],
+      "consume": [
+        {
+          "item": "linh_thao",
+          "qty": 1,
+          "every": 1
+        }
+      ],
+      "note": "Mỏ thiết tinh và khoáng mạch nuôi việc luyện kiếm."
+    },
+    "xich_viem": {
+      "members": 55,
+      "upkeep_per_member": 0.9,
+      "start": {
+        "stones": 550,
+        "yeu_dan": 6,
+        "da_yeu": 8,
+        "linh_thao": 10
+      },
+      "produce": [
+        {
+          "item": "yeu_dan",
+          "qty": 1,
+          "every": 1
+        },
+        {
+          "item": "da_yeu",
+          "qty": 1,
+          "every": 1
+        }
+      ],
+      "consume": [
+        {
+          "item": "linh_thao",
+          "qty": 1,
+          "every": 2
+        }
+      ],
+      "note": "Sống nhờ săn yêu thú và trấn thủ khoáng hỏa."
+    },
+    "han_bang": {
+      "members": 50,
+      "upkeep_per_member": 0.9,
+      "start": {
+        "stones": 550,
+        "linh_thao": 30,
+        "han_thuy_thach": 4
+      },
+      "produce": [
+        {
+          "item": "linh_thao",
+          "qty": 2,
+          "every": 1
+        },
+        {
+          "item": "han_thuy_thach",
+          "qty": 1,
+          "every": 2
+        }
+      ],
+      "consume": [
+        {
+          "item": "linh_thao",
+          "qty": 1,
+          "every": 1
+        }
+      ],
+      "note": "Nghiên cứu linh thảo và hàn thạch."
+    },
+    "doc_mon": {
+      "members": 55,
+      "upkeep_per_member": 0.9,
+      "start": {
+        "stones": 500,
+        "linh_thao": 15,
+        "soi_nanh": 6,
+        "hoang_tho_tinh": 3
+      },
+      "produce": [
+        {
+          "item": "soi_nanh",
+          "qty": 1,
+          "every": 1
+        },
+        {
+          "item": "hoang_tho_tinh",
+          "qty": 1,
+          "every": 2
+        }
+      ],
+      "consume": [
+        {
+          "item": "linh_thao",
+          "qty": 1,
+          "every": 1
+        }
+      ],
+      "note": "Luyện thể bằng độc tố và linh dược."
+    },
+    "huyen_minh": {
+      "members": 45,
+      "upkeep_per_member": 1.0,
+      "start": {
+        "stones": 500,
+        "linh_mach_tinh": 2,
+        "yeu_dan": 4,
+        "linh_thao": 12
+      },
+      "produce": [
+        {
+          "item": "linh_mach_tinh",
+          "qty": 1,
+          "every": 3
+        },
+        {
+          "item": "yeu_dan",
+          "qty": 1,
+          "every": 2
+        }
+      ],
+      "consume": [
+        {
+          "item": "linh_thao",
+          "qty": 1,
+          "every": 2
+        }
+      ],
+      "note": "Thu thập di vật cổ tịch và vật liệu hồn."
+    }
+  }
+}

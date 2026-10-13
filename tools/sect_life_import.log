@@ -1,0 +1,139 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+[   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+[   0% ] first_scan_filesystem | Scanning file structure...
+WARNING: Detected another project.godot at res://PixelFarm. The folder will be ignored.
+   at: _should_skip_directory (editor/file_system/editor_file_system.cpp:3497)
+[  16% ] first_scan_filesystem | Loading global class names...
+[  33% ] first_scan_filesystem | Verifying GDExtensions...
+[  50% ] first_scan_filesystem | Creating autoload scripts...
+[  66% ] first_scan_filesystem | Initializing plugins...
+[  83% ] first_scan_filesystem | Starting file scan...
+[ DONE ] first_scan_filesystem
+
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_robe_idle.png and res://backup/hd_pack_body/fashion/clothes_robe_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_robe_jump.png and res://backup/hd_pack_body/fashion/clothes_robe_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_robe_run.png and res://backup/hd_pack_body/fashion/clothes_robe_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_robe_walk.png and res://backup/hd_pack_body/fashion/clothes_robe_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_tunic_idle.png and res://backup/hd_pack_body/fashion/clothes_tunic_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_tunic_jump.png and res://backup/hd_pack_body/fashion/clothes_tunic_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_tunic_run.png and res://backup/hd_pack_body/fashion/clothes_tunic_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_tunic_walk.png and res://backup/hd_pack_body/fashion/clothes_tunic_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_wide_idle.png and res://backup/hd_pack_body/fashion/clothes_wide_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_wide_jump.png and res://backup/hd_pack_body/fashion/clothes_wide_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_wide_run.png and res://backup/hd_pack_body/fashion/clothes_wide_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://backup/old_skins/fashion/clothes_wide_walk.png and res://backup/hd_pack_body/fashion/clothes_wide_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_long_idle.png and res://backup/hd_pack_body/fashion/hairb_long_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_long_jump.png and res://backup/hd_pack_body/fashion/hairb_long_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_long_run.png and res://backup/hd_pack_body/fashion/hairb_long_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_long_walk.png and res://backup/hd_pack_body/fashion/hairb_long_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_ponytail_idle.png and res://backup/hd_pack_body/fashion/hairb_ponytail_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_ponytail_jump.png and res://backup/hd_pack_body/fashion/hairb_ponytail_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_ponytail_run.png and res://backup/hd_pack_body/fashion/hairb_ponytail_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_ponytail_walk.png and res://backup/hd_pack_body/fashion/hairb_ponytail_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_topknot_idle.png and res://backup/hd_pack_body/fashion/hairb_topknot_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_topknot_jump.png and res://backup/hd_pack_body/fashion/hairb_topknot_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_topknot_run.png and res://backup/hd_pack_body/fashion/hairb_topknot_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairb_topknot_walk.png and res://backup/hd_pack_body/fashion/hairb_topknot_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_long_idle.png and res://backup/hd_pack_body/fashion/hairf_long_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_long_jump.png and res://backup/hd_pack_body/fashion/hairf_long_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_long_run.png and res://backup/hd_pack_body/fashion/hairf_long_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_long_walk.png and res://backup/hd_pack_body/fashion/hairf_long_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_ponytail_idle.png and res://backup/hd_pack_body/fashion/hairf_ponytail_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_ponytail_jump.png and res://backup/hd_pack_body/fashion/hairf_ponytail_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_ponytail_run.png and res://backup/hd_pack_body/fashion/hairf_ponytail_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_ponytail_walk.png and res://backup/hd_pack_body/fashion/hairf_ponytail_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_topknot_idle.png and res://backup/hd_pack_body/fashion/hairf_topknot_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_topknot_jump.png and res://backup/hd_pack_body/fashion/hairf_topknot_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_topknot_run.png and res://backup/hd_pack_body/fashion/hairf_topknot_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/hairf_topknot_walk.png and res://backup/hd_pack_body/fashion/hairf_topknot_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_boot_idle.png and res://backup/hd_pack_body/fashion/shoes_boot_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_boot_jump.png and res://backup/hd_pack_body/fashion/shoes_boot_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_boot_run.png and res://backup/hd_pack_body/fashion/shoes_boot_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_boot_walk.png and res://backup/hd_pack_body/fashion/shoes_boot_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_cloth_idle.png and res://backup/hd_pack_body/fashion/shoes_cloth_idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_cloth_jump.png and res://backup/hd_pack_body/fashion/shoes_cloth_jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_cloth_run.png and res://backup/hd_pack_body/fashion/shoes_cloth_run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/fashion/shoes_cloth_walk.png and res://backup/hd_pack_body/fashion/shoes_cloth_walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/sheets/idle.png and res://backup/hd_pack_body/sheets/idle.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/sheets/jump.png and res://backup/hd_pack_body/sheets/jump.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/sheets/run.png and res://backup/hd_pack_body/sheets/run.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+WARNING: UID duplicate detected between res://character/hd/sheets/walk.png and res://backup/hd_pack_body/sheets/walk.png.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1405)
+[   0% ] update_scripts_classes | Started Registering global classes... (12 steps)
+[   0% ] update_scripts_classes | 
+[   7% ] update_scripts_classes | Inventory
+[  15% ] update_scripts_classes | 
+[  23% ] update_scripts_classes | 
+[  30% ] update_scripts_classes | 
+[  38% ] update_scripts_classes | 
+[  46% ] update_scripts_classes | 
+[  53% ] update_scripts_classes | UIKit
+[  61% ] update_scripts_classes | 
+[  69% ] update_scripts_classes | 
+[  76% ] update_scripts_classes | 
+[  84% ] update_scripts_classes | 
+[ DONE ] update_scripts_classes
+
+[   0% ] loading_editor_layout | Started Loading editor (5 steps)
+[   0% ] loading_editor_layout | Loading editor layout...
+[  16% ] loading_editor_layout | Loading docks...
+[  33% ] loading_editor_layout | Reopening scenes...
+[  50% ] loading_editor_layout | Loading central editor layout...
+[  66% ] loading_editor_layout | Loading plugin window layout...
+[  83% ] loading_editor_layout | Editor layout ready.
+[ DONE ] loading_editor_layout
+
+ERROR: Cannot save file 'C:/Users/laiba/AppData/Roaming/Godot/editor_settings-4.7.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1768)
+ERROR: Error saving editor settings to C:/Users/laiba/AppData/Roaming/Godot/editor_settings-4.7.tres
+   at: save (editor/settings/editor_settings.cpp:1525)

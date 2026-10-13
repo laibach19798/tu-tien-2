@@ -253,7 +253,7 @@ func _card(id: String, d: Dictionary, own: bool) -> Control:
 	elif own:
 		act.text = "Mặc"
 		act.pressed.connect(_equip.bind(id))
-	elif d.has("unlock") or d.has("drop"):
+	elif d.has("unlock") or d.has("drop") or d.has("shop"):
 		act.text = "Khóa"
 		act.disabled = true
 	else:

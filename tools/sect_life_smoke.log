@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+=== SMOKE TEST XONG ===
+tong HP muc tieu con lai: 14054 (ban dau 360), hits=254
+da so huu: ["hair_topknot_black", "outfit_plain", "shoes_cloth_brown", "hair_long_silver", "hair_topknot_silver", "tien_bao_tu_dien", "head_band_white", "waist_bell_copper", "tien_bao", "sword_iron", "waist_wolf_fang"]
+quest: Nhiệm vụ mới: hãy gặp Kiếm sư Lăng Tiêu (dấu !)
+tu vi: Trúc Cơ tầng 2

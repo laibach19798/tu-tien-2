@@ -79,7 +79,7 @@ func _process(_delta: float) -> bool:
 	ok = ok and int(pr["have"]) == 0 and int(pr["total"]) == 5 and (pr["missing"] as Array).size() == 5
 	var txt := Wardrobe.acquire_text("sword_crystal")
 	print("cách có kiếm tinh thạch: ", txt)
-	ok = ok and txt.contains("Linh Mạch Động") and txt.contains("6%")
+	ok = ok and txt.contains("Linh Mạch Động") and txt.contains("1%")
 	ok = ok and Wardrobe.acquire_text("outfit_lam") == ""
 	# 6) rơi đồ theo vùng: trong hang có đồ Linh Mạch, ngoài hang thì không
 	ok = ok and not main.in_drop_region(Vector2.ZERO, "linh_mach_dong")

@@ -1,0 +1,1030 @@
+{
+  "version": 1,
+  "balance_status": "GIÁ TRỊ TEST — cơ duyên phải HIẾM (khoảng 1–2,5 giờ khám phá mới có một), tối đa một cái mỗi lần ghé một bản đồ",
+  "balance": {
+    "despawn_seconds": 480,
+    "due_roll_seconds": 20,
+    "meditate_duyen_seconds": 360,
+    "duyen_per_day_cap": 10,
+    "rival_chance_per_day": 0.08,
+    "regen_years": [
+      10,
+      20
+    ],
+    "gap_min_seconds": 3600,
+    "gap_max_seconds": 9000,
+    "duyen_gap_scale": [
+      1.4,
+      0.8
+    ],
+    "first_gap_seconds": 2400
+  },
+  "books": [
+    "kiem_cut",
+    "dao_cut",
+    "the_fist",
+    "hon_seal",
+    "ngu_water",
+    "ngu_fire"
+  ],
+  "encounters": {
+    "bone_sitter": {
+      "name": "Di hài ngồi thiền",
+      "prompt": "Quan sát di hài",
+      "kind": "sitter",
+      "glow": [
+        0.75,
+        0.78,
+        0.85
+      ],
+      "tier": [
+        2,
+        22
+      ],
+      "weight": 3,
+      "intro": "Một bộ hài cốt ngồi thiền dưới gốc đá, tay vẫn kết ấn. Bên cạnh có túi vải mục và một tờ di thư.",
+      "intro_high": "Hài cốt ngồi thiền bình lặng như đang ngủ. Linh khí quanh đây dịu lạ, như đang chờ ai đó đến.",
+      "choices": [
+        {
+          "id": "read",
+          "text": "Đọc di thư",
+          "effects": [
+            {
+              "type": "map_fragment"
+            }
+          ],
+          "result": "Di thư nhắc đến một nơi ẩn cư của người này."
+        },
+        {
+          "id": "loot",
+          "text": "Lấy túi trữ vật",
+          "effects": [
+            {
+              "type": "item",
+              "id": "yeu_dan",
+              "n": 1
+            },
+            {
+              "type": "duyen",
+              "n": -3
+            }
+          ],
+          "result": "Túi chỉ còn một viên yêu đan. Có điều gì đó nặng nề trong lòng."
+        },
+        {
+          "id": "bury",
+          "text": "Chôn cất tử tế",
+          "effects": [
+            {
+              "type": "duyen",
+              "n": 3
+            },
+            {
+              "type": "flag",
+              "id": "buried_sitter"
+            }
+          ],
+          "result": "Ngươi đắp một nấm đất nhỏ. Gió lặng đi một thoáng."
+        }
+      ]
+    },
+    "beggar": {
+      "name": "Lão ăn mày",
+      "prompt": "Trò chuyện với lão",
+      "kind": "figure",
+      "glow": [
+        0.9,
+        0.85,
+        0.6
+      ],
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "outfit_xam",
+        "shoes": "shoes_cloth_white"
+      },
+      "tier": [
+        2,
+        17
+      ],
+      "weight": 3,
+      "intro": "Một lão già rách rưới chặn đường, chìa bát vỡ: \"Cho lão chút linh thạch mua miếng ăn.\"",
+      "intro_high": "Lão ăn mày nhìn ngươi lâu, rồi cười: \"Khí sắc ngươi thanh nhuận. Cho lão chút gì, đừng ngại.\"",
+      "choices": [
+        {
+          "id": "much",
+          "text": "Cho nhiều (5% linh thạch)",
+          "cost": {
+            "stones_frac": 0.05
+          },
+          "effects": [
+            {
+              "type": "duyen",
+              "n": 3
+            },
+            {
+              "type": "schedule",
+              "id": "beggar_return",
+              "days": 3
+            }
+          ],
+          "result": "Lão cười: \"Ngươi sẽ không hối hận đâu.\" rồi khuất sau bụi cây."
+        },
+        {
+          "id": "little",
+          "text": "Cho ít (1% linh thạch)",
+          "cost": {
+            "stones_frac": 0.01
+          },
+          "effects": [
+            {
+              "type": "duyen",
+              "n": 1
+            }
+          ],
+          "result": "Lão cảm ơn và đi."
+        },
+        {
+          "id": "ask",
+          "text": "Hỏi han chuyện đời lão",
+          "effects": [
+            {
+              "type": "duyen",
+              "n": 1
+            },
+            {
+              "type": "map_fragment"
+            }
+          ],
+          "result": "Lão kể về một động đá nơi ông từng trú mưa."
+        },
+        {
+          "id": "drive",
+          "text": "Đuổi đi",
+          "effects": [
+            {
+              "type": "duyen",
+              "n": -2
+            }
+          ],
+          "result": "Lão thở dài rồi bỏ đi."
+        }
+      ]
+    },
+    "beggar_return": {
+      "name": "Tiền bối cải trang",
+      "prompt": "Trò chuyện",
+      "kind": "figure",
+      "glow": [
+        1.0,
+        0.9,
+        0.5
+      ],
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "tien_bao_bach_van",
+        "shoes": "shoes_boot_black"
+      },
+      "tier": [
+        0,
+        30
+      ],
+      "weight": 0,
+      "scheduled_only": true,
+      "intro": "Người đứng trước mặt ngươi khoác áo trắng, râu tóc bạc phơ. Ngươi nhận ra đôi mắt: lão ăn mày hôm nọ.",
+      "choices": [
+        {
+          "id": "take",
+          "text": "Nhận quà tạ ơn",
+          "effects": [
+            {
+              "type": "item",
+              "id": "dan_ho_the",
+              "n": 1
+            },
+            {
+              "type": "duyen",
+              "n": 2
+            }
+          ],
+          "result": "\"Một chút lòng thành. Tu hành là đường dài, đừng nóng vội.\""
+        }
+      ],
+      "hunch": "Ngươi có linh cảm sẽ còn gặp lại lão ăn mày."
+    },
+    "spirit_pool": {
+      "name": "Linh tuyền ngưng linh",
+      "prompt": "Quan sát hồ nước",
+      "kind": "orb",
+      "glow": [
+        0.5,
+        0.95,
+        1.0
+      ],
+      "tier": [
+        2,
+        22
+      ],
+      "weight": 2,
+      "intro": "Một hồ nước nhỏ phát sáng giữa nơi không có linh mạch. Hơi nước lạnh và đậm linh khí.",
+      "choices": [
+        {
+          "id": "drink",
+          "text": "Uống ngay",
+          "effects": [
+            {
+              "type": "xp_frac",
+              "n": 0.04
+            },
+            {
+              "type": "chance",
+              "p": 0.25,
+              "effects": [
+                {
+                  "type": "damage_frac",
+                  "n": 0.15
+                },
+                {
+                  "type": "toast",
+                  "text": "Linh khí quá đậm gây phản phệ, khí huyết tổn hao!"
+                }
+              ]
+            }
+          ],
+          "result": "Linh khí tràn vào kinh mạch."
+        },
+        {
+          "id": "bottle",
+          "text": "Đóng bình mang về",
+          "effects": [
+            {
+              "type": "item",
+              "id": "linh_tuyen_binh",
+              "n": 1
+            }
+          ],
+          "result": "Một bình nước linh, dùng làm trợ lực khi đột phá."
+        },
+        {
+          "id": "watch",
+          "text": "Ngồi quan sát 20 giây",
+          "effects": [
+            {
+              "type": "xp_frac",
+              "n": 0.02
+            }
+          ],
+          "result": "Ngươi ngộ ra một chút về cách linh khí tụ lại."
+        }
+      ]
+    },
+    "hurt_beast": {
+      "name": "Hắc lang bị thương",
+      "prompt": "Lại gần",
+      "kind": "orb",
+      "glow": [
+        0.9,
+        0.5,
+        0.45
+      ],
+      "tier": [
+        2,
+        17
+      ],
+      "weight": 2,
+      "intro": "Một con hắc lang mẹ nằm rên rỉ, sườn rách toạc. Bên cạnh là con non lấm lem, tru khe khẽ.",
+      "choices": [
+        {
+          "id": "heal",
+          "text": "Cho uống Hồi Huyết Đan",
+          "cost": {
+            "item": "dan_hoi_huyet",
+            "n": 1
+          },
+          "effects": [
+            {
+              "type": "duyen",
+              "n": 4
+            },
+            {
+              "type": "item",
+              "id": "soi_nanh",
+              "n": 1
+            }
+          ],
+          "result": "Hắc lang liếm tay ngươi rồi dẫn con rời đi, bỏ lại một chiếc nanh gãy."
+        },
+        {
+          "id": "kill",
+          "text": "Giết lấy yêu đan",
+          "effects": [
+            {
+              "type": "item",
+              "id": "yeu_dan",
+              "n": 2
+            },
+            {
+              "type": "duyen",
+              "n": -3
+            }
+          ],
+          "result": "Ngươi lấy hai viên yêu đan. Tiếng tru của con non vọng theo rất lâu."
+        },
+        {
+          "id": "leave",
+          "text": "Bỏ đi",
+          "effects": [],
+          "result": "Ngươi lặng lẽ rời đi."
+        }
+      ]
+    },
+    "stele": {
+      "name": "Thạch bi khắc kệ",
+      "prompt": "Đọc kệ",
+      "kind": "orb",
+      "glow": [
+        0.8,
+        0.85,
+        1.0
+      ],
+      "tier": [
+        2,
+        22
+      ],
+      "weight": 2,
+      "intro": "Tấm bia đá khắc bốn câu kệ cổ: \"Tâm như nước, gặp đá không hận; đạo như gió, qua núi không tranh.\" Phía dưới có dòng chữ nhỏ: \"Kệ này nói điều gì?\"",
+      "riddle": {
+        "right": "Muốn tiến xa, đừng chống lại cản trở.",
+        "wrong": [
+          "Phải đánh bại mọi trở ngại.",
+          "Chỉ kẻ mạnh mới đạt đạo."
+        ],
+        "right_effects": [
+          {
+            "type": "reroll_affix"
+          }
+        ],
+        "wrong_effects": [
+          {
+            "type": "damage_frac",
+            "n": 0.2
+          },
+          {
+            "type": "toast",
+            "text": "Bia nứt toạc, cấm chế phản chấn!"
+          }
+        ],
+        "right_result": "Chữ trên bia sáng lên. Ngươi ngộ ra một chút về bí tịch đang dùng.",
+        "wrong_result": "Bia rung lên, một luồng lực đẩy ngươi lùi lại."
+      }
+    },
+    "old_battlefield": {
+      "name": "Binh khí rỉ cắm đất",
+      "prompt": "Lại gần",
+      "kind": "relic",
+      "glow": [
+        0.85,
+        0.5,
+        0.5
+      ],
+      "tier": [
+        7,
+        22
+      ],
+      "weight": 2,
+      "intro": "Chiến trường cổ còn vương oán khí. Một thanh kiếm gãy cắm giữa bãi, trên chuôi quấn mảnh giản ghi dở.",
+      "choices": [
+        {
+          "id": "take",
+          "text": "Nhặt tàn quyển trên chuôi",
+          "effects": [
+            {
+              "type": "book_fragment"
+            },
+            {
+              "type": "buff",
+              "id": "oan_khi",
+              "seconds": 600
+            }
+          ],
+          "result": "Ngươi có được một trang bí tịch, nhưng oán khí bám lấy tay."
+        },
+        {
+          "id": "pray",
+          "text": "Tế bái hương hồn",
+          "effects": [
+            {
+              "type": "duyen",
+              "n": 2
+            }
+          ],
+          "result": "Oán khí dần tan, một cơn gió ấm thổi qua."
+        },
+        {
+          "id": "leave",
+          "text": "Đi qua",
+          "effects": [],
+          "result": "Ngươi bước nhanh qua bãi chiến trường."
+        }
+      ]
+    },
+    "comrade_in_peril": {
+      "name": "Đồng môn bị vây",
+      "prompt": "Lên tiếng",
+      "kind": "figure",
+      "glow": [
+        1.0,
+        0.6,
+        0.6
+      ],
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_trang",
+        "shoes": "shoes_cloth_white",
+        "head": "head_band_white"
+      },
+      "tier": [
+        2,
+        17
+      ],
+      "weight": 2,
+      "intro": "Một đệ tử trẻ bị mấy yêu quái vây, áo rách, kiếm gãy: \"Làm ơn giúp ta một tay!\"",
+      "choices": [
+        {
+          "id": "help",
+          "text": "Ra tay cứu giúp",
+          "effects": [
+            {
+              "type": "spawn",
+              "kind": "wolf_dark",
+              "n": 2
+            },
+            {
+              "type": "duyen",
+              "n": 3
+            },
+            {
+              "type": "bond",
+              "who": "any",
+              "n": 8
+            }
+          ],
+          "result": "Hai hắc lang lao tới! Đệ tử gật đầu cảm kích, lùi lại sau ngươi."
+        },
+        {
+          "id": "leave",
+          "text": "Bỏ mặc",
+          "effects": [
+            {
+              "type": "duyen",
+              "n": -5
+            },
+            {
+              "type": "bond",
+              "who": "any",
+              "n": -8
+            }
+          ],
+          "result": "Tiếng kêu cứu đuổi theo ngươi một đoạn."
+        }
+      ]
+    },
+    "jade_slip": {
+      "name": "Ngọc giản vô chủ",
+      "prompt": "Nhặt lên",
+      "kind": "orb",
+      "glow": [
+        0.7,
+        1.0,
+        0.8
+      ],
+      "tier": [
+        2,
+        22
+      ],
+      "weight": 2,
+      "intro": "Một ngọc giản xanh nằm bên đường, tỏa sáng mờ, như bị bỏ quên.",
+      "choices": [
+        {
+          "id": "read",
+          "text": "Đọc ngay",
+          "effects": [
+            {
+              "type": "map_fragment"
+            }
+          ],
+          "result": "Một mảnh bản đồ hiện lên trong thức hải."
+        },
+        {
+          "id": "hand",
+          "text": "Giao cho tông môn",
+          "effects": [
+            {
+              "type": "merit",
+              "n": 20
+            },
+            {
+              "type": "duyen",
+              "n": 1
+            }
+          ],
+          "result": "Chấp sự ghi nhận công lao của ngươi."
+        },
+        {
+          "id": "sell",
+          "text": "Bán cho thương nhân",
+          "effects": [
+            {
+              "type": "stones",
+              "n": 60
+            }
+          ],
+          "result": "Thương nhân trả cho ngươi 60 linh thạch."
+        }
+      ]
+    },
+    "hermit_will": {
+      "name": "Lời nhắn trên bia",
+      "prompt": "Đọc lời nhắn",
+      "kind": "orb",
+      "glow": [
+        0.9,
+        0.95,
+        0.8
+      ],
+      "tier": [
+        0,
+        30
+      ],
+      "weight": 0,
+      "scheduled_only": true,
+      "intro": "Ở nấm đất ngươi đắp có một vòng hoa dại, và một dòng chữ khắc bằng kiếm khí: \"Đa tạ. Mong ngươi đi xa hơn ta.\"",
+      "choices": [
+        {
+          "id": "read",
+          "text": "Lặng lẽ cúi chào",
+          "effects": [
+            {
+              "type": "xp_frac",
+              "n": 0.03
+            },
+            {
+              "type": "duyen",
+              "n": 2
+            }
+          ],
+          "result": "Một luồng ấm áp tràn qua kinh mạch."
+        }
+      ],
+      "hunch": "Có điều gì đó đang chờ ngươi bên nấm đất đã đắp."
+    }
+  },
+  "dong_phu": {
+    "dp_vo_danh": {
+      "name": "Vô Danh Thạch Động",
+      "region": "soi_linh",
+      "map": "dp_vo_danh",
+      "tier": 2,
+      "fragments": 3,
+      "gate_candidates": [
+        [
+          1900,
+          600
+        ],
+        [
+          1700,
+          480
+        ],
+        [
+          2100,
+          720
+        ],
+        [
+          900,
+          1200
+        ]
+      ],
+      "entry": [
+        200,
+        480
+      ],
+      "collapse_seconds": 90,
+      "intro": "Cấm chế trước cửa động mờ nhạt. Ba mảnh bản đồ đã đủ để mở lối, nhưng chúng sẽ tan thành bụi.",
+      "stele": {
+        "pos": [
+          400,
+          350
+        ],
+        "name": "Bia kệ cấm chế"
+      },
+      "runes": [
+        {
+          "id": "kiem",
+          "name": "Rune Kiếm",
+          "pos": [
+            350,
+            560
+          ]
+        },
+        {
+          "id": "hoa",
+          "name": "Rune Hỏa",
+          "pos": [
+            450,
+            480
+          ]
+        },
+        {
+          "id": "thuy",
+          "name": "Rune Thủy",
+          "pos": [
+            550,
+            560
+          ]
+        }
+      ],
+      "trap": {
+        "rect": [
+          700,
+          380,
+          320,
+          200
+        ],
+        "interval": 1.7,
+        "damage_mult": 0.7
+      },
+      "guards": {
+        "kind": "goblin",
+        "pos": [
+          900,
+          480
+        ],
+        "n": 2
+      },
+      "legacy": {
+        "pos": [
+          1150,
+          480
+        ],
+        "name": "Di hài tiên nhân",
+        "book": "kiem_cut",
+        "book_quality": "linh",
+        "min_duyen": 20,
+        "bury_flag": "buried_immortal"
+      },
+      "trial": "runes",
+      "min_step": 0
+    },
+    "dp_kiem_trung": {
+      "name": "Kiếm Trủng Chân Nhân",
+      "region": "linh_mach_dong",
+      "map": "dp_kiem_trung",
+      "tier": 10,
+      "min_step": 12,
+      "fragments": 3,
+      "trial": "swords",
+      "gate_candidates": [
+        [
+          1700,
+          420
+        ],
+        [
+          1000,
+          1000
+        ],
+        [
+          2000,
+          900
+        ],
+        [
+          600,
+          1100
+        ]
+      ],
+      "entry": [
+        200,
+        480
+      ],
+      "collapse_seconds": 90,
+      "intro": "Giữa vách đá cắm san sát những thanh kiếm gỉ. Cấm chế kiếm khí quanh cửa động đã mòn, ba mảnh bản đồ đủ để phá nhưng sẽ tan thành bụi.",
+      "stele": {
+        "pos": [
+          420,
+          340
+        ],
+        "name": "Bia kiếm kệ"
+      },
+      "runes": [
+        {
+          "id": "k1",
+          "name": "Kiếm Thanh Phong",
+          "pos": [
+            760,
+            360
+          ]
+        },
+        {
+          "id": "k2",
+          "name": "Kiếm Xích Viêm",
+          "pos": [
+            856,
+            388
+          ]
+        },
+        {
+          "id": "k3",
+          "name": "Kiếm Hàn Băng",
+          "pos": [
+            907,
+            459
+          ]
+        },
+        {
+          "id": "k4",
+          "name": "Kiếm Tử Điện",
+          "pos": [
+            889,
+            540
+          ]
+        },
+        {
+          "id": "k5",
+          "name": "Kiếm Hoàng Thổ",
+          "pos": [
+            811,
+            592
+          ]
+        },
+        {
+          "id": "k6",
+          "name": "Kiếm Bạch Hồng",
+          "pos": [
+            708,
+            592
+          ]
+        },
+        {
+          "id": "k7",
+          "name": "Kiếm Huyền Minh",
+          "pos": [
+            630,
+            540
+          ]
+        },
+        {
+          "id": "k8",
+          "name": "Kiếm Kim Quang",
+          "pos": [
+            612,
+            459
+          ]
+        },
+        {
+          "id": "k9",
+          "name": "Kiếm Thiên Cương",
+          "pos": [
+            663,
+            388
+          ]
+        }
+      ],
+      "rune_count": 5,
+      "heart": {
+        "pos": [
+          1350,
+          480
+        ],
+        "name": "Tâm kính",
+        "questions": [
+          {
+            "text": "Kiếm tu để lại một câu: \"Kiếm sắc nhất khi nào?\"",
+            "right": "Khi người cầm kiếm không còn muốn chứng minh mình.",
+            "wrong": [
+              "Khi chém được nhiều người nhất.",
+              "Khi rèn bằng huyết của kẻ địch."
+            ]
+          },
+          {
+            "text": "\"Gặp kẻ yếu hơn mình đang cầm kiếm chặn đường?\"",
+            "right": "Tránh đường, không để kiếm vấy máu vô nghĩa.",
+            "wrong": [
+              "Chém, vì kẻ chặn đường là kẻ thù.",
+              "Lấy kiếm của hắn để thử lưỡi mình."
+            ]
+          },
+          {
+            "text": "\"Người sống sót cuối cùng trong trủng kiếm là ai?\"",
+            "right": "Người biết khi nào buông kiếm.",
+            "wrong": [
+              "Người giữ được nhiều kiếm nhất.",
+              "Người cầm thanh kiếm sắc nhất."
+            ]
+          }
+        ],
+        "penalty_xp_frac": 0.03
+      },
+      "trap": {
+        "rect": [
+          1000,
+          380,
+          260,
+          200
+        ],
+        "interval": 1.9,
+        "damage_mult": 0.9
+      },
+      "guards": {
+        "kind": "stone_golem",
+        "pos": [
+          1120,
+          480
+        ],
+        "n": 2
+      },
+      "legacy": {
+        "pos": [
+          1620,
+          480
+        ],
+        "name": "Kiếm hài Chân Nhân",
+        "book": "kiem_guard",
+        "book_quality": "huyen",
+        "min_duyen": 40,
+        "needs_heart": true,
+        "bury_flag": "buried_kiem_trung",
+        "items": {
+          "dan_hoi_huyet": 2
+        },
+        "loot": {
+          "stones": 420,
+          "items": {
+            "yeu_dan": 3
+          }
+        },
+        "locked_text": "Kiếm khí cấm chế còn bao phủ di hài. Cần xếp lại trận kiếm theo đúng thứ tự trên bia."
+      }
+    },
+    "dp_huyet_tri": {
+      "name": "Huyết Trì Cổ Phủ",
+      "region": "tieu_gioi",
+      "map": "dp_huyet_tri",
+      "tier": 20,
+      "min_step": 20,
+      "fragments": 3,
+      "trial": "blood",
+      "gate_candidates": [
+        [
+          1480,
+          1500
+        ],
+        [
+          3000,
+          1520
+        ],
+        [
+          2700,
+          1000
+        ],
+        [
+          1100,
+          2000
+        ]
+      ],
+      "entry": [
+        200,
+        500
+      ],
+      "collapse_seconds": 90,
+      "intro": "Hơi máu bốc lên từ một vách đá nứt. Dưới đó là cổ phủ của một thể tu cự linh. Ba mảnh bản đồ sẽ tan thành bụi khi phá cấm chế.",
+      "pool": {
+        "pos": [
+          720,
+          500
+        ],
+        "r": 150,
+        "heal_frac_per_sec": 0.015,
+        "name": "Huyết Trì"
+      },
+      "guards_list": [
+        {
+          "kind": "stone_colossus",
+          "pos": [
+            1150,
+            500
+          ],
+          "n": 1
+        },
+        {
+          "kind": "blood_golem",
+          "pos": [
+            980,
+            360
+          ],
+          "n": 1
+        },
+        {
+          "kind": "blood_golem",
+          "pos": [
+            980,
+            640
+          ],
+          "n": 1
+        }
+      ],
+      "legacy": {
+        "pos": [
+          1480,
+          500
+        ],
+        "name": "Xương cốt cự linh",
+        "book": "bat_hoai_kim_than",
+        "book_quality": "huyen",
+        "min_duyen": 20,
+        "bury_flag": "buried_huyet_tri",
+        "items": {
+          "dan_hoi_huyet": 3
+        },
+        "loot": {
+          "stones": 700,
+          "items": {
+            "yeu_dan": 4
+          }
+        },
+        "locked_text": "Khôi lỗi thủ hộ vẫn còn trong động. Hạ hết chúng, truyền thừa mới hiện ra."
+      }
+    },
+    "dp_thien_mach": {
+      "name": "Thiên Mạch Tiên Phủ",
+      "region": "tieu_gioi",
+      "map": "dp_thien_mach",
+      "tier": 22,
+      "min_step": 30,
+      "fragments": 3,
+      "trial": "mirror",
+      "gate_candidates": [
+        [
+          2240,
+          760
+        ],
+        [
+          3300,
+          2000
+        ],
+        [
+          1600,
+          2100
+        ],
+        [
+          3600,
+          900
+        ]
+      ],
+      "entry": [
+        200,
+        500
+      ],
+      "collapse_seconds": 90,
+      "intro": "Trên đỉnh cao nhất của Thiên Mạch, một cổng ngọc lơ lửng giữa mây. Ba mảnh bản đồ sẽ tan thành bụi khi phá cấm chế.",
+      "mirror": {
+        "pos": [
+          800,
+          500
+        ],
+        "name": "Gương Thiên Mạch",
+        "spawn": [
+          1020,
+          500
+        ],
+        "resist": 0.25
+      },
+      "legacy": {
+        "pos": [
+          1380,
+          500
+        ],
+        "name": "Pháp thân tiên nhân",
+        "book": "thien_mach_quyet",
+        "book_quality": "huyen",
+        "min_duyen": 30,
+        "bury_flag": "buried_thien_mach",
+        "xp_frac": 0.25,
+        "items": {
+          "dan_hoi_huyet": 3
+        },
+        "loot": {
+          "stones": 1200,
+          "items": {
+            "yeu_dan": 6
+          }
+        },
+        "locked_text": "Pháp thân tiên nhân phản chiếu trong gương. Hạ bản thân ngươi trong gương, truyền thừa mới hiện ra."
+      }
+    }
+  },
+  "flag_text": {
+    "buried_sitter": "Ngươi đã chôn cất một tu sĩ vô danh dưới gốc đá.",
+    "buried_immortal": "Ngươi đã chôn cất vị tiên nhân trong Vô Danh Thạch Động và để lại động phủ.",
+    "buried_kiem_trung": "Ngươi đã chôn cất kiếm tu chân nhân trong Kiếm Trủng và để lại động phủ.",
+    "buried_huyet_tri": "Ngươi đã chôn cất cự linh trong Huyết Trì Cổ Phủ và để lại động phủ.",
+    "buried_thien_mach": "Ngươi đã chôn cất tiên nhân Thiên Mạch và để lại động phủ."
+  }
+}

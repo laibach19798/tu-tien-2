@@ -1,0 +1,52 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS T1/T2: 3000 seeds, exact totals and bounds
+PASS specified sample valid
+PASS seed reproduces origin
+PASS T3: Sword member learns/equips Soul heart
+PASS T4: same definition has distinct instance affixes
+PASS T5 status_applied cross-sect: dao_cut
+PASS T5 status_applied cross-sect: ngu_fire
+PASS T6 pending discount quotes 36
+PASS T7 actual payment = 36
+PASS T7 pearl does not proc below 40 actual
+PASS T6 discount consumed exactly once
+PASS pearl positive control: 45 triggers once
+PASS failed cast does not consume one-shot
+PASS discount expires
+PASS blood converts only missing qi; actual mana remains 35
+PASS blood payment capped per cast
+PASS T8 summon inherited status capped
+PASS T8 logs and chain bounded
+PASS T8 adversarial effect cycle terminates
+PASS T9 artifact main attack without sixth sect
+PASS T9 weapon does not multiply artifact summon damage
+PASS T10 quality separate from secrecy
+PASS T11 two independent relation layers
+PASS T12 JSON roundtrip retains rolls/IDs/loadout/seed
+PASS fragment cannot be learned
+PASS fragment study resumes across save and repairs
+PASS study replaces a random affix, not whole instance
+PASS 30 books
+PASS two cong for kiem_tong
+PASS two tam for kiem_tong
+PASS two than for kiem_tong
+PASS two cong for dao_mon
+PASS two tam for dao_mon
+PASS two than for dao_mon
+PASS two cong for ngu_hanh
+PASS two tam for ngu_hanh
+PASS two than for ngu_hanh
+PASS two cong for huyen_the
+PASS two tam for huyen_the
+PASS two than for huyen_the
+PASS two cong for hon_dao
+PASS two tam for hon_dao
+PASS two than for hon_dao
+PASS legacy innate normalized within exact bounds
+PASS legacy rank and active internal technique migrated
+PASS legacy learned manuals and original values retained
+PASS legacy migration deterministic
+V1 CORE: 47 checks, 0 failures

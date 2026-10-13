@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://dvrg66b2apt6w"
+
+[deps]
+
+files=["res://tools/build_sim_rolled.tam.translation", "res://tools/build_sim_rolled.than.translation", "res://tools/build_sim_rolled.artifact.translation", "res://tools/build_sim_rolled.primary.translation", "res://tools/build_sim_rolled.overall.translation", "res://tools/build_sim_rolled.single.translation", "res://tools/build_sim_rolled.pack.translation", "res://tools/build_sim_rolled.boss.translation", "res://tools/build_sim_rolled.swarm.translation"]
+
+source_file="res://tools/build_sim_rolled.csv"
+dest_files=["res://tools/build_sim_rolled.tam.translation", "res://tools/build_sim_rolled.than.translation", "res://tools/build_sim_rolled.artifact.translation", "res://tools/build_sim_rolled.primary.translation", "res://tools/build_sim_rolled.overall.translation", "res://tools/build_sim_rolled.single.translation", "res://tools/build_sim_rolled.pack.translation", "res://tools/build_sim_rolled.boss.translation", "res://tools/build_sim_rolled.swarm.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

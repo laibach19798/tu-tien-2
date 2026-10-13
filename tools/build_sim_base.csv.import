@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bo3mh7ucs1isw"
+
+[deps]
+
+files=["res://tools/build_sim_base.tam.translation", "res://tools/build_sim_base.than.translation", "res://tools/build_sim_base.artifact.translation", "res://tools/build_sim_base.primary.translation", "res://tools/build_sim_base.overall.translation", "res://tools/build_sim_base.single.translation", "res://tools/build_sim_base.pack.translation", "res://tools/build_sim_base.boss.translation", "res://tools/build_sim_base.swarm.translation"]
+
+source_file="res://tools/build_sim_base.csv"
+dest_files=["res://tools/build_sim_base.tam.translation", "res://tools/build_sim_base.than.translation", "res://tools/build_sim_base.artifact.translation", "res://tools/build_sim_base.primary.translation", "res://tools/build_sim_base.overall.translation", "res://tools/build_sim_base.single.translation", "res://tools/build_sim_base.pack.translation", "res://tools/build_sim_base.boss.translation", "res://tools/build_sim_base.swarm.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -1,0 +1,1893 @@
+{
+  "version": 1,
+  "balance_status": "GIÁ TRỊ TEST — chưa phải cân bằng cuối cùng",
+  "balance": {
+    "chain_depth": 8,
+    "chain_events": 64,
+    "log_limit": 160,
+    "affix_count": 2,
+    "study_stones": 500,
+    "study_seconds": 120,
+    "book_price": 1500,
+    "gear_price": 2200,
+    "sect_merit": 240,
+    "npc_bond": 15,
+    "dodge_window": 0.14,
+    "dash_seconds": 0.25,
+    "dash_speed": 720,
+    "blood_ratio": 2,
+    "blood_cast_cap": 25,
+    "blood_floor": 0.35,
+    "summon_interval": 0.6,
+    "summon_upkeep": 4,
+    "rank_thresholds": [
+      0,
+      100,
+      250,
+      400,
+      1000
+    ],
+    "sensing_range": 360,
+    "root_cost_scale": 0.002,
+    "attribute_scale": 0.004,
+    "research_scale": 0.01,
+    "armor_cap": 0.6,
+    "interrupt_seconds": 0.35,
+    "critical_chance": 0.1,
+    "critical_multiplier": 1.5,
+    "ruin_kills": 14,
+    "realm_damage_per_step": 0.12,
+    "ruin_huyen_every": 4,
+    "sect_merit_mult": {
+      "public": 1,
+      "inner": 1.5,
+      "true": 3,
+      "secret": 6
+    },
+    "qi_regen": 1.0
+  },
+  "sects": {
+    "kiem_tong": {
+      "name": "Kiếm Tông",
+      "legacy": "kiem_tong"
+    },
+    "dao_mon": {
+      "name": "Đao Môn",
+      "legacy": "xich_viem"
+    },
+    "ngu_hanh": {
+      "name": "Ngũ Hành Pháp Tông",
+      "legacy": "han_bang"
+    },
+    "huyen_the": {
+      "name": "Huyền Thể Tông",
+      "legacy": "doc_mon"
+    },
+    "hon_dao": {
+      "name": "Hồn Đạo Tông",
+      "legacy": "huyen_minh"
+    }
+  },
+  "ranks": [
+    "Ngoại Môn Đệ Tử",
+    "Nội Môn Đệ Tử",
+    "Tinh Anh Đệ Tử",
+    "Chân Truyền Đệ Tử",
+    "Trưởng Lão"
+  ],
+  "qualities": {
+    "thuong": {
+      "name": "Thường",
+      "affixes": 1
+    },
+    "linh": {
+      "name": "Linh",
+      "affixes": 2
+    },
+    "huyen": {
+      "name": "Huyền",
+      "affixes": 3
+    }
+  },
+  "secrecy": {
+    "public": "Phổ Truyền",
+    "inner": "Nội Truyền",
+    "true": "Chân Truyền",
+    "secret": "Trấn Phái"
+  },
+  "attributes": {
+    "constitution": "Căn Cốt",
+    "meridians": "Kinh Mạch",
+    "insight": "Ngộ Tính",
+    "awareness": "Thần Thức",
+    "agility": "Linh Hoạt",
+    "composure": "Tâm Cảnh"
+  },
+  "elements": {
+    "kim": "Kim",
+    "moc": "Mộc",
+    "thuy": "Thủy",
+    "hoa": "Hỏa",
+    "tho": "Thổ"
+  },
+  "fates": {
+    "hoi_nguyen": {
+      "name": "Hồi Nguyên Linh Mạch",
+      "description": "Né hoàn hảo: Công Pháp kế tiếp trong 6 giây giảm 20% linh lực; chỉ tiêu thụ khi thi triển thành công.",
+      "effects": [
+        "dodge_discount"
+      ]
+    },
+    "huyet_nghich": {
+      "name": "Huyết Nghịch Chi Thể",
+      "description": "Dùng 2 khí huyết bù 1 linh lực thiếu; tối đa 25 linh lực/lần, luôn giữ ít nhất 35% khí huyết tối đa.",
+      "effects": [],
+      "blood_payment": true
+    },
+    "thien_nhan": {
+      "name": "Thiên Nhãn Thông Minh",
+      "description": "Nhìn được dòng phụ tiềm ẩn trước khi tham ngộ; không tự chọn được dòng thay thế.",
+      "effects": [],
+      "reveal_hidden": true
+    },
+    "phan_hon": {
+      "name": "Phân Hồn Dị Tướng",
+      "description": "Triệu hồi kéo dài thêm 3 giây nhưng tốn thêm 2 linh lực mỗi nhịp duy trì.",
+      "effects": [],
+      "summon_duration": 3,
+      "summon_upkeep": 2
+    },
+    "bat_khuat": {
+      "name": "Bất Khuất Đạo Tâm",
+      "description": "Sau đòn từ 20 sát thương: chống gián đoạn 2 giây. Hồi nội bộ 10 giây.",
+      "effects": [
+        "unbroken"
+      ]
+    }
+  },
+  "statuses": {
+    "kiem_an": {
+      "name": "Kiếm Ấn",
+      "max_stacks": 5,
+      "duration": 6,
+      "harmful": true,
+      "refresh": "reset",
+      "family": "mark"
+    },
+    "bleed": {
+      "name": "Xuất Huyết",
+      "max_stacks": 5,
+      "duration": 5,
+      "harmful": true,
+      "refresh": "reset",
+      "tick_damage": 2,
+      "family": "dot"
+    },
+    "burn": {
+      "name": "Thiêu Đốt",
+      "max_stacks": 5,
+      "duration": 4,
+      "harmful": true,
+      "refresh": "reset",
+      "tick_damage": 3,
+      "family": "dot"
+    },
+    "slow": {
+      "name": "Hàn Khí",
+      "max_stacks": 3,
+      "duration": 3,
+      "harmful": true,
+      "refresh": "reset",
+      "slow": 0.7,
+      "family": "control"
+    },
+    "armor_break": {
+      "name": "Phá Giáp",
+      "max_stacks": 3,
+      "duration": 5,
+      "harmful": true,
+      "refresh": "reset",
+      "vulnerability": 0.08,
+      "family": "debuff"
+    },
+    "hon_an": {
+      "name": "Hồn Ấn",
+      "max_stacks": 5,
+      "duration": 7,
+      "harmful": true,
+      "refresh": "reset",
+      "family": "mark"
+    },
+    "weaken": {
+      "name": "Suy Yếu",
+      "max_stacks": 1,
+      "duration": 3,
+      "harmful": true,
+      "refresh": "reset",
+      "attack_mult": 0.75,
+      "family": "debuff"
+    },
+    "discount": {
+      "name": "Hồi Nguyên",
+      "max_stacks": 1,
+      "duration": 6,
+      "harmful": false,
+      "refresh": "reset",
+      "cost_reduction": 0.2,
+      "consume_on": "cong"
+    },
+    "guard": {
+      "name": "Hộ Thể",
+      "max_stacks": 3,
+      "duration": 3,
+      "harmful": false,
+      "refresh": "reset",
+      "reduction": 0.12
+    },
+    "steadfast": {
+      "name": "Bất Khuất",
+      "max_stacks": 1,
+      "duration": 2,
+      "harmful": false,
+      "refresh": "reset",
+      "interrupt_resist": true
+    },
+    "surge": {
+      "name": "Thừa Thế",
+      "max_stacks": 1,
+      "duration": 4,
+      "harmful": false,
+      "refresh": "reset",
+      "damage_bonus": 0.4,
+      "family": "buff"
+    }
+  },
+  "effects": {
+    "dodge_discount": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "status",
+          "status": "discount",
+          "target": "self",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0.2
+      },
+      "description": "Né hoàn hảo → Hồi Nguyên 6 giây; giảm 20% phí Công Pháp kế tiếp."
+    },
+    "unbroken": {
+      "trigger": "incoming_hit",
+      "conditions": {
+        "min_amount": 20
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "steadfast",
+          "target": "self",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 10
+      },
+      "description": "Nhận đòn ≥20 → chống gián đoạn 2 giây, hồi 10 giây."
+    },
+    "sword_mark": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "kiem_an",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0
+      },
+      "description": "Đòn trực tiếp trúng → 1 Kiếm Ấn (tối đa 5, 6 giây)."
+    },
+    "blade_bleed": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "bleed",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0
+      },
+      "description": "Đòn trực tiếp trúng → Xuất Huyết (tối đa 5, 5 giây)."
+    },
+    "fire": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "burn",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0
+      },
+      "description": "Đòn trực tiếp trúng → Thiêu Đốt (tối đa 5, 4 giây)."
+    },
+    "water": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "slow",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0
+      },
+      "description": "Đòn trực tiếp trúng → Hàn Khí làm chậm 30%, 3 giây."
+    },
+    "break": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "armor_break",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0.2
+      },
+      "description": "Đòn trực tiếp trúng → Phá Giáp; mỗi tầng nhận thêm 8% sát thương, tối đa 3."
+    },
+    "soul": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "hon_an",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0
+      },
+      "description": "Đòn trực tiếp trúng → 1 Hồn Ấn (tối đa 5, 7 giây)."
+    },
+    "status_qi": {
+      "trigger": "status_applied",
+      "conditions": {
+        "family": "mark"
+      },
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 8
+        }
+      ],
+      "limits": {
+        "icd": 0.4
+      },
+      "description": "Gây Ấn (Kiếm Ấn hoặc Hồn Ấn) → hồi 8 linh lực, tối đa 2–3 lần/giây."
+    },
+    "mark_burst": {
+      "trigger": "status_stack_changed",
+      "conditions": {
+        "family": "mark",
+        "min_stacks": 3
+      },
+      "actions": [
+        {
+          "type": "damage",
+          "amount": 30
+        }
+      ],
+      "limits": {
+        "icd": 1.5
+      },
+      "description": "Mục tiêu có ≥3 tầng Ấn (Kiếm Ấn hoặc Hồn Ấn) → đòn phụ 30 sát thương, hồi 1,5 giây; không tự kích hoạt lại."
+    },
+    "blood_heal": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ],
+        "target_family": "dot"
+      },
+      "actions": [
+        {
+          "type": "heal",
+          "amount": 3,
+          "scale": 0.25
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "description": "Đánh trực tiếp mục tiêu đang chịu sát thương theo thời gian (chảy máu, thiêu đốt) → hồi 3 khí huyết + 25% sát thương gây ra, hồi 0,5 giây."
+    },
+    "kill_qi": {
+      "trigger": "target_killed",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 18
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "description": "Hạ mục tiêu → hồi 18 linh lực, hồi 0,5 giây."
+    },
+    "dodge_guard": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "status",
+          "status": "guard",
+          "target": "self",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 1
+      },
+      "description": "Né hoàn hảo → Hộ Thể giảm 12% sát thương trong 3 giây."
+    },
+    "guard_counter": {
+      "trigger": "guard_success",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "damage",
+          "amount": 18
+        }
+      ],
+      "limits": {
+        "icd": 1.5
+      },
+      "description": "Hộ Thể chặn đòn → phản chấn 18 sát thương, hồi 1,5 giây; không kế thừa on-hit."
+    },
+    "soul_qi": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "target_family": "mark",
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 4
+        }
+      ],
+      "limits": {
+        "icd": 0.8
+      },
+      "description": "Đánh trực tiếp mục tiêu mang Ấn → hồi 4 linh lực, hồi 0,8 giây."
+    },
+    "summon_mark": {
+      "trigger": "summon_hit",
+      "conditions": {
+        "tags_all": [
+          "summon"
+        ]
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "hon_an",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "inherit_summon": true,
+      "description": "Đòn triệu hồi được phép kế thừa → Hồn Ấn, hồi 0,5 giây."
+    },
+    "dodge_heal": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "heal",
+          "amount": 0.06,
+          "pct": true
+        }
+      ],
+      "limits": {
+        "icd": 2
+      },
+      "description": "Né hoàn hảo → hồi 6% khí huyết tối đa, hồi 2 giây."
+    },
+    "bell": {
+      "trigger": "status_stack_changed",
+      "conditions": {
+        "min_total_stacks": 5
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "weaken",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 4
+      },
+      "inherit_summon": true,
+      "description": "Cùng một mục tiêu có ≥5 tầng bất lợi hợp lệ → Suy Yếu 3 giây, hồi 4 giây."
+    },
+    "pearl": {
+      "trigger": "resource_spent",
+      "conditions": {
+        "resource": "qi",
+        "min_amount": 40,
+        "skill_type": "cong"
+      },
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 0,
+          "scale": 0.3
+        },
+        {
+          "type": "reduce_cooldown",
+          "slot": "than",
+          "amount": 1.0
+        }
+      ],
+      "limits": {
+        "icd": 1
+      },
+      "description": "Một lần thi pháp thực trả ≥40 linh lực → hoàn 30% linh lực đã tiêu và giảm 1 giây hồi Thân Pháp; hồi nội bộ 1 giây."
+    },
+    "summon_echo": {
+      "trigger": "summon_hit",
+      "conditions": {
+        "tags_all": [
+          "summon"
+        ]
+      },
+      "actions": [
+        {
+          "type": "damage",
+          "amount": 4
+        }
+      ],
+      "limits": {
+        "icd": 1
+      },
+      "inherit_summon": true,
+      "description": "Đòn triệu hồi → đòn phụ 4 sát thương; hồi 1 giây, không gọi thêm triệu hồi."
+    },
+    "kill_heal": {
+      "trigger": "target_killed",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "heal",
+          "amount": 4
+        }
+      ],
+      "limits": {
+        "icd": 1
+      },
+      "description": "Hạ mục tiêu → hồi 4 khí huyết, hồi 1 giây."
+    },
+    "dodge_haste": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "reduce_cooldown",
+          "slot": "cong",
+          "amount": 1.0
+        }
+      ],
+      "limits": {
+        "icd": 2
+      },
+      "description": "Né hoàn hảo → Công Pháp giảm 1 giây hồi chiêu, hồi 2 giây."
+    },
+    "crit_qi": {
+      "trigger": "critical_hit",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 3
+        }
+      ],
+      "limits": {
+        "icd": 2.5
+      },
+      "description": "Chí mạng → hồi 3 linh lực, hồi 2,5 giây."
+    },
+    "cycle_cd": {
+      "trigger": "status_applied",
+      "conditions": {
+        "family": "mark"
+      },
+      "actions": [
+        {
+          "type": "reduce_cooldown",
+          "slot": "cong",
+          "amount": 0.6
+        }
+      ],
+      "limits": {
+        "icd": 0.7
+      },
+      "description": "Gây Ấn → Công Pháp giảm 0,6 giây hồi chiêu, hồi 0,7 giây."
+    },
+    "dodge_surge": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "status",
+          "status": "surge",
+          "target": "self",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 1
+      },
+      "description": "Né hoàn hảo → Thừa Thế 4 giây: Công Pháp và Pháp Bảo gây thêm 40% sát thương."
+    },
+    "dodge_qi": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 0.04,
+          "pct": true
+        }
+      ],
+      "limits": {
+        "icd": 2.5
+      },
+      "description": "Né hoàn hảo → hồi 4% linh lực tối đa, hồi 2,5 giây."
+    },
+    "dodge_slow": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "status",
+          "status": "slow",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "description": "Né hoàn hảo → kẻ vừa đánh bị Hàn Khí (kích hoạt cả Tâm Pháp nhận trạng thái bất lợi)."
+    },
+    "dodge_weaken": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "status",
+          "status": "weaken",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 1
+      },
+      "description": "Né hoàn hảo → kẻ vừa đánh bị Suy Yếu 3 giây (đòn của nó yếu đi 25%)."
+    },
+    "dodge_mark": {
+      "trigger": "perfect_dodge",
+      "conditions": {},
+      "actions": [
+        {
+          "type": "status",
+          "status": "hon_an",
+          "stacks": 2
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "description": "Né hoàn hảo → kẻ vừa đánh mang 2 tầng Hồn Ấn."
+    },
+    "sword_rain": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ]
+      },
+      "actions": [
+        {
+          "type": "damage",
+          "amount": 10
+        }
+      ],
+      "limits": {
+        "icd": 1.0
+      },
+      "description": "Đòn trực tiếp trúng → một thanh phi kiếm bổ thêm 10 sát thương, hồi 1 giây."
+    },
+    "elem_cycle": {
+      "trigger": "status_applied",
+      "conditions": {
+        "families": [
+          "dot",
+          "control"
+        ]
+      },
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 8
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "description": "Gây sát thương theo thời gian hoặc khống chế (chảy máu, thiêu đốt, Hàn Khí) → hồi 8 linh lực, hồi 0,5 giây."
+    },
+    "break_heal": {
+      "trigger": "attack_hit",
+      "conditions": {
+        "tags_all": [
+          "direct"
+        ],
+        "target_family": "debuff"
+      },
+      "actions": [
+        {
+          "type": "heal",
+          "amount": 3,
+          "scale": 0.25
+        },
+        {
+          "type": "restore_qi",
+          "amount": 3
+        }
+      ],
+      "limits": {
+        "icd": 0.5
+      },
+      "description": "Đánh trực tiếp mục tiêu đang bị Phá Giáp/Suy Yếu → hồi 3 khí huyết + 25% sát thương và 3 linh lực, hồi 0,5 giây."
+    },
+    "status_qi_lite": {
+      "trigger": "status_applied",
+      "conditions": {
+        "families": [
+          "mark",
+          "dot",
+          "control"
+        ]
+      },
+      "actions": [
+        {
+          "type": "restore_qi",
+          "amount": 3
+        }
+      ],
+      "limits": {
+        "icd": 1.2
+      },
+      "description": "Gây Ấn, sát thương theo thời gian hoặc khống chế → hồi 3 linh lực, hồi 1,2 giây."
+    },
+    "kim_than_guard": {
+      "trigger": "incoming_hit",
+      "conditions": {
+        "min_amount": 10
+      },
+      "actions": [
+        {
+          "type": "status",
+          "status": "guard",
+          "target": "self",
+          "stacks": 1
+        }
+      ],
+      "limits": {
+        "icd": 1.2
+      },
+      "description": "Nhận đòn ≥10 → Hộ Thể +1 tầng (giảm 12% sát thương mỗi tầng, tối đa 3), hồi 1,2 giây."
+    },
+    "kim_than_heal": {
+      "trigger": "incoming_hit",
+      "conditions": {
+        "min_amount": 30
+      },
+      "actions": [
+        {
+          "type": "heal",
+          "amount": 0.025,
+          "pct": true
+        }
+      ],
+      "limits": {
+        "icd": 8
+      },
+      "description": "Nhận đòn ≥30 → hồi 2,5% khí huyết tối đa, hồi 8 giây."
+    }
+  },
+  "affixes": {
+    "efficient": {
+      "name": "Tiết Khí",
+      "weight": 4,
+      "cost_reduction": 0.08,
+      "description": "Giảm 8% chi phí linh lực, giảm 4% sát thương.",
+      "damage_mult": 0.96
+    },
+    "heavy": {
+      "name": "Trọng Uy",
+      "weight": 3,
+      "damage_mult": 1.2,
+      "cost_mult": 1.15,
+      "description": "Tăng 20% sát thương, tăng 15% chi phí."
+    },
+    "swift": {
+      "name": "Khinh Linh",
+      "weight": 3,
+      "cooldown_mult": 0.9,
+      "damage_mult": 0.92,
+      "description": "Hồi chiêu giảm 10%, sát thương giảm 8%."
+    },
+    "mercy": {
+      "name": "Hồi Sinh",
+      "weight": 2,
+      "effects": [
+        "dodge_heal"
+      ],
+      "description": "Né hoàn hảo hồi khí huyết; hồi nội bộ 3 giây."
+    },
+    "echo": {
+      "name": "Dư Âm",
+      "weight": 1,
+      "effects": [
+        "summon_echo"
+      ],
+      "description": "Cho phép triệu hồi tạo đòn phụ có giới hạn."
+    },
+    "flow": {
+      "name": "Lưu Chuyển",
+      "weight": 2,
+      "effects": [
+        "status_qi_lite"
+      ],
+      "description": "Gây Ấn, sát thương theo thời gian hoặc khống chế → hồi 3 linh lực, hồi 1,2 giây."
+    },
+    "opportunist": {
+      "name": "Thừa Cơ",
+      "weight": 3,
+      "conditional": {
+        "families": [
+          "dot",
+          "control"
+        ],
+        "damage_mult": 1.2
+      },
+      "description": "Mục tiêu đang chịu sát thương theo thời gian hoặc bị khống chế: tăng 20% sát thương."
+    },
+    "finisher": {
+      "name": "Phá Ấn",
+      "weight": 2,
+      "cost_mult": 1.1,
+      "conditional": {
+        "families": [
+          "mark"
+        ],
+        "min_total_stacks": 3,
+        "damage_mult": 1.35
+      },
+      "description": "Mục tiêu mang Ấn và từ 3 tầng bất lợi: tăng 35% sát thương, nhưng tăng 10% chi phí linh lực."
+    },
+    "bloodthirst": {
+      "name": "Hấp Huyết",
+      "weight": 2,
+      "effects": [
+        "kill_heal"
+      ],
+      "description": "Hạ mục tiêu → hồi 4 khí huyết; hồi nội bộ 1 giây."
+    },
+    "windstep": {
+      "name": "Thừa Phong",
+      "weight": 2,
+      "effects": [
+        "dodge_haste"
+      ],
+      "description": "Né hoàn hảo → Công Pháp giảm 1 giây hồi chiêu; hồi nội bộ 2 giây."
+    },
+    "crit_qi": {
+      "name": "Linh Quang",
+      "weight": 2,
+      "effects": [
+        "crit_qi"
+      ],
+      "description": "Đòn chí mạng → hồi 3 linh lực; hồi nội bộ 2,5 giây."
+    },
+    "glass": {
+      "name": "Dốc Sức",
+      "weight": 2,
+      "damage_mult": 1.15,
+      "cooldown_mult": 1.2,
+      "description": "Tăng 15% sát thương, kéo dài 20% hồi chiêu."
+    }
+  },
+  "books": [
+    {
+      "id": "kiem_cut",
+      "name": "Thanh Phong Kiếm",
+      "sect": "kiem_tong",
+      "slot": "cong",
+      "cost": 12,
+      "cooldown": 0.55,
+      "cast_time": 0,
+      "damage": 21.0,
+      "range": 125,
+      "shape": "cone",
+      "element": "kim",
+      "effects": [
+        "sword_mark"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ]
+    },
+    {
+      "id": "kiem_wave",
+      "name": "Trọng Huyền Kiếm Khí",
+      "sect": "kiem_tong",
+      "slot": "cong",
+      "cost": 70,
+      "cooldown": 3,
+      "cast_time": 0.2,
+      "damage": 134.8,
+      "range": 350,
+      "shape": "line",
+      "element": "kim",
+      "effects": [
+        "sword_mark"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ]
+    },
+    {
+      "id": "kiem_heart",
+      "name": "Kiếm Ấn Tâm Kinh",
+      "sect": "kiem_tong",
+      "slot": "tam",
+      "effects": [
+        "mark_burst"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ],
+      "conditional": {
+        "families": [
+          "mark"
+        ],
+        "damage_mult": 1.25,
+        "text": "Mục tiêu mang Ấn (Kiếm Ấn, Hồn Ấn): sát thương Công Pháp tăng 25%."
+      }
+    },
+    {
+      "id": "kiem_flow",
+      "name": "Thanh Tâm Quyết",
+      "sect": "kiem_tong",
+      "slot": "tam",
+      "effects": [
+        "status_qi"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ]
+    },
+    {
+      "id": "kiem_step",
+      "name": "Phi Yến Bộ",
+      "sect": "kiem_tong",
+      "slot": "than",
+      "cost": 16,
+      "cooldown": 3,
+      "dash_mult": 1,
+      "effects": [
+        "dodge_qi"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ]
+    },
+    {
+      "id": "kiem_guard",
+      "name": "Kiếm Ảnh Bộ",
+      "sect": "kiem_tong",
+      "slot": "than",
+      "cost": 30,
+      "cooldown": 4,
+      "dash_mult": 1.2,
+      "effects": [
+        "dodge_guard",
+        "dodge_qi"
+      ],
+      "secrecy": "true",
+      "need": 12,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ]
+    },
+    {
+      "id": "dao_cut",
+      "name": "Liệt Phong Đao",
+      "sect": "dao_mon",
+      "slot": "cong",
+      "cost": 16,
+      "cooldown": 0.8,
+      "damage": 24.7,
+      "range": 140,
+      "shape": "cone",
+      "element": "kim",
+      "effects": [
+        "blade_bleed"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "heavy",
+        "finisher",
+        "bloodthirst",
+        "opportunist",
+        "glass",
+        "efficient",
+        "windstep"
+      ]
+    },
+    {
+      "id": "dao_break",
+      "name": "Phá Quân Đao",
+      "sect": "dao_mon",
+      "slot": "cong",
+      "cost": 50,
+      "cooldown": 2.5,
+      "cast_time": 0.2,
+      "damage": 61.6,
+      "range": 180,
+      "shape": "cone",
+      "element": "tho",
+      "effects": [
+        "break"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "heavy",
+        "finisher",
+        "bloodthirst",
+        "opportunist",
+        "glass",
+        "efficient",
+        "windstep"
+      ]
+    },
+    {
+      "id": "dao_blood",
+      "name": "Huyết Chiến Tâm Pháp",
+      "sect": "dao_mon",
+      "slot": "tam",
+      "effects": [
+        "blood_heal"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "heavy",
+        "finisher",
+        "bloodthirst",
+        "opportunist",
+        "glass",
+        "efficient",
+        "windstep"
+      ],
+      "conditional": {
+        "families": [
+          "dot"
+        ],
+        "damage_mult": 1.25,
+        "text": "Mục tiêu đang chảy máu hoặc thiêu đốt: sát thương Công Pháp tăng 25%."
+      }
+    },
+    {
+      "id": "dao_victory",
+      "name": "Bách Chiến Quyết",
+      "sect": "dao_mon",
+      "slot": "tam",
+      "effects": [
+        "kill_qi"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "heavy",
+        "finisher",
+        "bloodthirst",
+        "opportunist",
+        "glass",
+        "efficient",
+        "windstep"
+      ]
+    },
+    {
+      "id": "dao_chase",
+      "name": "Truy Phong Bộ",
+      "sect": "dao_mon",
+      "slot": "than",
+      "cost": 24,
+      "cooldown": 2.6,
+      "dash_mult": 1.3,
+      "effects": [
+        "dodge_surge"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "heavy",
+        "finisher",
+        "bloodthirst",
+        "opportunist",
+        "glass",
+        "efficient",
+        "windstep"
+      ]
+    },
+    {
+      "id": "dao_retreat",
+      "name": "Hồi Phong Bộ",
+      "sect": "dao_mon",
+      "slot": "than",
+      "cost": 20,
+      "cooldown": 3.6,
+      "dash_mult": 0.9,
+      "effects": [
+        "dodge_heal"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "heavy",
+        "finisher",
+        "bloodthirst",
+        "opportunist",
+        "glass",
+        "efficient",
+        "windstep"
+      ]
+    },
+    {
+      "id": "ngu_fire",
+      "name": "Hỏa Liên Thuật",
+      "sect": "ngu_hanh",
+      "slot": "cong",
+      "cost": 40,
+      "cooldown": 1.8,
+      "cast_time": 0.2,
+      "damage": 51.6,
+      "range": 290,
+      "shape": "burst",
+      "element": "hoa",
+      "effects": [
+        "fire"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "efficient",
+        "flow",
+        "opportunist",
+        "crit_qi",
+        "swift",
+        "windstep",
+        "echo"
+      ]
+    },
+    {
+      "id": "ngu_water",
+      "name": "Hàn Thủy Chú",
+      "sect": "ngu_hanh",
+      "slot": "cong",
+      "cost": 35,
+      "cooldown": 1.6,
+      "damage": 64.6,
+      "range": 320,
+      "shape": "line",
+      "element": "thuy",
+      "effects": [
+        "water"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "efficient",
+        "flow",
+        "opportunist",
+        "crit_qi",
+        "swift",
+        "windstep",
+        "echo"
+      ]
+    },
+    {
+      "id": "ngu_cycle",
+      "name": "Ngũ Hành Luân Chuyển",
+      "sect": "ngu_hanh",
+      "slot": "tam",
+      "effects": [
+        "elem_cycle"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "efficient",
+        "flow",
+        "opportunist",
+        "crit_qi",
+        "swift",
+        "windstep",
+        "echo"
+      ],
+      "conditional": {
+        "families": [
+          "dot",
+          "control"
+        ],
+        "damage_mult": 1.2,
+        "text": "Mục tiêu đang chịu sát thương theo thời gian hoặc bị khống chế: sát thương tăng 20%."
+      }
+    },
+    {
+      "id": "ngu_wood",
+      "name": "Mộc Linh Dưỡng Tâm",
+      "sect": "ngu_hanh",
+      "slot": "tam",
+      "effects": [
+        "dodge_heal"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "efficient",
+        "flow",
+        "opportunist",
+        "crit_qi",
+        "swift",
+        "windstep",
+        "echo"
+      ]
+    },
+    {
+      "id": "ngu_earth",
+      "name": "Thổ Độn Bộ",
+      "sect": "ngu_hanh",
+      "slot": "than",
+      "cost": 34,
+      "cooldown": 4,
+      "dash_mult": 0.9,
+      "effects": [
+        "dodge_guard",
+        "dodge_heal"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "efficient",
+        "flow",
+        "opportunist",
+        "crit_qi",
+        "swift",
+        "windstep",
+        "echo"
+      ]
+    },
+    {
+      "id": "ngu_waterstep",
+      "name": "Thủy Ảnh Bộ",
+      "sect": "ngu_hanh",
+      "slot": "than",
+      "cost": 22,
+      "cooldown": 3.2,
+      "dash_mult": 1.2,
+      "effects": [
+        "dodge_slow"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "efficient",
+        "flow",
+        "opportunist",
+        "crit_qi",
+        "swift",
+        "windstep",
+        "echo"
+      ]
+    },
+    {
+      "id": "the_fist",
+      "name": "Cương Kình Quyền",
+      "sect": "huyen_the",
+      "slot": "cong",
+      "cost": 14,
+      "cooldown": 0.7,
+      "damage": 24.6,
+      "range": 105,
+      "shape": "cone",
+      "element": "tho",
+      "effects": [
+        "break"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ]
+    },
+    {
+      "id": "the_quake",
+      "name": "Chấn Địa Chưởng",
+      "sect": "huyen_the",
+      "slot": "cong",
+      "cost": 55,
+      "cooldown": 3,
+      "cast_time": 0.25,
+      "damage": 71.9,
+      "range": 180,
+      "shape": "ring",
+      "element": "tho",
+      "effects": [
+        "break"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ]
+    },
+    {
+      "id": "the_guard",
+      "name": "Kim Cương Tâm Pháp",
+      "sect": "huyen_the",
+      "slot": "tam",
+      "effects": [
+        "dodge_guard",
+        "guard_counter"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ]
+    },
+    {
+      "id": "the_blood",
+      "name": "Dưỡng Huyết Kinh",
+      "sect": "huyen_the",
+      "slot": "tam",
+      "effects": [
+        "break_heal"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ],
+      "conditional": {
+        "families": [
+          "debuff"
+        ],
+        "damage_mult": 1.25,
+        "text": "Mục tiêu đang bị Phá Giáp hoặc Suy Yếu: sát thương Công Pháp tăng 25%."
+      }
+    },
+    {
+      "id": "the_step",
+      "name": "Bàn Thạch Bộ",
+      "sect": "huyen_the",
+      "slot": "than",
+      "cost": 16,
+      "cooldown": 4.5,
+      "dash_mult": 0.75,
+      "effects": [
+        "dodge_guard",
+        "dodge_heal"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ]
+    },
+    {
+      "id": "the_leap",
+      "name": "Băng Sơn Bộ",
+      "sect": "huyen_the",
+      "slot": "than",
+      "cost": 38,
+      "cooldown": 3,
+      "dash_mult": 1.45,
+      "effects": [
+        "dodge_weaken",
+        "dodge_heal"
+      ],
+      "secrecy": "true",
+      "need": 12,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ]
+    },
+    {
+      "id": "hon_seal",
+      "name": "Nhiếp Hồn Ấn",
+      "sect": "hon_dao",
+      "slot": "cong",
+      "cost": 30,
+      "cooldown": 1.1,
+      "damage": 64.5,
+      "range": 330,
+      "shape": "single",
+      "effects": [
+        "soul"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "echo",
+        "flow",
+        "crit_qi",
+        "efficient",
+        "windstep",
+        "swift",
+        "mercy",
+        "opportunist"
+      ]
+    },
+    {
+      "id": "hon_clone",
+      "name": "Phân Hồn Thuật",
+      "sect": "hon_dao",
+      "slot": "cong",
+      "cost": 55,
+      "cooldown": 8,
+      "cast_time": 0.2,
+      "damage": 37.0,
+      "range": 320,
+      "shape": "summon",
+      "duration": 6,
+      "effects": [
+        "summon_mark"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "echo",
+        "flow",
+        "crit_qi",
+        "efficient",
+        "windstep",
+        "swift",
+        "mercy",
+        "opportunist"
+      ]
+    },
+    {
+      "id": "hon_heart",
+      "name": "Dưỡng Hồn Kinh",
+      "sect": "hon_dao",
+      "slot": "tam",
+      "effects": [
+        "cycle_cd"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "echo",
+        "flow",
+        "crit_qi",
+        "efficient",
+        "windstep",
+        "swift",
+        "mercy",
+        "opportunist"
+      ],
+      "conditional": {
+        "families": [
+          "mark"
+        ],
+        "damage_mult": 1.2,
+        "text": "Mục tiêu mang Ấn: sát thương Công Pháp tăng 20%."
+      }
+    },
+    {
+      "id": "hon_echo",
+      "name": "Đồng Tâm Hồn Quyết",
+      "sect": "hon_dao",
+      "slot": "tam",
+      "effects": [
+        "summon_mark",
+        "soul_qi"
+      ],
+      "secrecy": "secret",
+      "need": 18,
+      "affix_pool": [
+        "echo",
+        "flow",
+        "crit_qi",
+        "efficient",
+        "windstep",
+        "swift",
+        "mercy",
+        "opportunist"
+      ],
+      "conditional": {
+        "families": [
+          "mark"
+        ],
+        "damage_mult": 1.15,
+        "text": "Mục tiêu mang Ấn: sát thương tăng 15%."
+      }
+    },
+    {
+      "id": "hon_step",
+      "name": "U Ảnh Bộ",
+      "sect": "hon_dao",
+      "slot": "than",
+      "cost": 28,
+      "cooldown": 3,
+      "dash_mult": 1.15,
+      "effects": [
+        "dodge_mark"
+      ],
+      "secrecy": "public",
+      "need": 0,
+      "affix_pool": [
+        "echo",
+        "flow",
+        "crit_qi",
+        "efficient",
+        "windstep",
+        "swift",
+        "mercy",
+        "opportunist"
+      ]
+    },
+    {
+      "id": "hon_mirror",
+      "name": "Huyễn Ảnh Bộ",
+      "sect": "hon_dao",
+      "slot": "than",
+      "cost": 44,
+      "cooldown": 6,
+      "dash_mult": 1,
+      "summon_duration": 2,
+      "effects": [
+        "summon_mark",
+        "dodge_qi"
+      ],
+      "secrecy": "inner",
+      "need": 6,
+      "affix_pool": [
+        "echo",
+        "flow",
+        "crit_qi",
+        "efficient",
+        "windstep",
+        "swift",
+        "mercy",
+        "opportunist"
+      ]
+    },
+    {
+      "id": "bat_hoai_kim_than",
+      "name": "Bất Hoại Kim Thân Kinh",
+      "sect": "huyen_the",
+      "slot": "tam",
+      "effects": [
+        "kim_than_guard",
+        "kim_than_heal"
+      ],
+      "secrecy": "secret",
+      "need": 20,
+      "affix_pool": [
+        "heavy",
+        "mercy",
+        "bloodthirst",
+        "glass",
+        "efficient",
+        "opportunist",
+        "finisher"
+      ]
+    },
+    {
+      "id": "thien_mach_quyet",
+      "name": "Thiên Mạch Chân Quyết",
+      "sect": "ngu_hanh",
+      "slot": "cong",
+      "cost": 110,
+      "cooldown": 5.0,
+      "damage": 145.0,
+      "range": 300,
+      "shape": "burst",
+      "element": "kim",
+      "effects": [],
+      "secrecy": "secret",
+      "need": 30,
+      "affix_pool": [
+        "efficient",
+        "swift",
+        "opportunist",
+        "finisher",
+        "crit_qi",
+        "mercy",
+        "flow"
+      ]
+    }
+  ],
+  "equipment": [
+    {
+      "id": "iron_sword",
+      "name": "Thiết Kiếm",
+      "slot": "weapon",
+      "damage_mult": 1.12,
+      "effects": [],
+      "scope": "direct",
+      "need": 0
+    },
+    {
+      "id": "heavy_blade",
+      "name": "Trọng Đao",
+      "slot": "weapon",
+      "damage_mult": 1.3,
+      "cost_mult": 1.15,
+      "effects": [],
+      "scope": "direct",
+      "need": 6
+    },
+    {
+      "id": "cloth_robe",
+      "name": "Khinh Pháp Y",
+      "slot": "armor",
+      "reduction": 0.08,
+      "effects": [],
+      "need": 0
+    },
+    {
+      "id": "stone_armor",
+      "name": "Thạch Giáp",
+      "slot": "armor",
+      "reduction": 0.22,
+      "movement_mult": 0.85,
+      "effects": [
+        "guard_counter"
+      ],
+      "need": 6
+    },
+    {
+      "id": "soul_bell",
+      "name": "Trấn Hồn Chung",
+      "slot": "artifact",
+      "cost": 45,
+      "cooldown": 2,
+      "damage": 60.3,
+      "range": 220,
+      "shape": "ring",
+      "effects": [
+        "bell"
+      ],
+      "need": 6
+    },
+    {
+      "id": "qi_pearl",
+      "name": "Tụ Linh Châu",
+      "slot": "artifact",
+      "cost": 30,
+      "cooldown": 1.2,
+      "damage": 78.5,
+      "range": 300,
+      "shape": "single",
+      "effects": [
+        "pearl"
+      ],
+      "need": 0
+    },
+    {
+      "id": "nine_swords",
+      "name": "Cửu Kiếm Hạp",
+      "slot": "artifact",
+      "cost": 55,
+      "cooldown": 6,
+      "damage": 30.2,
+      "range": 330,
+      "shape": "summon",
+      "duration": 5,
+      "effects": [
+        "sword_rain"
+      ],
+      "need": 12
+    }
+  ],
+  "rank_rewards": [
+    {
+      "stones": 0,
+      "items": {}
+    },
+    {
+      "stones": 100,
+      "items": {
+        "dan_tu_vi": 2
+      }
+    },
+    {
+      "stones": 100,
+      "items": {
+        "dan_tu_khi": 2
+      }
+    },
+    {
+      "stones": 300,
+      "items": {
+        "dan_ho_the": 3
+      }
+    },
+    {
+      "stones": 800,
+      "items": {
+        "dan_truc_co": 1
+      }
+    }
+  ],
+  "secrecy_ranks": {
+    "inner": 1,
+    "secret": 4,
+    "true": 3,
+    "public": 0
+  },
+  "legacy_internal": {
+    "nc_han_bang": "ngu_cycle",
+    "nc_liet_hoa": "ngu_cycle",
+    "nc_kiem_tong": "kiem_flow",
+    "nc_han_tam": "the_guard",
+    "nc_thai_hu": "hon_echo",
+    "nc_ngu_phong": "kiem_flow",
+    "nc_doc_mon": "the_blood",
+    "nc_huyen_minh": "hon_echo",
+    "nc_hoi_xuan": "ngu_wood",
+    "nc_dan_loi": "hon_heart",
+    "nc_xich_viem": "dao_victory"
+  }
+}

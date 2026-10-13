@@ -7,14 +7,19 @@ signal message(text: String)
 
 const REALMS := ["Phàm Nhân", "Luyện Khí", "Trúc Cơ", "Kim Đan", "Nguyên Anh", "Hóa Thần"]
 const LAYERS := 9
-const BREAKTHROUGH_CHANCE := 0.75
+const BREAKTHROUGH_CHANCE := 0.75   # chỉ còn để tương thích; tỉ lệ thật theo cảnh giới nằm ở Hell.BREAKTHROUGH
 
 var realm := 1          # chỉ số trong REALMS (bắt đầu: Luyện Khí)
 var layer := 1          # tầng 1..9
 var xp := 0.0           # tu vi trong tầng hiện tại
 var qi := 0.0           # linh khí đã hấp thụ, chờ luyện hoá
 var ready_breakthrough := false
+var qi_mult := 1.0       # bẩm sinh (thần thức, thể chất): linh khí tối đa nhân hệ số này
+var breakthrough_bonus := 0.0   # bẩm sinh (cơ duyên): cộng vào tỉ lệ đột phá
+var med_mult := 1.0      # nội công: tốc độ luyện hoá linh khí thành tu vi khi thiền
 var xp_mult := 1.0       # thưởng bộ trang phục: tu vi nhận được nhân hệ số này
+var env_mult := 1.0      # giờ trong ngày + mệt mỏi khi thiền quá lâu (main cập nhật mỗi khung hình)
+var injury := 0.0        # giây còn lại bị trọng thương (đột phá thất bại): hấp thụ linh khí giảm
 
 
 func step_index() -> int:
@@ -22,7 +27,7 @@ func step_index() -> int:
 
 
 func xp_needed() -> float:
-	return 60.0 * pow(1.28, step_index())
+	return Hell.xp_needed(realm, layer)
 
 
 ## Sức mạnh hào quang trang phục theo cảnh giới: 0.15 (Luyện Khí tầng 1) .. 1.0 (Hóa Thần).
@@ -32,7 +37,7 @@ func aura_power() -> float:
 
 
 func qi_max() -> float:
-	return 100.0 + 40.0 * step_index()
+	return (100.0 + 40.0 * step_index()) * qi_mult
 
 
 func realm_name() -> String:
@@ -45,7 +50,8 @@ func meditate(delta: float, density: float) -> void:
 	if ready_breakthrough:
 		changed.emit()
 		return
-	var amt := minf(qi, 4.0 * density * delta)
+	var injured := Hell.INJURY_FACTOR if injury > 0.0 else 1.0
+	var amt := minf(qi, 4.0 * density * delta * med_mult * env_mult * injured)
 	qi -= amt
 	add_xp(amt)
 
@@ -69,14 +75,21 @@ func add_xp(amount: float) -> void:
 	changed.emit()
 
 
-func try_breakthrough() -> void:
+## Gọi mỗi khung hình: hết dần thời gian trọng thương.
+func tick(delta: float) -> void:
+	if injury > 0.0:
+		injury = maxf(0.0, injury - delta)
+
+
+## extra: cộng vào tỉ lệ (trợ lực, thử thách). Đột phá thất bại giữ lại một phần tu vi và bị trọng thương.
+func try_breakthrough(extra := 0.0) -> void:
 	if not ready_breakthrough:
 		message.emit("Chưa đủ tu vi để đột phá.")
 		return
 	if realm >= REALMS.size() - 1:
 		message.emit("Đã đạt cảnh giới cao nhất hiện có.")
 		return
-	if randf() < BREAKTHROUGH_CHANCE:
+	if randf() < clampf(Hell.breakthrough_chance(realm) + breakthrough_bonus + extra, 0.03, 0.95):
 		realm += 1
 		Sfx.play("breakthrough")
 		layer = 1
@@ -85,15 +98,22 @@ func try_breakthrough() -> void:
 		ready_breakthrough = false
 		message.emit("ĐỘT PHÁ THÀNH CÔNG! Cảnh giới mới: %s" % realm_name())
 	else:
-		xp = xp_needed() * 0.5
-		Sfx.play("fail")
-		ready_breakthrough = false
-		message.emit("Đột phá thất bại, tu vi tổn hao. Hãy tu luyện lại.")
+		fail_breakthrough()
+	changed.emit()
+
+
+## Đột phá thất bại: chỉ giữ một phần tu vi tầng cuối và kinh mạch trọng thương một thời gian.
+func fail_breakthrough() -> void:
+	xp = xp_needed() * Hell.FAIL_KEEP
+	injury = Hell.INJURY_SECONDS
+	Sfx.play("fail")
+	ready_breakthrough = false
+	message.emit("Đột phá thất bại, tu vi tổn hao và kinh mạch trọng thương (hấp thụ giảm một nửa trong %d phút)." % int(Hell.INJURY_SECONDS / 60.0))
 	changed.emit()
 
 
 func to_dict() -> Dictionary:
-	return {"realm": realm, "layer": layer, "xp": xp, "qi": qi, "ready": ready_breakthrough}
+	return {"realm": realm, "layer": layer, "xp": xp, "qi": qi, "ready": ready_breakthrough, "injury": injury}
 
 
 func from_dict(d: Dictionary) -> void:
@@ -102,4 +122,5 @@ func from_dict(d: Dictionary) -> void:
 	xp = float(d.get("xp", 0.0))
 	qi = float(d.get("qi", 0.0))
 	ready_breakthrough = bool(d.get("ready", false))
+	injury = float(d.get("injury", 0.0))
 	changed.emit()

@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "xc-water-jet 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 1.png",
+   "frame": {
+    "x": 330,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 2.png",
+   "frame": {
+    "x": 660,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 3.png",
+   "frame": {
+    "x": 0,
+    "y": 150,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 4.png",
+   "frame": {
+    "x": 330,
+    "y": 150,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 5.png",
+   "frame": {
+    "x": 660,
+    "y": 150,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 6.png",
+   "frame": {
+    "x": 0,
+    "y": 300,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-water-jet 7.png",
+   "frame": {
+    "x": 330,
+    "y": 300,
+    "w": 330,
+    "h": 150
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 330,
+    "h": 150
+   },
+   "sourceSize": {
+    "w": 330,
+    "h": 150
+   },
+   "pivot": {
+    "x": 0.01818181818181818,
+    "y": 0.38
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-water-jet.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 990,
+   "h": 450
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 6,
+   "y": 57
+  },
+  "frameTags": [
+   {
+    "name": "xc-water-jet",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

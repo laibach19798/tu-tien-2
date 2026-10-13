@@ -7,6 +7,7 @@ var inv: Inventory
 var cult: Cultivation
 var _panel: UIKit.Frame
 var _rows: VBoxContainer
+var _scroll: ScrollContainer
 var _stones: Label
 var _progress: UIKit.FancyBar
 var _result: Label
@@ -37,9 +38,14 @@ func _ready() -> void:
 	fill.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top.add_child(fill)
 	top.add_child(UIKit.KeyCap.new("Esc", "Đóng", 13))
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.custom_minimum_size = Vector2(0, 430)
+	v.add_child(_scroll)
 	_rows = VBoxContainer.new()
 	_rows.add_theme_constant_override("separation", 8)
-	v.add_child(_rows)
+	_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(_rows)
 	_progress = UIKit.FancyBar.new("Đang luyện", UIKit.RED, 22.0)
 	_progress.show_numbers = false
 	_progress.visible = false
