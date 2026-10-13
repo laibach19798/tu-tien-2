@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "balance_status": "Đặt theo ước lượng. Quan hệ -100..100. Mỗi con số là mỗi ngày game (360 giây).",
+  "initial": {
+    "kiem_tong|han_bang": 30,
+    "kiem_tong|xich_viem": -15,
+    "kiem_tong|doc_mon": -25,
+    "kiem_tong|huyen_minh": 5,
+    "xich_viem|han_bang": -35,
+    "xich_viem|doc_mon": 20,
+    "xich_viem|huyen_minh": -10,
+    "han_bang|doc_mon": -10,
+    "han_bang|huyen_minh": 35,
+    "doc_mon|huyen_minh": -55
+  },
+  "thresholds": {"friendly": 30, "neutral": -20, "wary": -50},
+  "treaties": {
+    "trade": {"name": "Giao thương", "min_rel": 10, "cost": 60, "days": 60, "daily_rel": 0.3, "desc": "Trao đổi tài nguyên dư thiếu giữa hai tông; ngoại phái miễn phí xin phép khai thác."},
+    "exchange": {"name": "Giao lưu", "min_rel": 25, "cost": 90, "days": 60, "daily_rel": 0.2, "desc": "Đệ tử được học bí tịch Phổ Truyền và Nội Truyền ở Tàng Kinh Các của tông bạn (giá 1,5 lần)."},
+    "cooperation": {"name": "Hợp tác", "min_rel": 40, "cost": 150, "days": 60, "daily_rel": 0.5, "desc": "Cùng bảo vệ địa bàn: tông bạn góp 40% sức khi một bên bị tấn công; không tấn công nhau."}
+  },
+  "balance": {
+    "drift_every_days": 10,
+    "break_margin": 30,
+    "max_treaties": 4,
+    "ai_sign_chance": 0.08,
+    "propose_rank": 3,
+    "trade_exchange_units": 2,
+    "dispute_days": 10,
+    "events_limit": 40
+  }
+}

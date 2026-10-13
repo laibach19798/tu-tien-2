@@ -1,0 +1,14 @@
+== base: 3000 tổ hợp có Công Pháp ==
+cong      giải thích 4.5% phương sai
+tam       giải thích 7.3% phương sai
+than      giải thích 6.0% phương sai
+artifact  giải thích 2.0% phương sai
+cặp Công+Tâm giải thích 62.7% | cả bộ Công+Tâm+Thân giải thích 77.3%
+min 0.40 | p10 0.85 | p50 0.97 | p90 1.23 | max 2.18 | <0.5: 0.0%
+cong kiem_cut=1.06 dao_cut=1.05 dao_break=1.05 the_fist=1.02 kiem_wave=1.01 hon_seal=1.00 ngu_fire=0.99 ngu_water=0.98 the_quake=0.98 hon_clone=0.94
+tam the_blood=1.14 ngu_cycle=1.03 dao_blood=1.02 hon_echo=1.01 kiem_flow=1.00 kiem_heart=1.00 hon_heart=0.98 dao_victory=0.98 ngu_wood=0.97 the_guard=0.95
+than kiem_step=1.07 the_step=1.07 dao_retreat=1.04 dao_chase=1.03 kiem_guard=1.02 ngu_waterstep=1.01 ngu_earth=0.98 hon_mirror=0.97 hon_step=0.96 the_leap=0.94
+hệ số phối hợp Công x Tâm: p5 0.87 | p50 0.97 | p95 1.21 | min 0.84 | max 1.60
+mạnh nhất: 1.60 the_fist+the_blood, 1.40 dao_cut+dao_blood, 1.27 ngu_water+ngu_cycle, 1.22 hon_seal+kiem_flow, 1.21 ngu_fire+ngu_cycle, 1.19 dao_cut+ngu_cycle
+kém nhất : 0.84 kiem_wave+the_blood, 0.84 ngu_fire+the_blood, 0.84 ngu_water+the_blood, 0.85 hon_seal+the_blood, 0.87 kiem_cut+ngu_cycle, 0.87 kiem_cut+dao_blood
+Công x Thân: min 0.90 | max 1.10

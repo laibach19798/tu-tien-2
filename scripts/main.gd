@@ -39,7 +39,7 @@ var atmo: Atmosphere
 var layer_shadows: Node2D
 var occluders: Array = []      # vật thể cao: mờ đi khi nhân vật đứng phía sau
 var _med_light: PointLight2D
-const FLAT_PROPS := ["field_a", "field_b", "lily", "water", "bridge"]
+const FLAT_PROPS := ["field_a", "field_b", "lily", "water", "bridge", "xt_sky_tower", "xv_tower", "hb_tower", "dm_tower", "hm_tower"]
 var pond_zone := Rect2()
 var war: SectWar                 # chiến sự Tiểu Thế Giới
 var war_ui: CanvasLayer
@@ -92,6 +92,9 @@ func _ready() -> void:
 	_build_forest()
 	WorldExpansion.build(self)
 	_spawn_player()
+	flight = Flight.new()
+	flight.main = self
+	add_child(flight)
 	_build_hud()
 	_build_gameplay()
 	if _pending_map != "overworld":
@@ -533,6 +536,7 @@ func _spawn_player() -> void:
 	player.position = CENTER + Vector2(0, 200)
 	var pshadow := Shadow.make(16.0, 6.4, 0.34)
 	pshadow.position = Vector2(2, 0)
+	pshadow.name = "PlayerShadow"
 	player.add_child(pshadow)
 	player.move_child(pshadow, 0)
 	world.add_child(player)
@@ -554,13 +558,18 @@ const QI_ZONES := [
 ] + WorldExpansion.NEW_QI_ZONES
 
 var cult := Cultivation.new()
+var cultivation_v1 = preload("res://scripts/v1/runtime.gd").new()
+var sect_life = preload("res://scripts/sect_life.gd").new()
 var _last_realm := 1
 var set_speed_mult := 1.0   # thưởng bộ trang phục
 var _active_sets: Array = []
+var _is_new_game := false     # chưa có file lưu: màn tạo nhân vật sẽ thưởng xuất thân
 var _sets_ready := false   # sau khi nạp xong mới báo "kích hoạt bộ"
 var vitals := Vitals.new()
 var monsters: Array = []
 var alchemy: CanvasLayer
+var flight: Flight          # phi hành (ngự không) từ Trúc Cơ, tốn linh khí
+var scripture_game: ScriptureGame   # mini game Đọc kinh của Tham ngộ kinh thư
 var furnace: Furnace
 var _dead := false
 const SAFE_R := 330.0   # quanh quảng trường: yêu thú không vào, người chơi an toàn
@@ -579,6 +588,18 @@ var herbs: Array = []
 var hud: CanvasLayer
 var aura: Node2D
 var meditating := false
+var destiny: Destiny = Destiny.new()   # cơ duyên + động phủ tiên nhân (data/destiny.json)
+var resources: ResourceWorld = ResourceWorld.new()   # điểm khai thác có ID, trạng thái, tái sinh (data/resources.json)
+var journey: Journey = Journey.new()   # di chuyển đại vực có thời gian + biến cố trên đường
+var events: WorldEvents = WorldEvents.new()   # sự kiện thế giới có điều kiện + vòng đời (data/world_events.json)
+var missions: SectMissions = SectMissions.new()   # nhiệm vụ tông môn sinh theo nhu cầu của kho
+var treasury: SectTreasury = SectTreasury.new()  # ngân quỹ và kho năm đại tông môn (data/sect_economy.json)
+var diplomacy: SectDiplomacy = SectDiplomacy.new()  # ngoại giao giữa các tông (data/sect_diplomacy.json)
+var npc_world: NpcWorld = NpcWorld.new()  # NPC trong/ngoài scene + sổ sở hữu vật phẩm độc nhất (data/npcs.json)
+var province: World = World.new()      # thế giới mở: hồ sơ khu vực, khám phá ba mức, bản đồ đại vực (data/world.json)
+var breakthrough: Breakthrough   # đột phá thành chuỗi: trợ lực → tâm ma / thiên kiếp → kết quả
+var _med_run := 0.0              # giây đã thiền liên tục (mệt mỏi khi quá lâu)
+var _med_rest := 0.0
 const QI_SQUASH := 0.62   # phải trùng SQUASH trong qi_zone.gd
 var _zone_nodes: Array = []
 var _save_timer := 0.0
@@ -588,12 +609,24 @@ func _build_hud() -> void:
 	hud = preload("res://scripts/hud.gd").new()
 	add_child(hud)
 	add_child(cult)
+	add_child(cultivation_v1)
+	add_child(destiny)
+	add_child(province)
+	add_child(resources)
+	add_child(treasury)
+	add_child(diplomacy)
+	add_child(missions)
+	add_child(npc_world)
+	add_child(events)
+	add_child(journey)
+	add_child(sect_life)
 	add_child(vitals)
 	add_child(inv)
 	add_child(quests)
 	add_child(wardrobe)
 	war = SectWar.new()
 	add_child(war)
+	war.diplomacy = diplomacy
 	war.message.connect(hud.toast)
 	war.income.connect(_on_war_income)
 	war.attack_started.connect(_on_attack_started)
@@ -668,7 +701,11 @@ func _density_at(p: Vector2) -> float:
 
 
 func _ui_blocked() -> bool:
-	return _dead or traveling or (war_ui != null and war_ui.is_open()) or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open())
+	if cultivation_v1.is_open():
+		return true
+	if sect_life.is_open():
+		return true
+	return _dead or traveling or (war_ui != null and war_ui.is_open()) or (pause_menu != null and pause_menu.is_open()) or (journal != null and journal.is_open()) or (minimap != null and minimap.is_full_open()) or (debug_menu != null and debug_menu.is_open()) or dialogue.open or shop.is_open() or (sect_shop != null and sect_shop.is_open()) or bag.is_open() or fashion.is_open() or (alchemy != null and alchemy.is_open()) or (scripture_game != null and scripture_game.is_active())
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -680,32 +717,59 @@ func _unhandled_input(event: InputEvent) -> void:
 			pause_menu.open_menu()
 		elif event.keycode == KEY_M:
 			minimap.toggle_full()
+		elif event.keycode == KEY_H:
+			sect_life.open_board()
 		elif event.keycode == KEY_F1:
 			meditating = false
 			debug_menu.open_menu()
-		elif event.keycode == KEY_P or event.keycode == KEY_Q or event.keycode == KEY_O:
+		elif event.keycode == KEY_N:
+			cultivation_v1.open_ui("loadout")
+		elif event.keycode == KEY_P or event.keycode == KEY_Q or event.keycode == KEY_O or event.keycode == KEY_L or event.keycode == KEY_R:
 			meditating = false
-			journal.open_ui({KEY_P: "char", KEY_Q: "quest", KEY_O: "collect"}[event.keycode])
+			journal.open_ui({KEY_P: "char", KEY_Q: "quest", KEY_O: "collect", KEY_L: "diary", KEY_R: "world"}[event.keycode])
+		elif event.keycode == KEY_X:
+			flight.toggle()
 		elif event.keycode == KEY_F:
-			meditating = not meditating
-			if meditating:
-				hud.toast("Ngồi thiền, hấp thụ linh khí...")
+			if flight.active:
+				hud.toast("Đang ngự không, hạ xuống rồi mới ngồi thiền được.")
+			else:
+				meditating = not meditating
+				if meditating:
+					hud.toast("Ngồi thiền, hấp thụ linh khí...")
 		elif event.keycode == KEY_B:
-			cult.try_breakthrough()
+			if flight.active:
+				hud.toast("Hạ xuống rồi mới đột phá được.")
+			else:
+				breakthrough.start()
 		elif event.keycode == KEY_E:
-			_interact()
+			if flight.active:
+				hud.toast("Hạ xuống (X) rồi mới tương tác được.")
+			else:
+				_interact()
 		elif event.keycode == KEY_I:
 			meditating = false
 			bag.toggle()
 		elif event.keycode == KEY_C:
 			meditating = false
 			fashion.open_ui("closet")
+		elif event.keycode == KEY_Y:
+			meditating = false
+			cultivation_v1.open_ui()
+		elif flight.active and event.keycode in [KEY_SPACE, KEY_J, KEY_K, KEY_U]:
+			hud.toast("Đang ngự không, không thể ra chiêu. Hạ xuống (X) trước.")
+		elif event.keycode == KEY_SPACE:
+			cultivation_v1.cast("than")
 		elif event.keycode == KEY_G:
 			meditating = false
 			war_ui.open_ui()
-		elif event.keycode in [KEY_J, KEY_K, KEY_L, KEY_U]:
+		elif event.keycode in [KEY_J, KEY_K, KEY_U]:
 			meditating = false
-			school.cast([KEY_J, KEY_K, KEY_L, KEY_U].find(event.keycode))
+			if event.keycode == KEY_J:
+				cultivation_v1.cast()
+			elif event.keycode == KEY_K:
+				cultivation_v1.cast(cultivation_v1.other_slot())
+			else:
+				cultivation_v1.cast("cong2")
 
 
 func _process(delta: float) -> void:
@@ -749,6 +813,8 @@ var debug_speed := 1.0
 
 func _collect_save() -> Dictionary:
 	var d := {
+		"cultivation_v1": cultivation_v1.state.to_dict(), "destiny": destiny.to_dict(), "world": province.to_dict(), "resources": resources.to_dict(), "npc_world": npc_world.to_dict(), "world_events": events.to_dict(), "treasury": treasury.to_dict(), "diplomacy": diplomacy.to_dict(), "sect_missions": missions.to_dict(),
+		"sect_life": sect_life.to_dict(),
 		"cult": cult.to_dict(), "vitals": vitals.to_dict(), "inv": inv.to_dict(), "quests": quests.to_dict(), "wardrobe": wardrobe.to_dict(), "war": war.to_dict(),
 		"school": school.to_dict() if school else {},
 		"pos": [player.position.x, player.position.y], "map": current_map, "time": atmo.t, "playtime": playtime,
@@ -810,7 +876,11 @@ func load_from_slot(i: int) -> bool:
 
 
 func _load_game() -> void:
+	if OS.has_environment("TUTIEN_FRESH_GAME"):
+		_is_new_game = true
+		return
 	if not FileAccess.file_exists(slot_paths[0]):
+		_is_new_game = true
 		return
 	var data = JSON.parse_string(FileAccess.get_file_as_string(slot_paths[0]))
 	if data is Dictionary:
@@ -820,13 +890,25 @@ func _load_game() -> void:
 ## runtime = true: đang chơi (đã dựng xong thế giới) nên phải đặt lại quái, đồ rơi và giao diện.
 func _apply_save(data: Dictionary, runtime: bool) -> void:
 	cult.from_dict(data.get("cult", {}))
+	if _sets_ready:
+		_apply_set_bonus(false)
 	vitals.from_dict(data.get("vitals", {}))
 	inv.from_dict(data.get("inv", {}))
+	cultivation_v1.restore(data)
+	destiny.from_dict(data.get("destiny", {}))
+	province.from_dict(data.get("world", {}))
+	resources.from_dict(data.get("resources", {}))
+	npc_world.from_dict(data.get("npc_world", {}))
+	treasury.from_dict(data.get("treasury", {}))
+	diplomacy.from_dict(data.get("diplomacy", {}))
+	missions.from_dict(data.get("sect_missions", {}))
+	events.from_dict(data.get("world_events", {}))
 	quests.from_dict(data.get("quests", {}))
 	wardrobe.from_dict(data.get("wardrobe", {}))
 	war.from_dict(data.get("war", {}))
 	playtime = float(data.get("playtime", 0.0))
 	atmo.t = float(data.get("time", atmo.t))
+	sect_life.from_dict(data.get("sect_life", {}))
 	var p = data.get("pos", null)
 	var want := str(data.get("map", "overworld"))
 	if want != "overworld" and not Maps.exists(want):
@@ -862,32 +944,65 @@ func _apply_save(data: Dictionary, runtime: bool) -> void:
 		hud.update_hp(vitals.hp, vitals.max_hp)
 		hud.hide_death()
 		_refresh_quest_ui()
+		sect_life.map_entered()
+		cultivation_v1.apply_attributes()
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST and player:
 		_save_game()
 
 
+var _med_pose: MeditationPose
+
+
+## Khi thiền: ẩn nhân vật đứng, hiện sprite ngồi thiền nhuộm theo màu áo (xem scripts/meditation_pose.gd).
+func _sync_meditation_pose() -> void:
+	var on := meditating and not _dead and not traveling
+	if _med_pose == null or not is_instance_valid(_med_pose):
+		if not on:
+			player.visible = true
+			return
+		_med_pose = MeditationPose.new()
+	if _med_pose.get_parent() != world:
+		if _med_pose.get_parent() != null:
+			_med_pose.get_parent().remove_child(_med_pose)
+		world.add_child(_med_pose)
+	player.visible = not on
+	_med_pose.apply(on, player.position, MeditationPose.dye_for(wardrobe.equipped), Color(0.5, 0.9, 1.0), PLAYER_SCALE)
+
+
 func _physics_process(delta: float) -> void:
+	flight.tick(delta)
+	var dashing: bool = cultivation_v1.move_dash(delta)
 	var v := Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
 	if Input.is_key_pressed(KEY_A): v.x -= 1.0
 	if Input.is_key_pressed(KEY_D): v.x += 1.0
 	if Input.is_key_pressed(KEY_W): v.y -= 1.0
 	if Input.is_key_pressed(KEY_S): v.y += 1.0
 	v = v.limit_length(1.0)
-	if _ui_blocked() or (player.has_method("is_busy") and player.is_busy()):
+	if dashing or _ui_blocked() or (player.has_method("is_busy") and player.is_busy()):
 		v = Vector2.ZERO
 	if meditating and v != Vector2.ZERO:
 		meditating = false
-	var density := _density_at(player.position)
+	var density := _density_at(player.position) * destiny.density_mult()
+	if meditating:
+		_med_run += delta
+		_med_rest = 0.0
+	else:
+		_med_rest += delta
+		if _med_rest > Hell.FATIGUE_REST:
+			_med_run = 0.0
+	cult.env_mult = Hell.time_factor(atmo.darkness) * Hell.fatigue_factor(_med_run) * destiny.meditate_mult()
+	cult.tick(delta)
+	inv.decay_tolerance(delta)
 	if meditating:
 		cult.meditate(delta, density)
 		quests.add_meditate(delta)
 		for z in qi_zones:
 			if z.get("heal", false) and _in_zone(player.position, z):
 				vitals.heal(10.0 * delta)   # thiền ở linh tuyền của tông môn hồi khí huyết
-	else:
-		cult.qi = minf(cult.qi_max(), cult.qi + 3.0 * delta)   # hồi linh khí chậm khi không thiền
+	elif not flight.active:
+		cult.qi = minf(cult.qi_max(), cult.qi + preload("res://scripts/v1/catalog.gd").balance("qi_regen") * delta)   # hồi linh khí chậm khi không thiền (không hồi khi đang bay)
 	if debug_inf_qi:
 		cult.qi = cult.qi_max()
 	_check_regions()
@@ -897,22 +1012,31 @@ func _physics_process(delta: float) -> void:
 		Sfx.set_theme(music_theme_at(player.position))
 	_update_prompt()
 	aura.active = meditating
+	_sync_meditation_pose()
 	aura.boosted = density > 1.0
-	hud.update_status(cult, meditating, density)
+	hud.update_status(cult, meditating, density, ("Ngự không · còn %d giây linh khí · X để hạ" % int(flight.seconds_left())) if flight.active else "")
 	var action := "idle"
 	if v != Vector2.ZERO:
 		var run := Input.is_key_pressed(KEY_SHIFT)
 		action = "run" if run else "walk"
 		direction = Dir.from_vector(v, direction)
 		var step := v * (RUN_SPEED if run else WALK_SPEED) * set_speed_mult * delta
+		if flight.active:
+			step = v * flight.speed(run) * delta
 		var before := player.position
-		_move_axis(Vector2(step.x, 0.0))
-		_move_axis(Vector2(0.0, step.y))
+		if flight.active:
+			flight.move(step)
+		else:
+			_move_axis(Vector2(step.x, 0.0))
+			_move_axis(Vector2(0.0, step.y))
 		_step_dist += player.position.distance_to(before)
-		if _step_dist >= (62.0 if run else 50.0):
+		if _step_dist >= (62.0 if run else 50.0) and not flight.active:
 			_step_dist = 0.0
 			Sfx.step(surface_at(player.position), run)
-	player.set_motion(action, direction)
+	if flight.active:
+		action = "idle"   # ngự không: nhân vật đứng yên trên không, chuyển động nằm ở hiệu ứng phía sau lưng
+	if not dashing:
+		player.set_motion(action, direction)
 	camera.position = player.position
 	_cull_t -= delta
 	if _cull_t <= 0.0:
@@ -1005,19 +1129,23 @@ func _build_gameplay() -> void:
 	alchemy.inv = inv
 	alchemy.cult = cult
 	add_child(alchemy)
+	scripture_game = ScriptureGame.new()
+	add_child(scripture_game)
 	inv.changed.connect(func(): alchemy.refresh())
 	alchemy.crafted.connect(func(_id, ok):
 		quests.add_craft()
 		if ok:
-			cult.add_xp(3.0))
+			cult.add_xp(maxf(3.0, cult.xp_needed() * 0.0015)))
 	_spawn_npc("elder", "Trưởng lão Vân Hạc", {"hair": "hair_long_silver", "clothes": "outfit_plain", "shoes": "shoes_cloth_white", "head": "head_crown_gold"}, CENTER + Vector2(190, 80))
 	_spawn_npc("merchant", "Thương nhân Lý Tam", {"hair": "hair_topknot_black", "clothes": "outfit_plain", "shoes": "shoes_cloth_brown", "waist": "waist_bell_copper"}, Vector2(1615, 1150))
 	# Tiệm may phía tây nam quảng trường
 	_prop("stall", Vector2(840, 1085), Vector2(110, 50))
 	_prop("barrel_a", Vector2(770, 1095), Vector2(40, 24))
 	_spawn_npc("tailor", "Thợ may Tô Nương", {"hair": "hair_ponytail_brown", "clothes": "outfit_lam", "dye": "dye_green", "shoes": "shoes_boot_black"}, Vector2(930, 1090))
+	resources.begin_map("overworld")
 	_spawn_herbs()
 	WorldExpansion.extra_herbs(self)
+	resources.populate(self, "overworld")
 	WorldExpansion.spawn_npcs(self)
 	# Kiếm phái: kiếm sư + sân luyện kiếm với mộc nhân
 	school = SwordSchool.new()
@@ -1034,6 +1162,22 @@ func _build_gameplay() -> void:
 		blockers.append(Rect2(p.x - 18, p.y - 14, 36, 16))
 		d.got_hit.connect(_on_dummy_hit)
 	_spawn_furnace()
+	sect_life.setup(self)
+	cultivation_v1.setup(self)
+	breakthrough = Breakthrough.new()
+	add_child(breakthrough)
+	breakthrough.setup(self)
+	destiny.setup(self)
+	province.setup(self)
+	resources.setup(self)
+	inv.use_check = Callable(self, "_special_can_use")
+	inv.on_special = Callable(self, "_special_use")
+	treasury.setup(self)
+	diplomacy.setup(self)
+	missions.setup(self)
+	npc_world.setup(self)
+	events.setup(self)
+	journey.setup(self)
 	minimap = Minimap.new()
 	minimap.main = self
 	add_child(minimap)
@@ -1065,8 +1209,7 @@ func _spawn_herbs() -> void:
 			p = Vector2(rng.randf_range(150, VILLAGE.x - 150), rng.randf_range(300, VILLAGE.y - 120))
 		if not _clear_spot(p, 40.0) or _is_blocked(Rect2(p.x - 30, p.y - 30, 60, 40)):
 			continue
-		var h: Node2D = preload("res://scripts/herb.gd").new()
-		h.position = p
+		var h: Node2D = resources.make_node("overworld", "linh_thao", p)
 		world.add_child(h)
 		herbs.append(h)
 		count += 1
@@ -1075,7 +1218,10 @@ func _spawn_herbs() -> void:
 func _refresh_quest_ui() -> void:
 	if hud == null:
 		return
-	hud.set_quest(quests.tracker_text())
+	var tracker := quests.tracker_text()
+	if school != null and school.joined and sect_life.stage != "done":
+		tracker += "\n[Sư môn · H] " + sect_life.objective()
+	hud.set_quest(tracker)
 	hud.set_stones(inv.stones)
 	for n in npcs:
 		var mark := ""
@@ -1086,12 +1232,16 @@ func _refresh_quest_ui() -> void:
 		elif n.npc_id == "swordmaster" and school != null and not school.joined:
 			mark = "!"
 		n.set_marker(mark)
+		if sect_life.PEOPLE.has(n.npc_id):
+			n.set_marker(sect_life.marker(n.npc_id))
 
 
 func _nearest_target() -> Node2D:
 	var best: Node2D = null
 	var best_d := INF
 	for n in npcs:
+		if not n.visible:
+			continue
 		var d := player.position.distance_to(n.position)
 		if d < 110.0 and d < best_d:
 			best = n
@@ -1119,10 +1269,12 @@ func _update_prompt() -> void:
 	if t == null:
 		hud.set_prompt("")
 	elif t in herbs:
-		hud.set_prompt("E: Hái Linh thảo")
+		hud.set_prompt(t.prompt_text())
 	elif t == furnace:
 		hud.set_prompt("E: Luyện đan")
 	elif t is TerritoryFlag:
+		hud.set_prompt(t.prompt_text())
+	elif t is EncounterNode:
 		hud.set_prompt(t.prompt_text())
 	else:
 		hud.set_prompt("E: Trò chuyện với %s" % t.display_name)
@@ -1136,15 +1288,14 @@ func _interact() -> void:
 	if t == furnace:
 		alchemy.open_ui()
 	elif t in herbs:
-		t.pick()
-		inv.add("linh_thao", 1)
-		hud.toast("+1 Linh thảo")
+		t.pick()   # ResourceNode tự cộng vào túi và báo
 	else:
 		_talk(t)
 
 
 func _on_dummy_hit(_dmg: float) -> void:
 	quests.add_hit()
+	sect_life.on_training_hit()
 	cult.add_xp(0.4)   # luyện kiếm cũng tích luỹ chút tu vi
 
 
@@ -1167,10 +1318,16 @@ func _talk_swordmaster(nm: String) -> void:
 
 
 func _talk(npc: Node2D) -> void:
+	if npc is EncounterNode:
+		destiny.open(npc)
+		return
 	if npc is TerritoryFlag:
 		_use_flag(npc.tid)
 		return
 	var id: String = npc.npc_id
+	if sect_life.PEOPLE.has(id):
+		sect_life.talk(id)
+		return
 	if id == "ally":
 		dialogue.say(npc.display_name, ["Địa bàn này đã thuộc về Kiếm Tông. Chúng đệ tử sẽ canh giữ, sư huynh cứ yên tâm."])
 		return
@@ -1193,13 +1350,15 @@ func _talk(npc: Node2D) -> void:
 	elif id == "merchant":
 		greeting = "Khách quan cần gì nào?"
 	elif id == "sect_keeper":
-		greeting = "Cống hiến của ngươi hiện là %d, chức vị %s. Cần đổi gì không?" % [inv.merit, Sect.rank_name(inv.merit_total)]
+		greeting = "Cống hiến của ngươi hiện là %d, chức vị %s. Cần đổi gì không?" % [inv.merit, inv.sect_rank_name()]
 	elif id == "tailor":
 		greeting = "Khách muốn may áo mới, đổi kiểu tóc hay sắm đôi giày chăng?"
 	dialogue.choose(nm, greeting, _menu_options(id))
 
 
 func _menu_options(id: String) -> Array:
+	if id in ["scripture_elder","v1_librarian"]:
+		return [{"text":"Tàng Kinh Các · Công / Tâm / Thân", "call":cultivation_v1.open_source.bind("sect")}, {"text":"Tạm biệt", "call":Callable()}]
 	var bye := {"text": "Tạm biệt", "call": Callable()}
 	if id == "tailor":
 		return [
@@ -1209,7 +1368,12 @@ func _menu_options(id: String) -> Array:
 		]
 	if id == "sect_keeper":
 		return [
+			{"text":"Tàng Kinh Các V1 (đổi bí tịch bằng công huân)", "call":cultivation_v1.open_source.bind("sect")},
 			{"text": "Tàng Bảo Các (đổi đồ / nộp nguyên liệu)", "call": Callable(sect_shop, "open_shop")},
+			{"text": "Việc tông môn (nhận / giao việc)", "call": _missions_menu},
+			{"text": "Hiến vật liệu cho tông môn (đổi cống hiến)", "call": _donate_menu},
+			{"text": "Xem ngân quỹ tông môn", "call": _show_treasury},
+			{"text": "Ngoại giao tông môn", "call": _diplomacy_menu},
 			{"text": "Hỏi về chức vị và cống hiến", "call": _lore.bind("sect_rank")},
 			{"text": "Trò chuyện", "call": _lore.bind(id)},
 			bye,
@@ -1224,7 +1388,7 @@ func _menu_options(id: String) -> Array:
 	if id == "scripture_elder":
 		var cost := _scripture_cost()
 		return [
-			{"text": "Tham ngộ kinh thư (%d linh thạch, tăng tu vi)" % cost, "call": _study_scripture},
+			{"text": "Tham ngộ kinh thư (%d linh thạch · mini game đọc kinh, tăng tu vi)" % cost, "call": _study_scripture},
 			{"text": "Trò chuyện", "call": _lore.bind(id)},
 			bye,
 		]
@@ -1240,6 +1404,7 @@ func _menu_options(id: String) -> Array:
 		return opts
 	if id == "merchant":
 		return [
+			{"text":"Thương hội bí tịch và pháp bảo", "call":cultivation_v1.open_source.bind("market")},
 			{"text": "Xem hàng (mua / bán)", "call": Callable(shop, "open_shop")},
 			{"text": "Trò chuyện", "call": _lore.bind(id)},
 			bye,
@@ -1299,9 +1464,10 @@ func _lore(id: String) -> void:
 		])
 	elif id == "sect_rank":
 		var lines: Array[String] = ["Chức vị tính theo tổng cống hiến đã nhận, không mất đi khi ngươi đổi đồ. Mỗi lần thăng chức, tông môn thưởng thêm."]
+		lines.append("Đệ tử mới phải vượt khảo hạch Mặc Trần để vào nội môn. Nhấn H xem tiến trình. Các chức vị cao hơn tiếp tục xét theo cống hiến.")
 		for rk in Sect.RANKS:
 			lines.append("%s: từ %d cống hiến." % [rk["name"], int(rk["need"])])
-		lines.append("Hiện ngươi là %s, tổng đã nhận %d cống hiến." % [Sect.rank_name(inv.merit_total), inv.merit_total])
+		lines.append("Hiện ngươi là %s, tổng đã nhận %d cống hiến." % [inv.sect_rank_name(), inv.merit_total])
 		dialogue.say("Chấp sự Mộ Dung", lines)
 	elif id == "hermit":
 		dialogue.say("Ẩn sĩ Mặc Thạch", [
@@ -1370,38 +1536,65 @@ func map_herbs(xr: RandomNumberGenerator, n: int) -> void:
 		var p := Vector2(xr.randf_range(150, map_size.x - 150), xr.randf_range(300, map_size.y - 120))
 		if is_safe(p) or _is_blocked(Rect2(p.x - 30, p.y - 30, 60, 40)):
 			continue
-		var h: Node2D = preload("res://scripts/herb.gd").new()
-		h.position = p
+		var h: Node2D = resources.make_node(str(current_map), "linh_thao", p)
 		world.add_child(h)
 		herbs.append(h)
 		made += 1
 
 
+## Bản đồ mua của thương hội: chỉ dùng được khi còn nơi chưa biết kề tuyến đường đã biết.
+func _special_can_use(id: String) -> bool:
+	if id in ["ban_do_cu", "ban_do_chi_tiet"] and not province.has_unknown_reachable():
+		hud.toast("Bản đồ này chẳng chỉ thêm nơi nào mà ngươi chưa biết.")
+		return false
+	return true
+
+
+func _special_use(id: String) -> void:
+	match id:
+		"ban_do_cu":
+			province.reveal_by_map(false)
+		"ban_do_chi_tiet":
+			province.reveal_by_map(true)
+
+
 func on_monster_killed(m: Monster) -> void:
+	events.on_monster_killed(m)
+	if m.minion:
+		return   # quái do kẻ khác triệu hồi: không thưởng, không tính nhiệm vụ (chống cày)
+	cultivation_v1.on_killed(m)
+	missions.on_kill(m.kind_id, str(current_map))
 	var k: Dictionary = m.kind
-	cult.add_xp(float(k["xp"]))
+	var reward_f := Hell.reward_factor(cult.step_index(), m.tier)   # vượt cấp thì thưởng giảm mạnh
+	var xp_gain := float(k["xp"]) * Hell.XP_K * reward_f * (2.0 if m.elite else 1.0)
+	cult.add_xp(xp_gain)
 	quests.add_kill(m.kind_id)
+	sect_life.on_kill(m.kind_id)
 	var mk := int(Sect.KILL_MERIT.get(m.kind_id, 0))
 	if mk > 0 and quests.states.get("q8", "") == "done":   # chỉ tính cho người đã vào Kiếm Tông
 		inv.add_merit(mk)
 		float_text(m.position + Vector2(0, -92), "+%d cống hiến" % mk, Color(1.0, 0.82, 0.35))
 	var st: Array = k["stones"]
-	_drop("stone", rng.randi_range(int(st[0]), int(st[1])), m.position)
+	_drop("stone", maxi(1, roundi(float(rng.randi_range(int(st[0]), int(st[1]))) * Hell.STONE_MULT * reward_f)), m.position)
+	var luck_drop := 1.0
 	var drops: Dictionary = k["drops"]
 	for id in drops:
-		if rng.randf() < float(drops[id]):
+		if rng.randf() < minf(1.0, float(drops[id]) * luck_drop * Hell.DROP_MULT * clampf(reward_f, 0.3, 1.0)):
 			_drop(str(id), 1, m.position)
+	_rare_drop(m, reward_f)
 	for od in Wardrobe.items_dropped_by(m.kind_id):   # trang phục hiếm rơi từ quái (chỉ khi chưa có)
 		if str(od["region"]) != "" and not in_drop_region(m.position, str(od["region"])):
 			continue
-		if not wardrobe.is_owned(str(od["id"])) and rng.randf() < float(od["chance"]):
+		if str(od["sect"]) != "" and str(od["sect"]) != m.sect_id:
+			continue
+		if not wardrobe.is_owned(str(od["id"])) and rng.randf() < minf(1.0, float(od["chance"]) * luck_drop):
 			_drop(str(od["id"]), 1, m.position + Vector2(rng.randf_range(-14.0, 14.0), 6.0))
-	float_text(m.position + Vector2(0, -70), "+%d tu vi" % int(k["xp"]), UIKit.XP_GOLD)
+	float_text(m.position + Vector2(0, -70), "+%d tu vi" % int(xp_gain), UIKit.XP_GOLD)
 	if m.kind_id == "sect_master":
 		war.weaken(m.sect_id)
 		inv.add_merit(40)
-		inv.add_stones(300)
-		hud.toast("Hạ %s! +40 cống hiến, +300 linh thạch. %s suy yếu một thời gian." % [m.display_name, SectWar.sect_name(m.sect_id)])
+		inv.add_stones(180)
+		hud.toast("Hạ %s! +40 cống hiến, +180 linh thạch. %s suy yếu một thời gian." % [m.display_name, SectWar.sect_name(m.sect_id)])
 	if m.invader and war.under_attack.has(m.territory_id):
 		var left := 0
 		for o in monsters:
@@ -1410,8 +1603,30 @@ func on_monster_killed(m: Monster) -> void:
 		if left == 0:
 			war.defended(m.territory_id)
 			inv.add_merit(15)
-			inv.add_stones(150)
-			hud.toast("Giữ vững địa bàn! +15 cống hiến, +150 linh thạch")
+			inv.add_stones(80)
+			hud.toast("Giữ vững địa bàn! +15 cống hiến, +80 linh thạch")
+
+
+## Đồ ngon (tàn quyển bí tịch) SIÊU HIẾM: quái thường 0,2%, tinh anh 2%, cao nhân tán tu 30%; phẩm Huyền chỉ 12% trong số đó.
+func _rare_drop(m: Monster, reward_f: float) -> void:
+	var master: bool = bool(m.kind.get("master", false))
+	var p := Hell.RARE_MASTER if master else (Hell.RARE_ELITE if m.elite else Hell.RARE_NORMAL)
+	if not master:
+		p *= clampf(reward_f, 0.2, 1.0)   # vượt cấp thì hiếm hơn nữa
+	if rng.randf() >= p:
+		return
+	var books: Array = []
+	for b in preload("res://scripts/v1/catalog.gd").data().books:
+		var sec := str(b["secrecy"])
+		var ok := sec == "public" or (sec == "inner" and m.tier >= 7) or (sec == "true" and (master or m.tier >= 17))
+		if ok:
+			books.append(b)
+	if books.is_empty():
+		return
+	var pick: Dictionary = books[rng.randi_range(0, books.size() - 1)]
+	var quality := "huyen" if rng.randf() < Hell.RARE_HUYEN else "linh"
+	cultivation_v1.state.acquire(str(pick["id"]), "loot", quality, true)
+	hud.toast("Cơ duyên từ địch: tàn quyển %s (phẩm %s). Y → Bí tịch." % [str(pick["name"]), "Huyền" if quality == "huyen" else "Linh"])
 
 
 func _drop(id: String, n: int, at: Vector2) -> void:
@@ -1454,10 +1669,24 @@ func _on_player_hurt(dmg: float, from: Vector2) -> void:
 func _on_player_died() -> void:
 	_dead = true
 	meditating = false
-	var lost := int(inv.stones * 0.1)
+	var lost := int(inv.stones * Hell.DEATH_STONES)
 	if lost > 0:
 		inv.spend_stones(lost)
-	hud.show_death("TRỌNG THƯƠNG", "Mất %d linh thạch. Được người trong làng đưa về quảng trường..." % lost)
+	var xp_lost := cult.xp * Hell.DEATH_XP   # chỉ mất tu vi trong tầng, không bao giờ tụt tầng
+	cult.xp -= xp_lost
+	cult.changed.emit()
+	var mat_note := ""
+	var held: Array = []
+	for mid in Hell.DEATH_MATERIALS:
+		if inv.count(str(mid)) > 0:
+			held.append(str(mid))
+	if not held.is_empty():
+		var pick: String = held[rng.randi_range(0, held.size() - 1)]
+		var half := maxi(1, inv.count(pick) / 2)
+		for i in half:
+			inv.remove(pick)
+		mat_note = " Rơi mất %d %s." % [half, str(Items.DATA[pick]["name"])]
+	hud.show_death("TRỌNG THƯƠNG", "Mất %d linh thạch, %d tu vi.%s Được người trong làng đưa về quảng trường..." % [lost, int(xp_lost), mat_note])
 	await get_tree().create_timer(2.6).timeout
 	if current_map != "overworld":
 		switch_map_now("overworld", CENTER + Vector2(0, 200))
@@ -1509,12 +1738,7 @@ func in_drop_region(_p: Vector2, region: String) -> bool:
 
 ## Thưởng bộ trang phục: áp lên tu vi, khí huyết, sát thương và tốc độ; báo khi vừa kích hoạt một bộ.
 func _apply_set_bonus(announce: bool) -> void:
-	var b := Wardrobe.total_bonus(wardrobe.equipped)
-	cult.xp_mult = 1.0 + float(b["xp"])
-	vitals.set_hp_bonus(float(b["hp"]))
-	set_speed_mult = 1.0 + float(b["speed"])
-	if school != null:
-		school.dmg_mult = 1.0 + float(b["dmg"])
+	cultivation_v1.apply_attributes()   # tiên thiên V1 + thưởng bộ trang phục (Wardrobe.total_bonus)
 	var now: Array = []
 	for st in Wardrobe.set_status(wardrobe.equipped):
 		if not (st["bonus"] as Dictionary).is_empty():
@@ -1595,6 +1819,8 @@ func travel_to(id: String, to_pos: Vector2) -> void:
 
 ## Đổi map ngay (không hiệu ứng): dùng khi tải game, hồi sinh, debug.
 func switch_map_now(id: String, to_pos: Vector2) -> void:
+	if flight != null and flight.active:
+		flight.land(true, true)   # qua cổng / đổi bản đồ thì hạ xuống
 	if id == current_map:
 		player.position = to_pos
 		camera.position = to_pos
@@ -1706,6 +1932,7 @@ func _enter_extra(id: String) -> void:
 	qi_zones = (map_def["qi"] as Array).duplicate()
 	atmo.set_active_map(id)
 	MapBuilder.build(self, id)
+	sect_life.map_entered()
 	_build_qi_zones()
 	world.add_child(player)
 	_apply_map_camera()
@@ -1745,6 +1972,8 @@ func _on_war_victory() -> void:
 	inv.add_merit(300)
 	inv.add_stones(2000)
 	wardrobe.grant_title("war:ba_chu")
+	cultivation_v1.state.acquire("hon_echo", "sect", "huyen")
+	hud.toast("Nhận bí tịch Trấn Phái phẩm Huyền: Đồng Tâm Hồn Quyết (xem Y → Bí tịch)")
 	hud.toast("Kiếm Tông giữ %d địa bàn, trở thành bá chủ Tiểu Thế Giới! +300 cống hiến, +2000 linh thạch" % SectWar.WIN_COUNT)
 
 
@@ -1774,20 +2003,155 @@ func _use_flag(tid: String) -> void:
 
 
 # ---------------------------------------------------------------- chức năng điện trong tông môn
+## Chấp sự: người chơi chọn vật liệu đang có để hiến cho kho tông (mỗi ngày có trần cống hiến nhận được).
+const DONATE_ITEMS := ["linh_thao", "thiet_tinh", "yeu_dan", "da_yeu", "soi_nanh", "truc_linh", "han_thuy_thach", "xich_hoa_thach", "hoang_tho_tinh", "huyen_thiet", "linh_mach_tinh"]
+
+
+## Chấp sự: danh sách việc tông môn đang mở và việc người chơi đã nhận.
+func _missions_menu() -> void:
+	var opts: Array = []
+	for m in missions.mine():
+		var mid := str(m["id"])
+		if str(m["kind"]) == "collect":
+			opts.append({"text": "Giao: " + missions.describe(m), "call": missions.turn_in.bind(mid)})
+		opts.append({"text": "Bỏ việc: " + str(m["text"]).left(30), "call": missions.abandon.bind(mid)})
+		if opts.size() >= 6:
+			break
+	var shown := 0
+	for m in missions.open_for(SectWar.PLAYER):
+		if shown >= 3 or opts.size() >= 8:
+			break
+		opts.append({"text": "Nhận: " + missions.describe(m), "call": missions.accept.bind(str(m["id"]))})
+		shown += 1
+	if opts.is_empty():
+		dialogue.say("Chấp sự", ["Hiện tông môn chưa có việc nào cần người. Mai ngươi quay lại xem."])
+		return
+	opts.append({"text": "Thôi", "call": Callable()})
+	dialogue.choose("Chấp sự", "Việc tông môn hiện có (thưởng lấy từ ngân quỹ, kho cạn thì thưởng bị cắt):", opts)
+
+
+func _donate_menu() -> void:
+	var opts: Array = []
+	for it in DONATE_ITEMS:
+		var n: int = inv.count(it)
+		if n > 0 and opts.size() < 5:
+			opts.append({"text": "Hiến 1 %s (có %d)" % [Items.item_name(it), n], "call": _donate.bind(it)})
+	if opts.is_empty():
+		hud.toast("Ngươi chưa có vật liệu nào để hiến tặng.")
+		return
+	opts.append({"text": "Thôi", "call": Callable()})
+	dialogue.choose("Chấp sự", "Tông môn luôn cần vật liệu. Ngươi muốn hiến thứ gì?", opts)
+
+
+func _donate(item: String) -> void:
+	var r: Dictionary = treasury.donate(item, 1)
+	if not bool(r["ok"]):
+		hud.toast("Không hiến được.")
+		return
+	if int(r["merit"]) > 0:
+		hud.toast("Đã hiến 1 %s: +%d cống hiến." % [Items.item_name(item), int(r["merit"])])
+	else:
+		hud.toast("Đã hiến 1 %s (hôm nay đã nhận đủ cống hiến từ hiến tặng)." % Items.item_name(item))
+
+
+## Ngoại môn chỉ thấy tình trạng chung; từ nội môn mới thấy số liệu chi tiết (quyền xem theo địa vị).
+func _show_treasury() -> void:
+	var sect := SectWar.PLAYER
+	var lines: Array = []
+	lines.append("Ngân quỹ %s: %s." % [SectWar.sect_name(sect), treasury.status_name(sect)])
+	if inv.sect_rank() >= 1:
+		var net: int = int(treasury.last_net.get(sect, 0))
+		lines.append("Linh thạch %d · nuôi đệ tử %d mỗi ngày · đủ cho %.0f ngày · hôm qua %+d." % [treasury.stock(sect), treasury.upkeep(sect), treasury.runway_days(sect), net])
+		var parts: Array = []
+		var it: Dictionary = treasury.items_of(sect)
+		for k in it:
+			if str(k) != SectTreasury.STONES:
+				parts.append("%d %s" % [int(it[k]), Items.item_name(str(k))])
+		lines.append("Kho vật liệu: " + (", ".join(parts) if not parts.is_empty() else "trống") + ".")
+	else:
+		lines.append("(Ngoại môn đệ tử chưa được xem số liệu chi tiết của ngân quỹ.)")
+	dialogue.say("Chấp sự", lines)
+
+
+## Ngoại môn chỉ thấy trạng thái; từ nội môn thấy số quan hệ; đề nghị hiệp ước cần chức vị Chân Truyền trở lên.
+func _diplomacy_menu() -> void:
+	var me := SectWar.PLAYER
+	var rank: int = inv.sect_rank()
+	var lines: Array = []
+	var opts: Array = []
+	for s in SectWar.SECTS:
+		var o := str(s)
+		if o == me:
+			continue
+		var line := "%s: %s" % [SectWar.sect_name(o), diplomacy.state_name(me, o)]
+		if rank >= 1:
+			line += " (%+d)" % diplomacy.relation(me, o)
+		var tr: Array = []
+		for kd in diplomacy.treaty_kinds():
+			var t: Dictionary = diplomacy.treaty_between(me, o, str(kd))
+			if not t.is_empty():
+				tr.append("%s đến ngày %d" % [str(diplomacy.treaty_cfg(str(kd)).get("name", "")), int(t["end"])])
+		if not tr.is_empty():
+			line += " — " + ", ".join(tr)
+		lines.append(line)
+		if rank >= int(diplomacy.bal("propose_rank", 3.0)):
+			for kd in diplomacy.treaty_kinds():
+				if diplomacy.why_not(str(kd), me, o) == "":
+					var cfg: Dictionary = diplomacy.treaty_cfg(str(kd))
+					opts.append({"text": "Đề nghị %s với %s (%d linh thạch)" % [str(cfg["name"]).to_lower(), SectWar.sect_name(o), int(cfg["cost"])], "call": _propose_treaty.bind(str(kd), o)})
+	var disp: Array = diplomacy.open_disputes(me)
+	for d in disp:
+		if str(d["culprit"]) == me:
+			opts.append({"text": "Đền bù tranh chấp với %s (%d linh thạch)" % [SectWar.sect_name(str(d["victim"])), 40 * int(d["sev"])], "call": _settle_dispute.bind(str(d["id"]))})
+		lines.append("Tranh chấp: %s ↔ %s — %s" % [SectWar.sect_name(str(d["culprit"])), SectWar.sect_name(str(d["victim"])), str(d["cause"])])
+	opts.append({"text": "Thôi", "call": Callable()})
+	dialogue.choose("Ngoại giao tông môn", "\n".join(lines), opts)
+
+
+func _propose_treaty(kind: String, other: String) -> void:
+	var why: String = diplomacy.propose(kind, other)
+	hud.toast(why if why != "" else "Hai tông đã ký hiệp ước.")
+
+
+func _settle_dispute(did: String) -> void:
+	var why: String = diplomacy.settle(did)
+	hud.toast(why if why != "" else "Đã đền bù, quan hệ dịu lại.")
+
+
 func _scripture_cost() -> int:
 	return 60 + 40 * cult.step_index()
 
 
-## Tàng Kinh Các: trả linh thạch để tham ngộ, nhận tu vi.
+## Tu vi cơ bản của một lần đọc kinh (trước khi nhân theo kết quả mini game).
+func _scripture_gain() -> float:
+	return maxf(30.0, cult.xp_needed() * 0.06)
+
+
+## Tàng Kinh Các: trả linh thạch rồi chơi mini game Đọc kinh; điểm càng cao tu vi nhận càng nhiều (xem ScriptureGame).
 func _study_scripture() -> void:
+	if scripture_game == null or scripture_game.is_active():
+		return
 	var cost := _scripture_cost()
 	if not inv.spend_stones(cost):
 		hud.toast("Không đủ linh thạch (cần %d)" % cost)
 		return
-	var gain := maxf(30.0, cult.xp_needed() * 0.06)
+	scripture_game.finished.connect(_scripture_done, CONNECT_ONE_SHOT)
+	scripture_game.begin({
+		"insight": float(cultivation_v1.state.origin.attributes.insight),
+		"gain": _scripture_gain(),
+		"seed": randi(),
+	})
+
+
+func _scripture_done(result: Dictionary) -> void:
+	var mult := float(result.get("mult", 0.0))
+	if mult <= 0.0:
+		hud.toast("Tâm niệm tán loạn, kinh thư chẳng ngộ được gì.")
+		return
+	var gain := _scripture_gain() * mult
 	cult.add_xp(gain)
 	Sfx.play("levelup")
-	hud.toast("Tham ngộ kinh thư: +%d tu vi" % int(gain))
+	hud.toast("Tham ngộ kinh thư: +%d tu vi (×%.1f)" % [int(gain), mult])
 
 
 ## Trận Pháp Đường: truyền tống tới một địa bàn Kiếm Tông đang giữ (trong Tiểu Thế Giới).
@@ -1812,3 +2176,4 @@ func _cull_monsters() -> void:
 				m.process_mode = Node.PROCESS_MODE_DISABLED
 		elif m.process_mode == Node.PROCESS_MODE_DISABLED:
 			m.process_mode = Node.PROCESS_MODE_INHERIT
+

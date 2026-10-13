@@ -200,7 +200,7 @@ func _build_keys() -> void:
 	grid.add_theme_constant_override("v_separation", 6)
 	_body.add_child(grid)
 	for e in [["WASD", "Di chuyển"], ["Shift", "Chạy"], ["F", "Ngồi thiền (hồi linh khí, tăng tu vi)"], ["B", "Đột phá cảnh giới"], ["E", "Tương tác (nói chuyện, hái thuốc, lò đan)"],
-			["P", "Bảng nhân vật"], ["Q", "Nhật ký nhiệm vụ"], ["M", "Bản đồ toàn làng"], ["I", "Túi đồ"], ["C", "Tủ đồ (thay trang phục)"], ["J K L U", "Bốn chiêu kiếm"], ["T", "Tua nhanh thời gian"], ["Esc", "Tạm dừng"], ["F1", "Menu thử nghiệm"], ["F11", "Toàn màn hình"]]:
+			["H", "Sư môn, đồng môn và khảo hạch"], ["P", "Bảng nhân vật"], ["Q", "Nhật ký nhiệm vụ"], ["M", "Bản đồ toàn làng"], ["R", "Bản đồ đại vực, tin đồn"], ["I", "Túi đồ"], ["C", "Tủ đồ (thay trang phục)"], ["J", "Nguồn tấn công chính"], ["K", "Pháp Bảo / Công Pháp còn lại"], ["U", "Công Pháp phụ"], ["Space", "Thân pháp / né"], ["Y", "Công / Tâm / Thân và trang bị"], ["T", "Tua nhanh thời gian"], ["Esc", "Tạm dừng"], ["F1", "Menu thử nghiệm"], ["F11", "Toàn màn hình"]]:
 		grid.add_child(UIKit.KeyCap.new(e[0], "", 15))
 		grid.add_child(UIKit.label(e[1], 16, UIKit.PAPER))
 	_body.add_child(UIKit.spacer(2))

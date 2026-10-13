@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://c1lug1r8s0cyv"
+
+[deps]
+
+files=["res://tools/build_sim_multi.tam.translation", "res://tools/build_sim_multi.than.translation", "res://tools/build_sim_multi.art.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.best.translation", "res://tools/build_sim_multi.best.translation", "res://tools/build_sim_multi.best.translation", "res://tools/build_sim_multi.best.translation"]
+
+source_file="res://tools/build_sim_multi.csv"
+dest_files=["res://tools/build_sim_multi.tam.translation", "res://tools/build_sim_multi.than.translation", "res://tools/build_sim_multi.art.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.old.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.k.translation", "res://tools/build_sim_multi.best.translation", "res://tools/build_sim_multi.best.translation", "res://tools/build_sim_multi.best.translation", "res://tools/build_sim_multi.best.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

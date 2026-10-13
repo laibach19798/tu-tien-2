@@ -494,8 +494,7 @@ static func extra_herbs(m: Node) -> void:
 			var p := r.position + Vector2(xr.randf() * r.size.x, xr.randf() * r.size.y)
 			if not m._clear_spot(p, 40.0) or m._is_blocked(Rect2(p.x - 30, p.y - 30, 60, 40)):
 				continue
-			var h: Node2D = preload("res://scripts/herb.gd").new()
-			h.position = p
+			var h: Node2D = m.resources.make_node("overworld", "linh_thao", p)
 			m.world.add_child(h)
 			m.herbs.append(h)
 			made += 1

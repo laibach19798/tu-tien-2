@@ -46,7 +46,7 @@ func _process(_delta: float) -> bool:
 		print(id, ": quái ", by, " | cổng ", main.gates.size(), " | chặn chỗ đến=", entry_blocked, " cổng=", gate_blocked, " | an toàn chỗ đến=", safe_entry, " | props ", main.prop_log.size(), " | linh thảo ", main.herbs.size())
 		var is_home: bool = d.get("sect", "") == SectWar.PLAYER
 		var hostile_sect: bool = d.has("sect") and not is_home   # tông địch: không có vùng an toàn
-		ok = ok and main.current_map == id and (main.monsters.size() > 0 or is_home) and not entry_blocked and not gate_blocked and (safe_entry or hostile_sect)
+		ok = ok and main.current_map == id and (main.monsters.size() > 0 or is_home or bool(d.get("dong_phu", false))) and not entry_blocked and not gate_blocked and (safe_entry or hostile_sect)
 		ok = ok and (main.gates.size() == 1 or id == "tieu_gioi") and (id != "tieu_gioi" or main.gates.size() == 6)
 		ok = ok and main.map_size == d["size"] and main.camera.limit_right == int(d["size"].x)
 		if d.has("sect") and is_home:

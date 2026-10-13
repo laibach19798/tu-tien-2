@@ -13,6 +13,7 @@ var hp := 100.0
 var max_hp := 100.0
 var invuln := 0.0
 var god := false   # menu thử nghiệm: bất tử
+var damage_filter := Callable() # Adapter V1: né hoàn hảo được giải quyết trước damage.
 var _since_hit := 99.0
 var cult: Cultivation
 
@@ -29,6 +30,7 @@ static func _max_for(c: Cultivation) -> float:
 	return 100.0 + 24.0 * c.step_index()
 
 
+var taken_mult := 1.0   # nội công: nhân sát thương nhận vào
 var hp_bonus := 0.0   # thưởng bộ trang phục: khí huyết tối đa nhân (1 + hp_bonus)
 
 
@@ -56,7 +58,11 @@ func alive() -> bool:
 func take(dmg: float, from: Vector2) -> bool:
 	if hp <= 0.0 or invuln > 0.0 or god:
 		return false
-	hp = maxf(hp - dmg, 0.0)
+	if damage_filter.is_valid():
+		dmg = float(damage_filter.call(dmg, from))
+		if dmg < 0.0:
+			return false
+	hp = maxf(hp - dmg * taken_mult, 0.0)
 	invuln = INVULN
 	_since_hit = 0.0
 	hurt.emit(dmg, from)

@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "balance_status": "Mốc thử nghiệm. Mọi thời gian tính theo NGÀY GAME (360 giây). Tối đa 2 sự kiện đồng thời để tránh ngập thông báo.",
+  "balance": {
+    "max_active": 2,
+    "first_day": 2,
+    "gap_days": [4, 8],
+    "history_limit": 40,
+    "trace_limit": 24,
+    "trace_days": 20
+  },
+  "templates": {
+    "co_tu_dong_phu": {
+      "name": "Động phủ cổ tu xuất hiện",
+      "weight": 2,
+      "min_day": 3,
+      "cooldown_days": 20,
+      "sign_days": 1,
+      "active_days": 2,
+      "sign_text": "Dị tượng linh quang xuất hiện gần %s: có người nói một động phủ cổ tu sắp lộ ra.",
+      "active_text": "Thương hội đã biết tin; đệ tử các phái đang kéo tới %s. Cửa động phủ đã mở, ai nhanh chân sẽ đoạt truyền thừa."
+    },
+    "thuong_doi_nan": {
+      "name": "Thương đội gặp nạn",
+      "weight": 3,
+      "min_day": 2,
+      "cooldown_days": 8,
+      "sign_days": 0,
+      "active_days": 3,
+      "zones": ["soi_linh", "hac_lam", "dam_lay"],
+      "sign_text": "Có tin thương đội của Phú Quý bị phục kích trên đường tới %s.",
+      "active_text": "Thương đội đang bị yêu thú vây hãm ở %s, còn cầm cự được ít ngày."
+    },
+    "linh_thao_quy": {
+      "name": "Linh thảo quý trưởng thành",
+      "weight": 3,
+      "min_day": 3,
+      "cooldown_days": 10,
+      "sign_days": 1,
+      "active_days": 4,
+      "zones": ["soi_linh", "hac_lam", "dam_lay", "linh_mach_dong"],
+      "sign_text": "Linh quang lấp lánh về đêm ở %s: có một cây linh thảo quý sắp trưởng thành.",
+      "active_text": "Linh thảo quý ở %s đã trưởng thành; các bên đang tìm tới thu hái."
+    },
+    "yeu_thu_tinh_anh": {
+      "name": "Yêu thú tinh anh xuất hiện",
+      "weight": 3,
+      "min_day": 4,
+      "cooldown_days": 12,
+      "sign_days": 1,
+      "active_days": 4,
+      "zones": ["soi_linh", "hac_lam", "dam_lay", "tuyet_coc", "linh_mach_dong"],
+      "sign_text": "Có dấu chân lớn bất thường và thú nhỏ bỏ chạy ở %s.",
+      "active_text": "Một yêu thú tinh anh đã chiếm lĩnh %s, uy hiếp tuyến đường qua vùng này.",
+      "elite_kind": {"soi_linh": "wolf_alpha", "hac_lam": "wolf_charger", "dam_lay": "goblin_elite", "tuyet_coc": "wolf_dark", "linh_mach_dong": "soul_lord"}
+    },
+    "xung_dot_de_tu": {
+      "name": "Xung đột giữa đệ tử ngoại viện",
+      "weight": 2,
+      "min_day": 3,
+      "cooldown_days": 14,
+      "sign_days": 0,
+      "active_days": 2,
+      "zones": ["van_khe"],
+      "sign_text": "Có tin hai đệ tử thuộc hai phái cãi vã gay gắt ở %s.",
+      "active_text": "Hai đệ tử tranh cãi ở %s đã sắp ra tay; người xung quanh chỉ đứng nhìn."
+    },
+    "linh_mach_bien_dong": {
+      "name": "Linh mạch biến động",
+      "weight": 2,
+      "min_day": 4,
+      "cooldown_days": 16,
+      "sign_days": 1,
+      "active_days": 3,
+      "zones": ["hang_linh_mach", "linh_mach_dong", "hac_lam"],
+      "sign_text": "Linh khí ở %s chấn động bất thường, tu sĩ quanh vùng cảm nhận được.",
+      "active_text": "Linh mạch ở %s đang dao động mạnh, điều kiện khai thác thay đổi cho tới khi lắng xuống."
+    }
+  }
+}

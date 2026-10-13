@@ -1,0 +1,83 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Đã mô phỏng 3300 tổ hợp x 4 kịch bản trong 500.5s (dòng phụ roll thật)
+
+== PHÂN BỐ (điểm tổng hợp, 1.00 = trung vị) ==
+min 0.31 | p10 0.75 | p50 0.98 | p90 1.39 | p99 1.96 | max 2.63
+tổ hợp < 0.50: 26 (0.8%) | < 0.75: 323 (9.8%)
+trung vị từng kịch bản:{ "single": 4393.53730400256, "pack": 7015.119046656, "boss": 1629.21432618174, "swarm": 1284.29807757591 }
+
+== TOP 12 ==
+2.63 | ngu_fire + ngu_cycle + kiem_step | qi_pearl | single 1.43  pack 2.53  boss 3.11  swarm 4.22
+2.62 | the_fist + the_blood + kiem_step | nine_swords | single 1.87  pack 0.95  boss 4.85  swarm 5.45
+2.59 | dao_cut + ngu_cycle + ngu_earth | nine_swords | single 1.99  pack 1.72  boss 2.96  swarm 4.42
+2.43 | dao_cut + dao_victory + ngu_waterstep | qi_pearl | single 1.49  pack 1.36  boss 2.61  swarm 6.62
+2.41 | dao_cut + dao_blood + dao_chase | nine_swords | single 1.63  pack 1.60  boss 3.47  swarm 3.72
+2.38 | dao_cut + kiem_flow + kiem_step | soul_bell | single 1.48  pack 1.51  boss 2.56  swarm 5.64
+2.38 | the_fist + the_blood + the_step | nine_swords | single 1.71  pack 0.86  boss 4.65  swarm 4.71
+2.38 | dao_cut + dao_blood + ngu_earth | soul_bell | single 1.60  pack 1.56  boss 2.67  swarm 4.80
+2.35 | dao_cut + ngu_cycle + dao_retreat | soul_bell | single 1.49  pack 1.54  boss 2.21  swarm 6.03
+2.27 | dao_break + the_blood + kiem_step | qi_pearl | single 1.47  pack 1.57  boss 3.35  swarm 3.43
+2.27 | dao_cut + ngu_cycle + kiem_guard | soul_bell | single 1.31  pack 1.38  boss 2.61  swarm 5.58
+2.23 | dao_cut + dao_victory + dao_retreat | soul_bell | single 1.40  pack 1.56  boss 1.91  swarm 5.90
+
+== BOTTOM 8 ==
+0.31 | the_quake + hon_heart + hon_step | nine_swords | single 0.64  pack 1.54  boss 0.49  swarm 0.00
+0.33 | ngu_fire + the_blood + ngu_waterstep | qi_pearl | single 0.63  pack 1.83  boss 0.50  swarm 0.00
+0.34 | the_quake + dao_blood + kiem_step | nine_swords | single 0.71  pack 1.44  boss 0.62  swarm 0.00
+0.34 | the_quake + ngu_cycle + the_step | soul_bell | single 0.75  pack 1.80  boss 0.47  swarm 0.00
+0.34 | the_quake + hon_heart + the_step | soul_bell | single 0.79  pack 1.76  boss 0.50  swarm 0.00
+0.34 | kiem_wave + hon_heart + hon_step | soul_bell | single 0.91  pack 0.77  boss 1.00  swarm 0.00
+0.35 | ngu_fire + kiem_heart + hon_mirror | nine_swords | single 0.79  pack 1.98  boss 0.50  swarm 0.00
+0.36 | the_quake + hon_echo + kiem_step | soul_bell | single 0.83  pack 2.00  boss 0.54  swarm 0.00
+
+== THEO BÍ TỊCH: điểm TB | chiếm trong top 5%% | chiếm trong bottom 20%% ==
+dao_cut        Liệt Phong Đao       TB 1.27 | top  16.7% | bottom   3.0%
+kiem_cut       Thanh Phong Kiếm     TB 1.18 | top   9.0% | bottom   2.7%
+kiem_step      Phi Yến Bộ           TB 1.15 | top   9.7% | bottom  12.7%
+ngu_fire       Hỏa Liên Thuật       TB 1.13 | top   8.0% | bottom   7.7%
+the_blood      Dưỡng Huyết Kinh     TB 1.13 | top  13.3% | bottom  15.8%
+ngu_water      Hàn Thủy Chú         TB 1.11 | top   5.3% | bottom   9.3%
+the_step       Bàn Thạch Bộ         TB 1.08 | top   8.2% | bottom  16.7%
+qi_pearl       Tụ Linh Châu         TB 1.07 | top   5.5% | bottom  15.3%
+ngu_waterstep  Thủy Ảnh Bộ          TB 1.06 | top   7.6% | bottom  15.5%
+dao_blood      Huyết Chiến Tâm Pháp TB 1.05 | top   9.1% | bottom  22.4%
+ngu_cycle      Ngũ Hành Luân Chuyển TB 1.05 | top   8.8% | bottom  23.6%
+dao_retreat    Hồi Phong Bộ         TB 1.05 | top   4.2% | bottom  18.2%
+dao_victory    Bách Chiến Quyết     TB 1.04 | top   2.7% | bottom  13.9%
+kiem_flow      Thanh Tâm Quyết      TB 1.04 | top   5.8% | bottom  21.5%
+kiem_guard     Kiếm Ảnh Bộ          TB 1.04 | top   6.4% | bottom  20.9%
+dao_chase      Truy Phong Bộ        TB 1.03 | top   3.9% | bottom  16.7%
+hon_echo       Đồng Tâm Hồn Quyết   TB 1.03 | top   3.0% | bottom  16.7%
+nine_swords    Cửu Kiếm Hạp         TB 1.02 | top   4.2% | bottom  21.3%
+hon_step       U Ảnh Bộ             TB 1.01 | top   3.3% | bottom  17.0%
+soul_bell      Trấn Hồn Chung       TB 1.01 | top   5.4% | bottom  23.5%
+the_guard      Kim Cương Tâm Pháp   TB 1.01 | top   1.2% | bottom  20.0%
+kiem_heart     Kiếm Ấn Tâm Kinh     TB 1.00 | top   1.8% | bottom  22.4%
+hon_seal       Nhiếp Hồn Ấn         TB 1.00 | top   0.7% | bottom  15.0%
+hon_heart      Dưỡng Hồn Kinh       TB 0.99 | top   0.9% | bottom  21.5%
+ngu_earth      Thổ Độn Bộ           TB 0.99 | top   3.0% | bottom  23.6%
+ngu_wood       Mộc Linh Dưỡng Tâm   TB 0.98 | top   3.3% | bottom  22.1%
+hon_clone      Phân Hồn Thuật       TB 0.98 | top   0.3% | bottom  19.7%
+the_fist       Cương Kình Quyền     TB 0.98 | top   6.7% | bottom  28.3%
+hon_mirror     Huyễn Ảnh Bộ         TB 0.98 | top   2.1% | bottom  26.1%
+dao_break      Phá Quân Đao         TB 0.95 | top   2.7% | bottom  27.0%
+the_quake      Chấn Địa Chưởng      TB 0.95 | top   4.3% | bottom  35.0%
+kiem_wave      Trọng Huyền Kiếm Khí TB 0.94 | top   1.3% | bottom  34.0%
+the_leap       Băng Sơn Bộ          TB 0.94 | top   1.5% | bottom  32.7%
+(bảo tu)                            TB 0.86 | top   0.0% | bottom  38.3%
+
+== CÙNG PHÁI vs KHÁC PHÁI ==
+cùng phái: 120 tổ hợp, TB 1.178 | khác phái: 2880 tổ hợp, TB 1.045
+
+== TÂM PHÁP: điểm khi ghép với từng Công Pháp (min / max, hệ số) ==
+ngu_cycle      Ngũ Hành Luân Chuyển   min 0.87 | max 1.63 | max/min 1.87
+the_blood      Dưỡng Huyết Kinh       min 0.87 | max 1.70 | max/min 1.95
+dao_victory    Bách Chiến Quyết       min 0.91 | max 1.28 | max/min 1.41
+dao_blood      Huyết Chiến Tâm Pháp   min 0.86 | max 1.69 | max/min 1.95
+kiem_flow      Thanh Tâm Quyết        min 0.84 | max 1.51 | max/min 1.80
+ngu_wood       Mộc Linh Dưỡng Tâm     min 0.87 | max 1.19 | max/min 1.37
+hon_heart      Dưỡng Hồn Kinh         min 0.87 | max 1.15 | max/min 1.32
+the_guard      Kim Cương Tâm Pháp     min 0.94 | max 1.16 | max/min 1.24
+hon_echo       Đồng Tâm Hồn Quyết     min 0.82 | max 1.32 | max/min 1.62
+kiem_heart     Kiếm Ấn Tâm Kinh       min 0.87 | max 1.31 | max/min 1.51

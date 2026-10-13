@@ -1,0 +1,981 @@
+{
+  "version": 1,
+  "balance_status": "Mốc thử nghiệm. Mô phỏng theo NGÀY GAME (360 giây); NPC ngoài scene chỉ cập nhật theo lịch hoạt động, không đi từng bước.",
+  "balance": {
+    "injury_per_danger_gap": 0.18,
+    "injury_rest_days": 2,
+    "seclusion_days": 8,
+    "max_scene_npcs": 3,
+    "history_limit": 12,
+    "buy_markup": 2.0,
+    "catchup_days_cap": 40,
+    "resident_recall": true,
+    "npc_price_mult": 0.4
+  },
+  "npcs": {
+    "luc_van": {
+      "name": "Lục Vân",
+      "role": "Luyện khí sư",
+      "sect": "kiem_tong",
+      "step": 10,
+      "home": "van_khe",
+      "strength": 2,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_lam",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "gather": 0.55,
+        "trade": 0.25,
+        "rest": 0.2
+      },
+      "gather_at": [
+        "soi_linh",
+        "hac_lam",
+        "hang_linh_mach"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Tìm khoáng và linh thảo để luyện một món pháp bảo.",
+      "assets": {
+        "thiet_tinh": 1
+      },
+      "money": 40,
+      "traits": {
+        "ambition": 55,
+        "greed": 30,
+        "righteous": 75,
+        "caution": 70,
+        "aggression": 25,
+        "curiosity": 80
+      },
+      "goal_kind": "craft",
+      "needs": [
+        "thiet_tinh",
+        "truc_linh"
+      ],
+      "goal_money": 120
+    },
+    "ngo_thanh": {
+      "name": "Ngô Thanh",
+      "role": "Dược sư",
+      "sect": "",
+      "step": 8,
+      "home": "van_khe",
+      "strength": 1,
+      "outfit": {
+        "hair": "hair_ponytail_brown",
+        "clothes": "outfit_luc",
+        "shoes": "shoes_cloth_brown"
+      },
+      "routine": {
+        "gather": 0.6,
+        "trade": 0.3,
+        "rest": 0.1
+      },
+      "gather_at": [
+        "soi_linh",
+        "dam_lay"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Gom linh thảo bán cho thương hội và các lò đan.",
+      "assets": {
+        "linh_thao": 2
+      },
+      "money": 25,
+      "traits": {
+        "ambition": 30,
+        "greed": 45,
+        "righteous": 70,
+        "caution": 65,
+        "aggression": 10,
+        "curiosity": 60
+      },
+      "goal_kind": "wealth",
+      "needs": [
+        "linh_thao"
+      ],
+      "goal_money": 90
+    },
+    "ha_kiem": {
+      "name": "Hạ Kiếm Khách",
+      "role": "Kiếm khách lang thang",
+      "sect": "kiem_tong",
+      "step": 16,
+      "home": "kiem_tong_ngoai",
+      "strength": 4,
+      "outfit": {
+        "hair": "hair_topknot_silver",
+        "clothes": "outfit_trang",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "hunt": 0.6,
+        "rest": 0.25,
+        "trade": 0.15
+      },
+      "hunt_at": [
+        "tuyet_coc",
+        "hac_lam",
+        "soi_linh"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Thử kiếm với yêu thú mạnh để ngộ đạo.",
+      "assets": {
+        "yeu_dan": 1
+      },
+      "money": 60,
+      "traits": {
+        "ambition": 70,
+        "greed": 20,
+        "righteous": 55,
+        "caution": 30,
+        "aggression": 75,
+        "curiosity": 65
+      },
+      "goal_kind": "mastery",
+      "goal_money": 150
+    },
+    "tran_hoai": {
+      "name": "Trần Hoài",
+      "role": "Thợ mỏ",
+      "sect": "",
+      "step": 9,
+      "home": "hang_linh_mach",
+      "strength": 3,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_xam",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "gather": 0.65,
+        "trade": 0.2,
+        "rest": 0.15
+      },
+      "gather_at": [
+        "hang_linh_mach",
+        "linh_mach_dong",
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Đào quặng đổi lấy linh thạch chuộc lại mảnh ruộng của gia đình.",
+      "assets": {},
+      "money": 15,
+      "traits": {
+        "ambition": 25,
+        "greed": 55,
+        "righteous": 60,
+        "caution": 55,
+        "aggression": 20,
+        "curiosity": 20
+      },
+      "goal_kind": "wealth",
+      "goal_money": 130
+    },
+    "vu_nguyet": {
+      "name": "Vũ Nguyệt",
+      "role": "Đệ tử Đao Môn ngoại viện",
+      "sect": "xich_viem",
+      "step": 12,
+      "home": "sect_xich_viem",
+      "strength": 3,
+      "outfit": {
+        "hair": "hair_ponytail_black",
+        "clothes": "outfit_do",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "hunt": 0.4,
+        "gather": 0.3,
+        "rest": 0.3
+      },
+      "hunt_at": [
+        "tieu_gioi"
+      ],
+      "gather_at": [
+        "tieu_gioi"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Gom đủ cống phẩm để được thăng lên nội môn.",
+      "assets": {},
+      "money": 30,
+      "traits": {
+        "ambition": 80,
+        "greed": 50,
+        "righteous": 40,
+        "caution": 30,
+        "aggression": 80,
+        "curiosity": 35
+      },
+      "goal_kind": "wealth",
+      "goal_money": 100
+    },
+    "bach_tam": {
+      "name": "Bạch Tâm",
+      "role": "Ẩn sĩ",
+      "sect": "",
+      "step": 18,
+      "home": "hac_lam",
+      "strength": 4,
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "tien_bao_bach_van",
+        "shoes": "shoes_cloth_white"
+      },
+      "routine": {
+        "rest": 0.55,
+        "gather": 0.45
+      },
+      "gather_at": [
+        "hac_lam",
+        "dam_lay"
+      ],
+      "trade_at": "hac_lam",
+      "goal": "Tìm một lần nữa loài linh thảo ngàn năm từng thấy thuở trẻ.",
+      "assets": {},
+      "money": 80,
+      "traits": {
+        "ambition": 15,
+        "greed": 15,
+        "righteous": 65,
+        "caution": 60,
+        "aggression": 10,
+        "curiosity": 85
+      },
+      "goal_kind": "seek",
+      "needs": [
+        "ngan_nien_thao"
+      ],
+      "goal_money": 60
+    },
+    "phu_quy": {
+      "name": "Phú Quý",
+      "role": "Thương nhân rong",
+      "sect": "",
+      "step": 6,
+      "home": "van_khe",
+      "strength": 1,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_plain",
+        "shoes": "shoes_cloth_brown",
+        "waist": "waist_bell_copper"
+      },
+      "routine": {
+        "trade": 0.7,
+        "rest": 0.3
+      },
+      "trade_at": "van_khe",
+      "route": [
+        "van_khe",
+        "kiem_tong_ngoai",
+        "soi_linh"
+      ],
+      "goal": "Mua rẻ bán đắt giữa làng và ngoại viện.",
+      "assets": {
+        "soi_nanh": 2,
+        "da_yeu": 2
+      },
+      "money": 120,
+      "traits": {
+        "ambition": 50,
+        "greed": 85,
+        "righteous": 30,
+        "caution": 80,
+        "aggression": 5,
+        "curiosity": 40
+      },
+      "goal_kind": "wealth",
+      "goal_money": 250
+    },
+    "tue_linh": {
+      "name": "Tuệ Linh",
+      "role": "Đệ tử Hồn Đạo",
+      "sect": "huyen_minh",
+      "step": 11,
+      "home": "sect_huyen_minh",
+      "strength": 2,
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "outfit_tim",
+        "shoes": "shoes_cloth_white"
+      },
+      "routine": {
+        "gather": 0.5,
+        "rest": 0.5
+      },
+      "gather_at": [
+        "tieu_gioi",
+        "linh_mach_dong"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Thu thập vật liệu để thử nghiệm hồn thuật.",
+      "assets": {},
+      "money": 20,
+      "traits": {
+        "ambition": 60,
+        "greed": 35,
+        "righteous": 45,
+        "caution": 45,
+        "aggression": 30,
+        "curiosity": 90
+      },
+      "goal_kind": "craft",
+      "needs": [
+        "linh_mach_tinh",
+        "xich_hoa_thach"
+      ],
+      "goal_money": 110
+    },
+    "quan_dao": {
+      "name": "Quan Đạo",
+      "role": "Kẻ tầm bảo",
+      "sect": "",
+      "step": 15,
+      "home": "van_khe",
+      "strength": 4,
+      "treasure_hunter": true,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_do",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "hunt": 0.4,
+        "gather": 0.3,
+        "rest": 0.3
+      },
+      "hunt_at": [
+        "linh_mach_dong",
+        "dam_lay"
+      ],
+      "gather_at": [
+        "linh_mach_dong",
+        "hang_linh_mach"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Truy tìm động phủ cổ tu để đoạt truyền thừa trước kẻ khác.",
+      "assets": {},
+      "money": 90,
+      "traits": {
+        "ambition": 85,
+        "greed": 80,
+        "righteous": 20,
+        "caution": 25,
+        "aggression": 65,
+        "curiosity": 70
+      },
+      "goal_kind": "seek",
+      "goal_money": 160
+    },
+    "lam_xu": {
+      "name": "Lâm Xử",
+      "role": "Tán tu tầm bảo",
+      "sect": "",
+      "step": 13,
+      "home": "dam_lay",
+      "strength": 3,
+      "treasure_hunter": true,
+      "outfit": {
+        "hair": "hair_ponytail_brown",
+        "clothes": "outfit_xam",
+        "shoes": "shoes_cloth_brown"
+      },
+      "routine": {
+        "gather": 0.4,
+        "hunt": 0.3,
+        "rest": 0.3
+      },
+      "gather_at": [
+        "dam_lay",
+        "soi_linh"
+      ],
+      "hunt_at": [
+        "dam_lay"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Kiếm cơ duyên để thoát cảnh tán tu nghèo túng.",
+      "assets": {},
+      "money": 10,
+      "traits": {
+        "ambition": 55,
+        "greed": 70,
+        "righteous": 35,
+        "caution": 60,
+        "aggression": 45,
+        "curiosity": 55
+      },
+      "goal_kind": "seek",
+      "goal_money": 140
+    },
+    "hac_dao": {
+      "name": "Hắc Đao",
+      "role": "Đệ tử nội viện Đao Môn",
+      "sect": "xich_viem",
+      "step": 14,
+      "home": "sect_xich_viem",
+      "strength": 3,
+      "outfit": {
+        "hair": "hair_ponytail_black",
+        "clothes": "outfit_do",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "hunt": 0.5,
+        "gather": 0.2,
+        "rest": 0.3
+      },
+      "hunt_at": [
+        "hac_lam"
+      ],
+      "gather_at": [
+        "hang_linh_mach"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Mài đao nơi yêu thú mạnh để xứng danh nội viện.",
+      "assets": {},
+      "money": 60,
+      "traits": {
+        "ambition": 70,
+        "greed": 35,
+        "righteous": 40,
+        "caution": 25,
+        "aggression": 85,
+        "curiosity": 40
+      },
+      "goal_kind": "mastery",
+      "goal_money": 150
+    },
+    "lo_hoa": {
+      "name": "Lộ Hỏa",
+      "role": "Thợ rèn đao",
+      "sect": "xich_viem",
+      "step": 9,
+      "home": "sect_xich_viem",
+      "strength": 2,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_xam",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "gather": 0.5,
+        "trade": 0.3,
+        "rest": 0.2
+      },
+      "gather_at": [
+        "hang_linh_mach",
+        "soi_linh"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Tìm khoáng lửa để rèn một thanh đao cho riêng mình.",
+      "assets": {},
+      "money": 45,
+      "traits": {
+        "ambition": 45,
+        "greed": 55,
+        "righteous": 60,
+        "caution": 60,
+        "aggression": 25,
+        "curiosity": 65
+      },
+      "goal_kind": "craft",
+      "needs": [
+        "xich_hoa_thach",
+        "thiet_tinh"
+      ],
+      "goal_money": 110
+    },
+    "bang_tam": {
+      "name": "Băng Tâm",
+      "role": "Đệ tử Hàn Băng Tông",
+      "sect": "han_bang",
+      "step": 13,
+      "home": "sect_han_bang",
+      "strength": 3,
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "outfit_trang",
+        "shoes": "shoes_cloth_white"
+      },
+      "routine": {
+        "rest": 0.5,
+        "gather": 0.3,
+        "hunt": 0.2
+      },
+      "hunt_at": [
+        "soi_linh"
+      ],
+      "gather_at": [
+        "soi_linh",
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Giữ tâm tĩnh như băng để đột phá bình cảnh.",
+      "assets": {},
+      "money": 50,
+      "traits": {
+        "ambition": 60,
+        "greed": 20,
+        "righteous": 55,
+        "caution": 70,
+        "aggression": 20,
+        "curiosity": 70
+      },
+      "goal_kind": "breakthrough",
+      "goal_money": 120
+    },
+    "tuyet_lan": {
+      "name": "Tuyết Lan",
+      "role": "Dược sư Hàn Băng",
+      "sect": "han_bang",
+      "step": 10,
+      "home": "sect_han_bang",
+      "strength": 2,
+      "outfit": {
+        "hair": "hair_topknot_silver",
+        "clothes": "tien_bao_bach_van",
+        "shoes": "shoes_cloth_white"
+      },
+      "routine": {
+        "gather": 0.5,
+        "trade": 0.3,
+        "rest": 0.2
+      },
+      "gather_at": [
+        "soi_linh",
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Gom linh thảo và hàn thạch bào chế đan dược lạnh.",
+      "assets": {},
+      "money": 40,
+      "traits": {
+        "ambition": 35,
+        "greed": 30,
+        "righteous": 75,
+        "caution": 70,
+        "aggression": 10,
+        "curiosity": 60
+      },
+      "goal_kind": "craft",
+      "needs": [
+        "linh_thao",
+        "han_thuy_thach"
+      ],
+      "goal_money": 90
+    },
+    "thuy_dao": {
+      "name": "Thuỷ Đạo",
+      "role": "Chấp sự Hàn Băng",
+      "sect": "han_bang",
+      "step": 18,
+      "home": "sect_han_bang",
+      "strength": 4,
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "outfit_trang",
+        "shoes": "shoes_cloth_white"
+      },
+      "routine": {
+        "rest": 0.6,
+        "hunt": 0.2,
+        "gather": 0.2
+      },
+      "hunt_at": [
+        "dam_lay"
+      ],
+      "gather_at": [
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Giữ yên sơn môn, thỉnh thoảng ra ngoài săn yêu thú lấy vật liệu.",
+      "assets": {},
+      "money": 90,
+      "traits": {
+        "ambition": 35,
+        "greed": 20,
+        "righteous": 70,
+        "caution": 80,
+        "aggression": 25,
+        "curiosity": 45
+      },
+      "goal_kind": "safety",
+      "goal_money": 80,
+      "elder": true
+    },
+    "doc_cuong": {
+      "name": "Độc Cương",
+      "role": "Thể tu Độc Môn",
+      "sect": "doc_mon",
+      "step": 15,
+      "home": "sect_doc_mon",
+      "strength": 4,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_xam",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "hunt": 0.5,
+        "gather": 0.2,
+        "rest": 0.3
+      },
+      "hunt_at": [
+        "dam_lay",
+        "hac_lam"
+      ],
+      "gather_at": [
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Tôi thể bằng độc tố của yêu thú đầm lầy.",
+      "assets": {},
+      "money": 60,
+      "traits": {
+        "ambition": 65,
+        "greed": 30,
+        "righteous": 35,
+        "caution": 35,
+        "aggression": 75,
+        "curiosity": 45
+      },
+      "goal_kind": "mastery",
+      "goal_money": 140
+    },
+    "ha_mac": {
+      "name": "Hạ Mặc",
+      "role": "Luyện độc sư",
+      "sect": "doc_mon",
+      "step": 11,
+      "home": "sect_doc_mon",
+      "strength": 2,
+      "outfit": {
+        "hair": "hair_ponytail_brown",
+        "clothes": "outfit_luc",
+        "shoes": "shoes_cloth_brown"
+      },
+      "routine": {
+        "gather": 0.5,
+        "trade": 0.3,
+        "rest": 0.2
+      },
+      "gather_at": [
+        "dam_lay",
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Gom thổ tinh và nọc độc để luyện đan thể.",
+      "assets": {},
+      "money": 40,
+      "traits": {
+        "ambition": 50,
+        "greed": 60,
+        "righteous": 45,
+        "caution": 55,
+        "aggression": 20,
+        "curiosity": 75
+      },
+      "goal_kind": "craft",
+      "needs": [
+        "hoang_tho_tinh"
+      ],
+      "goal_money": 100
+    },
+    "thach_lao": {
+      "name": "Thạch Lão",
+      "role": "Thể tu già",
+      "sect": "doc_mon",
+      "step": 20,
+      "home": "sect_doc_mon",
+      "strength": 4,
+      "outfit": {
+        "hair": "hair_topknot_black",
+        "clothes": "outfit_xam",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "rest": 0.6,
+        "hunt": 0.2,
+        "gather": 0.2
+      },
+      "hunt_at": [
+        "hac_lam"
+      ],
+      "gather_at": [
+        "hang_linh_mach"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Giữ vững thân thể, không màng tranh đoạt.",
+      "assets": {},
+      "money": 100,
+      "traits": {
+        "ambition": 20,
+        "greed": 15,
+        "righteous": 70,
+        "caution": 75,
+        "aggression": 20,
+        "curiosity": 35
+      },
+      "goal_kind": "safety",
+      "goal_money": 70
+    },
+    "minh_nhi": {
+      "name": "Minh Nhi",
+      "role": "Đệ tử Hồn Đạo",
+      "sect": "huyen_minh",
+      "step": 12,
+      "home": "sect_huyen_minh",
+      "strength": 2,
+      "outfit": {
+        "hair": "hair_long_silver",
+        "clothes": "outfit_tim",
+        "shoes": "shoes_cloth_white"
+      },
+      "routine": {
+        "gather": 0.5,
+        "rest": 0.3,
+        "trade": 0.2
+      },
+      "gather_at": [
+        "hang_linh_mach",
+        "soi_linh"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Tìm di vật cổ tu để thử một thuật hồn mới.",
+      "assets": {},
+      "money": 35,
+      "traits": {
+        "ambition": 55,
+        "greed": 30,
+        "righteous": 50,
+        "caution": 45,
+        "aggression": 20,
+        "curiosity": 90
+      },
+      "goal_kind": "seek",
+      "goal_money": 100
+    },
+    "hon_phong": {
+      "name": "Hồn Phong",
+      "role": "Hồn tu lang thang",
+      "sect": "huyen_minh",
+      "step": 16,
+      "home": "sect_huyen_minh",
+      "strength": 3,
+      "outfit": {
+        "hair": "hair_ponytail_black",
+        "clothes": "outfit_tim",
+        "shoes": "shoes_boot_black"
+      },
+      "routine": {
+        "hunt": 0.4,
+        "gather": 0.3,
+        "rest": 0.3
+      },
+      "hunt_at": [
+        "linh_mach_dong"
+      ],
+      "gather_at": [
+        "linh_mach_dong"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Đấu hồn với yêu thú để mài giũa phân thân.",
+      "assets": {},
+      "money": 70,
+      "traits": {
+        "ambition": 75,
+        "greed": 40,
+        "righteous": 35,
+        "caution": 40,
+        "aggression": 55,
+        "curiosity": 70
+      },
+      "goal_kind": "mastery",
+      "goal_money": 150
+    }
+  },
+  "residents": {
+    "mac_tran": {
+      "name": "Sư phụ Mặc Trần",
+      "role": "Khảo hạch và truyền thụ",
+      "home": "sect_kiem_tong",
+      "strength": 4,
+      "step": 25,
+      "routine": {
+        "rest": 0.8,
+        "gather": 0.2
+      },
+      "gather_at": [
+        "kiem_tong_ngoai"
+      ],
+      "trade_at": "kiem_tong_ngoai",
+      "goal": "Giữ sơn môn, thỉnh thoảng đi tìm vật liệu luyện kiếm.",
+      "assets": {},
+      "money": 200,
+      "resident": true,
+      "traits": {
+        "ambition": 40,
+        "greed": 10,
+        "righteous": 85,
+        "caution": 70,
+        "aggression": 30,
+        "curiosity": 40
+      },
+      "sect": "kiem_tong",
+      "elder": true,
+      "goal_kind": "safety",
+      "goal_money": 60
+    },
+    "thanh_dao": {
+      "name": "Sư tỷ Thanh Dao",
+      "role": "Dược lý và chăm sóc đồng môn",
+      "home": "sect_kiem_tong",
+      "strength": 2,
+      "step": 14,
+      "routine": {
+        "gather": 0.45,
+        "rest": 0.55
+      },
+      "gather_at": [
+        "soi_linh",
+        "dam_lay"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Hái linh thảo bào chế thuốc cho đồng môn.",
+      "assets": {},
+      "money": 40,
+      "resident": true,
+      "traits": {
+        "ambition": 35,
+        "greed": 20,
+        "righteous": 80,
+        "caution": 55,
+        "aggression": 15,
+        "curiosity": 50
+      },
+      "sect": "kiem_tong",
+      "goal_kind": "craft",
+      "needs": [
+        "linh_thao"
+      ],
+      "goal_money": 70
+    },
+    "luc_an": {
+      "name": "Đồng môn Lục An",
+      "role": "Người bạn cùng tu luyện",
+      "home": "sect_kiem_tong",
+      "strength": 2,
+      "step": 6,
+      "routine": {
+        "hunt": 0.3,
+        "rest": 0.7
+      },
+      "hunt_at": [
+        "soi_linh"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Rèn luyện thực chiến để theo kịp sư huynh.",
+      "assets": {},
+      "money": 10,
+      "resident": true,
+      "traits": {
+        "ambition": 50,
+        "greed": 25,
+        "righteous": 70,
+        "caution": 50,
+        "aggression": 40,
+        "curiosity": 45
+      },
+      "sect": "kiem_tong",
+      "goal_kind": "breakthrough",
+      "goal_money": 90
+    },
+    "han_phong": {
+      "name": "Đối thủ Hàn Phong",
+      "role": "Trọng thực lực, thích tỷ thí",
+      "home": "sect_kiem_tong",
+      "strength": 3,
+      "step": 11,
+      "routine": {
+        "hunt": 0.5,
+        "rest": 0.5
+      },
+      "hunt_at": [
+        "soi_linh",
+        "hac_lam"
+      ],
+      "trade_at": "van_khe",
+      "goal": "Tìm yêu thú mạnh để chứng tỏ thực lực.",
+      "assets": {},
+      "money": 30,
+      "resident": true,
+      "traits": {
+        "ambition": 75,
+        "greed": 45,
+        "righteous": 35,
+        "caution": 25,
+        "aggression": 85,
+        "curiosity": 40
+      },
+      "sect": "kiem_tong",
+      "goal_kind": "mastery",
+      "goal_money": 150
+    },
+    "merchant": {
+      "name": "Thương nhân Lý Tam",
+      "role": "Thương hội trong làng",
+      "home": "van_khe",
+      "strength": 1,
+      "step": 5,
+      "routine": {
+        "trade": 0.4,
+        "rest": 0.6
+      },
+      "trade_at": "van_khe",
+      "goal": "Buôn bán trong làng.",
+      "assets": {
+        "soi_nanh": 2
+      },
+      "money": 300,
+      "resident": true,
+      "traits": {
+        "ambition": 45,
+        "greed": 80,
+        "righteous": 40,
+        "caution": 75,
+        "aggression": 5,
+        "curiosity": 35
+      },
+      "goal_kind": "wealth",
+      "goal_money": 300
+    },
+    "tailor": {
+      "name": "Thợ may Tô Nương",
+      "role": "Tiệm may",
+      "home": "van_khe",
+      "strength": 1,
+      "step": 4,
+      "routine": {
+        "rest": 1.0
+      },
+      "trade_at": "van_khe",
+      "goal": "Giữ tiệm may.",
+      "assets": {},
+      "money": 80,
+      "resident": true,
+      "traits": {
+        "ambition": 20,
+        "greed": 40,
+        "righteous": 60,
+        "caution": 60,
+        "aggression": 5,
+        "curiosity": 30
+      },
+      "goal_kind": "wealth",
+      "goal_money": 100
+    }
+  },
+  "residents_note": "Cư dân ở sân tông/làng do hệ cũ điều khiển khi người chơi ở đó; ngoài scene họ có thể đi làm việc, và được gọi về ngay khi người chơi vào map nhà. Mỗi NPC có `traits` (6 đặc điểm 0-100); bộ pháp V1 được dựng từ NpcProfile theo tông, cảnh giới và tính cách."
+}

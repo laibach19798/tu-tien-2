@@ -22,7 +22,7 @@ const OVERWORLD_GATES := [
 #  gates: cổng ra, areas: tên vùng cho bản đồ nhỏ, mm: màu nền bản đồ nhỏ.
 const BASE_DEFS := {
 	"soi_linh": {
-		"name": "Sói Lĩnh", "size": Vector2(2560, 1792), "music": "forest", "surface": "grass",
+		"name": "Sói Lĩnh", "tier": 2, "size": Vector2(2560, 1792), "music": "forest", "surface": "grass",
 		"entry": Vector2(250, 900),
 		"ground": Color(0.42, 0.62, 0.36), "ground2": Color(0.55, 0.62, 0.34), "path_col": Color(0.78, 0.66, 0.46), "rock_col": Color(0.52, 0.55, 0.52),
 		"tiles": "meadow",
@@ -43,6 +43,7 @@ const BASE_DEFS := {
 		"groups": [
 			["wolf", Vector2(800, 520), 3], ["wolf", Vector2(1500, 1350), 3], ["wolf", Vector2(2150, 500), 3],
 			["goblin", Vector2(1250, 560), 2], ["goblin", Vector2(1900, 1250), 2],
+			["rogue_weak", Vector2(1700, 800), 1],
 		],
 		"qi": [{"pos": Vector2(1280, 1300), "r": 150.0, "density": 2.5}],
 		"herbs": 14,
@@ -53,7 +54,7 @@ const BASE_DEFS := {
 		"mm": Color(0.40, 0.58, 0.34),
 	},
 	"dam_lay": {
-		"name": "Đầm Lầy Độc", "size": Vector2(2304, 1792), "music": "forest", "surface": "grass",
+		"name": "Đầm Lầy Độc", "tier": 7, "size": Vector2(2304, 1792), "music": "forest", "surface": "grass",
 		"entry": Vector2(250, 1500),
 		"ground": Color(0.24, 0.34, 0.22), "ground2": Color(0.20, 0.38, 0.30), "path_col": Color(0.40, 0.32, 0.22), "rock_col": Color(0.30, 0.36, 0.28),
 		"tiles": "swamp", "alt_blocks": true,
@@ -71,6 +72,8 @@ const BASE_DEFS := {
 		"groups": [
 			["goblin", Vector2(900, 400), 3], ["goblin", Vector2(1100, 1350), 3], ["goblin", Vector2(1700, 1300), 2],
 			["goblin_elite", Vector2(1750, 450), 2], ["goblin_elite", Vector2(1300, 800), 1],
+			["goblin_thrower", Vector2(1000, 800), 2], ["goblin_bomber", Vector2(1400, 1100), 2], ["goblin_shaman", Vector2(1800, 900), 1],
+			["rogue_weak", Vector2(600, 900), 1],
 		],
 		"qi": [{"pos": Vector2(1500, 1450), "r": 140.0, "density": 2.0}],
 		"herbs": 14,
@@ -81,7 +84,7 @@ const BASE_DEFS := {
 		"mm": Color(0.26, 0.40, 0.28),
 	},
 	"tuyet_coc": {
-		"name": "Hắc Lang Cốc", "size": Vector2(2560, 1792), "music": "forest", "surface": "grass",
+		"name": "Hắc Lang Cốc", "tier": 11, "size": Vector2(2560, 1792), "music": "forest", "surface": "grass",
 		"entry": Vector2(250, 1400),
 		"ground": Color(0.86, 0.9, 0.95), "ground2": Color(0.70, 0.82, 0.92), "path_col": Color(0.70, 0.64, 0.58), "rock_col": Color(0.55, 0.6, 0.68),
 		"tiles": "snow",
@@ -98,6 +101,7 @@ const BASE_DEFS := {
 		"groups": [
 			["wolf_dark", Vector2(900, 700), 3], ["wolf_dark", Vector2(1500, 1350), 3],
 			["wolf_king", Vector2(2150, 520), 1],
+			["wolf_charger", Vector2(1200, 900), 2], ["wolf_alpha", Vector2(1800, 1000), 1], ["rogue_weak", Vector2(700, 1200), 2],
 		],
 		"qi": [{"pos": Vector2(1300, 1450), "r": 140.0, "density": 3.0}],
 		"herbs": 10,
@@ -108,7 +112,7 @@ const BASE_DEFS := {
 		"mm": Color(0.78, 0.86, 0.92),
 	},
 	"linh_mach_dong": {
-		"name": "Linh Mạch Động", "size": Vector2(2304, 1664), "music": "cave", "surface": "rock",
+		"name": "Linh Mạch Động", "tier": 17, "size": Vector2(2304, 1664), "music": "cave", "surface": "rock",
 		"entry": Vector2(260, 830),
 		"ground": Color(0.20, 0.19, 0.27), "ground2": Color(0.18, 0.28, 0.36), "path_col": Color(0.34, 0.30, 0.32), "rock_col": Color(0.26, 0.26, 0.30),
 		"tiles": "cave",
@@ -123,6 +127,7 @@ const BASE_DEFS := {
 		"border": {"names": ["stalagmite", "stalagmite", "rock_a", "rock_b"], "step": 120, "rows": 2, "block": Vector2(44, 26), "tint": Color(0.6, 0.6, 0.75)},
 		"groups": [
 			["goblin_elite", Vector2(900, 400), 2], ["goblin_elite", Vector2(1100, 1250), 2], ["goblin_elite", Vector2(1800, 1200), 2],
+			["goblin_shield", Vector2(1300, 600), 2], ["soul_wisp", Vector2(1500, 1000), 3], ["soul_lord", Vector2(2000, 800), 1],
 		],
 		"qi": [{"pos": Vector2(1150, 820), "r": 200.0, "density": 6.0}],
 		"herbs": 12,
@@ -132,8 +137,88 @@ const BASE_DEFS := {
 			[Vector2(1100, 1250), 300.0, "Hốc đá nam"], [Vector2(1800, 1200), 300.0, "Động sâu"]],
 		"mm": Color(0.22, 0.24, 0.32),
 	},
+	"dp_vo_danh": {
+		"name": "Vô Danh Thạch Động", "tier": 2, "dong_phu": true, "size": Vector2(1400, 960), "music": "cave", "surface": "rock",
+		"entry": Vector2(200, 480),
+		"ground": Color(0.20, 0.20, 0.26), "ground2": Color(0.24, 0.23, 0.29), "path_col": Color(0.34, 0.32, 0.36), "rock_col": Color(0.18, 0.18, 0.22),
+		"tiles": "cave",
+		"path": [[Vector2(110, 480), Vector2(700, 480), Vector2(1250, 480)]], "path_w": 150.0,
+		"props": [
+			{"n": "rock_a", "count": 10, "block": Vector2(50, 26), "tint": Color(0.6, 0.6, 0.75)},
+			{"n": "rock_b", "count": 8, "block": Vector2(50, 26), "tint": Color(0.6, 0.6, 0.75)},
+			{"n": "stalagmite", "count": 10, "block": Vector2(36, 22)},
+		],
+		"border": {"names": ["stalagmite", "rock_a", "rock_b"], "step": 130, "rows": 2, "block": Vector2(44, 26), "tint": Color(0.6, 0.6, 0.75)},
+		"groups": [],
+		"qi": [{"pos": Vector2(1150, 480), "r": 150.0, "density": 4.0}],
+		"herbs": 0,
+		"safe": [[Vector2(200, 480), 150.0]],
+		"gates": [{"pos": Vector2(90, 480), "to": "soi_linh", "to_pos": Vector2(1900, 720), "label": "Ra khỏi động phủ", "tint": Color(0.8, 0.9, 1.0)}],
+		"areas": [[Vector2(200, 480), 180.0, "Cửa động"], [Vector2(450, 480), 200.0, "Phòng cấm chế"], [Vector2(850, 480), 180.0, "Hành lang bẫy"], [Vector2(1150, 480), 160.0, "Chính thất"]],
+		"mm": Color(0.28, 0.28, 0.34),
+	},
+	"dp_kiem_trung": {
+		"name": "Kiếm Trủng Chân Nhân", "tier": 10, "dong_phu": true, "size": Vector2(1800, 960), "music": "cave", "surface": "rock",
+		"entry": Vector2(200, 500),
+		"ground": Color(0.16, 0.20, 0.28), "ground2": Color(0.20, 0.24, 0.32), "path_col": Color(0.30, 0.34, 0.42), "rock_col": Color(0.16, 0.18, 0.24),
+		"tiles": "cave",
+		"path": [[Vector2(110, 500), Vector2(900, 500), Vector2(1700, 500)]], "path_w": 150.0,
+		"props": [
+			{"n": "xt_sword", "count": 14, "block": Vector2(36, 18), "tint": Color(0.7, 0.8, 1.0)},
+			{"n": "rock_a", "count": 8, "block": Vector2(50, 26), "tint": Color(0.55, 0.6, 0.8)},
+			{"n": "crystal", "count": 6, "block": Vector2(50, 26)},
+		],
+		"border": {"names": ["stalagmite", "rock_a", "rock_b"], "step": 130, "rows": 2, "block": Vector2(44, 26), "tint": Color(0.6, 0.6, 0.75)},
+		"groups": [],
+		"qi": [{"pos": Vector2(1620, 480), "r": 150.0, "density": 4.0}],
+		"herbs": 0,
+		"safe": [[Vector2(200, 500), 150.0]],
+		"gates": [{"pos": Vector2(90, 500), "to": "linh_mach_dong", "to_pos": Vector2(1700, 560), "label": "Ra khỏi động phủ", "tint": Color(0.8, 0.9, 1.0)}],
+		"areas": [[Vector2(200, 500), 180.0, "Cửa động"], [Vector2(760, 480), 260.0, "Phòng kiếm trận"], [Vector2(1130, 480), 200.0, "Hành lang bẫy"], [Vector2(1350, 480), 140.0, "Tâm kính"], [Vector2(1620, 480), 160.0, "Chính thất"]],
+		"mm": Color(0.26, 0.30, 0.42),
+	},
+	"dp_huyet_tri": {
+		"name": "Huyết Trì Cổ Phủ", "tier": 20, "dong_phu": true, "size": Vector2(1600, 1000), "music": "cave", "surface": "rock",
+		"entry": Vector2(200, 500),
+		"ground": Color(0.24, 0.12, 0.13), "ground2": Color(0.30, 0.15, 0.15), "path_col": Color(0.42, 0.22, 0.2), "rock_col": Color(0.2, 0.1, 0.12),
+		"tiles": "lava",
+		"path": [[Vector2(110, 500), Vector2(800, 500), Vector2(1550, 500)]], "path_w": 150.0,
+		"props": [
+			{"n": "rock_a", "count": 10, "block": Vector2(50, 26), "tint": Color(0.85, 0.55, 0.55)},
+			{"n": "rock_b", "count": 8, "block": Vector2(50, 26), "tint": Color(0.85, 0.55, 0.55)},
+			{"n": "stalagmite", "count": 8, "block": Vector2(36, 22), "tint": Color(0.95, 0.6, 0.6)},
+		],
+		"border": {"names": ["stalagmite", "rock_a", "rock_b"], "step": 130, "rows": 2, "block": Vector2(44, 26), "tint": Color(0.6, 0.6, 0.75)},
+		"groups": [],
+		"qi": [{"pos": Vector2(1480, 500), "r": 150.0, "density": 4.0}],
+		"herbs": 0,
+		"safe": [[Vector2(200, 500), 150.0]],
+		"gates": [{"pos": Vector2(90, 500), "to": "tieu_gioi", "to_pos": Vector2(1480, 1600), "label": "Ra khỏi động phủ", "tint": Color(0.8, 0.9, 1.0)}],
+		"areas": [[Vector2(200, 500), 180.0, "Cửa động"], [Vector2(720, 500), 220.0, "Huyết trì"], [Vector2(1100, 500), 240.0, "Sân khôi lỗi"], [Vector2(1480, 500), 160.0, "Chính thất"]],
+		"mm": Color(0.42, 0.2, 0.2),
+	},
+	"dp_thien_mach": {
+		"name": "Thiên Mạch Tiên Phủ", "tier": 22, "dong_phu": true, "size": Vector2(1600, 1000), "music": "sect", "surface": "rock",
+		"entry": Vector2(200, 500),
+		"ground": Color(0.55, 0.62, 0.72), "ground2": Color(0.62, 0.68, 0.78), "path_col": Color(0.78, 0.8, 0.88), "rock_col": Color(0.45, 0.5, 0.62),
+		"tiles": "cobble",
+		"path": [[Vector2(110, 500), Vector2(800, 500), Vector2(1450, 500)]], "path_w": 150.0,
+		"props": [
+			{"n": "crystal", "count": 10, "block": Vector2(50, 26), "tint": Color(0.8, 0.9, 1.0)},
+			{"n": "xt_sword", "count": 6, "block": Vector2(36, 18), "tint": Color(0.85, 0.9, 1.0)},
+			{"n": "rock_a", "count": 6, "block": Vector2(50, 26), "tint": Color(0.75, 0.8, 0.95)},
+		],
+		"border": {"names": ["stalagmite", "rock_a", "rock_b"], "step": 130, "rows": 2, "block": Vector2(44, 26), "tint": Color(0.6, 0.6, 0.75)},
+		"groups": [],
+		"qi": [{"pos": Vector2(1380, 500), "r": 150.0, "density": 4.0}],
+		"herbs": 0,
+		"safe": [[Vector2(200, 500), 150.0]],
+		"gates": [{"pos": Vector2(90, 500), "to": "tieu_gioi", "to_pos": Vector2(2240, 860), "label": "Ra khỏi động phủ", "tint": Color(0.8, 0.9, 1.0)}],
+		"areas": [[Vector2(200, 500), 180.0, "Cửa phủ"], [Vector2(800, 500), 240.0, "Gương Thiên Mạch"], [Vector2(1020, 500), 200.0, "Sân thử thách"], [Vector2(1380, 500), 160.0, "Chính thất"]],
+		"mm": Color(0.7, 0.76, 0.9),
+	},
 	"tieu_gioi": {
-		"name": "Tiểu Thế Giới", "war": true, "size": Vector2(4480, 3200), "music": "sect", "surface": "grass",
+		"name": "Tiểu Thế Giới", "tier": 22, "war": true, "size": Vector2(4480, 3200), "music": "sect", "surface": "grass",
 		"entry": Vector2(330, 2740),
 		"ground": Color(0.42, 0.62, 0.36), "ground2": Color(0.55, 0.62, 0.34), "path_col": Color(0.78, 0.66, 0.46), "rock_col": Color(0.52, 0.55, 0.52),
 		"tiles": "meadow",
@@ -202,6 +287,12 @@ static func _make_defs() -> Dictionary:
 	return out
 
 
+## Dựng lại định nghĩa map các tông sau khi người chơi đổi tông (sân tông của người chơi có bố cục riêng).
+static func refresh_sects() -> void:
+	for sid in SectWar.SECTS:
+		DEFS["sect_" + str(sid)] = _sect_def(str(sid))
+
+
 static func _sect_def(sid: String) -> Dictionary:
 	var h: Dictionary = SectWar.SECTS[sid]
 	var tc: Array = THEME_COLORS[h["theme"]]
@@ -215,11 +306,13 @@ static func _sect_def(sid: String) -> Dictionary:
 		var spine_y: float = door.y - 150.0
 		paths.append([Vector2(1800, spine_y), Vector2(door.x, spine_y), door])
 	var player := sid == SectWar.PLAYER
+	var own_tiles: String = str((SectAmbience.STYLES.get(sid, {}) as Dictionary).get("tiles", ""))
+	var themed: bool = own_tiles != "" and ResourceLoader.exists("res://assets/ground/%s_base_0.png" % own_tiles)
 	return {
-		"name": h["name"], "sect": sid, "size": COMPOUND_SIZE, "music": "cave" if h["theme"] == "cave" else "sect", "surface": "stone",
+		"name": h["name"], "tier": 24, "sect": sid, "size": COMPOUND_SIZE, "music": "cave" if h["theme"] == "cave" else "sect", "surface": "stone",
 		"entry": COMPOUND_ENTRY,
 		"ground": tc[0], "ground2": tc[1], "path_col": tc[2], "rock_col": tc[3],
-		"tiles": h["theme"], "path_theme": "cobble", "path_row": h["pave"],
+		"tiles": own_tiles if themed else h["theme"], "path_theme": own_tiles if themed else "cobble", "path_row": "path" if themed else h["pave"],
 		"path": paths, "path_w": 120.0,
 		"props": [], "groups": [], "herbs": 12 if player else 0,
 		"qi": [{"pos": Vector2(520, 800), "r": 300.0, "density": 6.0, "heal": true}] if player else [{"pos": Vector2(520, 800), "r": 260.0, "density": 3.0}],

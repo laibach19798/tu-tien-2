@@ -1,0 +1,442 @@
+{
+  "version": 1,
+  "balance_status": "Mốc thử nghiệm theo độ khó địa ngục: tái sinh tính theo NGÀY GAME (1 ngày = 360 giây), chậm hơn bản cũ (linh thảo từng mọc lại sau 90 giây).",
+  "classes": {
+    "renewable": "Tái sinh",
+    "scarce": "Khan hiếm",
+    "unique": "Độc nhất"
+  },
+  "kinds": {
+    "linh_thao": {
+      "name": "Linh thảo",
+      "class": "renewable",
+      "item": "linh_thao",
+      "amount": [
+        1,
+        1
+      ],
+      "regrow_days": 2,
+      "look": "herb",
+      "tint": [
+        0.85,
+        1.0,
+        0.65
+      ],
+      "element": "moc"
+    },
+    "thiet_tinh": {
+      "name": "Quặng thiết tinh",
+      "class": "renewable",
+      "item": "thiet_tinh",
+      "amount": [
+        1,
+        2
+      ],
+      "regrow_days": 4,
+      "look": "ore",
+      "tint": [
+        0.78,
+        0.84,
+        0.95
+      ],
+      "element": "kim"
+    },
+    "truc_linh": {
+      "name": "Trúc linh",
+      "class": "renewable",
+      "item": "truc_linh",
+      "amount": [
+        1,
+        2
+      ],
+      "regrow_days": 3,
+      "look": "herb",
+      "tint": [
+        0.55,
+        1.0,
+        0.7
+      ],
+      "element": "moc"
+    },
+    "han_thuy_thach": {
+      "name": "Hàn thủy thạch",
+      "class": "renewable",
+      "item": "han_thuy_thach",
+      "amount": [
+        1,
+        2
+      ],
+      "regrow_days": 4,
+      "look": "ore",
+      "tint": [
+        0.55,
+        0.78,
+        1.0
+      ],
+      "element": "thuy"
+    },
+    "xich_hoa_thach": {
+      "name": "Xích hỏa thạch",
+      "class": "renewable",
+      "item": "xich_hoa_thach",
+      "amount": [
+        1,
+        2
+      ],
+      "regrow_days": 4,
+      "look": "ore",
+      "tint": [
+        1.0,
+        0.55,
+        0.35
+      ],
+      "element": "hoa"
+    },
+    "hoang_tho_tinh": {
+      "name": "Hoàng thổ tinh",
+      "class": "renewable",
+      "item": "hoang_tho_tinh",
+      "amount": [
+        1,
+        2
+      ],
+      "regrow_days": 4,
+      "look": "ore",
+      "tint": [
+        0.9,
+        0.78,
+        0.45
+      ],
+      "element": "tho"
+    },
+    "ngan_nien_thao": {
+      "name": "Ngàn năm linh thảo",
+      "class": "scarce",
+      "item": "ngan_nien_thao",
+      "amount": [
+        1,
+        1
+      ],
+      "regrow_days": 15,
+      "look": "herb",
+      "tint": [
+        0.7,
+        0.95,
+        1.0
+      ],
+      "element": "moc",
+      "when": {
+        "night": true
+      },
+      "hint": "Chỉ hé lộ khi trời tối"
+    },
+    "linh_mach_tinh": {
+      "name": "Tinh thể linh mạch",
+      "class": "scarce",
+      "item": "linh_mach_tinh",
+      "amount": [
+        1,
+        1
+      ],
+      "regrow_days": 12,
+      "look": "crystal",
+      "tint": [
+        0.6,
+        0.95,
+        1.0
+      ],
+      "element": "kim",
+      "when": {
+        "min_day": 6
+      },
+      "hint": "Kết tinh sau nhiều ngày linh khí tụ lại"
+    },
+    "huyen_thiet": {
+      "name": "Huyền thiết",
+      "class": "scarce",
+      "item": "huyen_thiet",
+      "amount": [
+        1,
+        1
+      ],
+      "regrow_days": 24,
+      "look": "ore",
+      "tint": [
+        0.55,
+        0.5,
+        0.75
+      ],
+      "element": "kim",
+      "when": {
+        "min_day": 12
+      },
+      "hint": "Lộ ra khi vách đá đủ cũ"
+    },
+    "co_tu_di_vat": {
+      "name": "Di vật cổ tu",
+      "class": "unique",
+      "item": "co_tu_di_vat",
+      "amount": [
+        1,
+        1
+      ],
+      "regrow_days": 0,
+      "look": "relic",
+      "tint": [
+        1.0,
+        0.85,
+        0.5
+      ],
+      "element": "kim"
+    },
+    "linh_thao_quy": {
+      "name": "Linh thảo quý",
+      "class": "scarce",
+      "item": "ngan_nien_thao",
+      "amount": [
+        1,
+        2
+      ],
+      "regrow_days": 0,
+      "look": "herb",
+      "tint": [
+        0.7,
+        0.95,
+        1.0
+      ],
+      "element": "moc",
+      "event_only": true
+    }
+  },
+  "maps": {
+    "overworld": [
+      {
+        "kind": "thiet_tinh",
+        "count": 5,
+        "rects": [
+          [
+            2700,
+            300,
+            1300,
+            1300
+          ],
+          [
+            300,
+            1950,
+            1900,
+            780
+          ]
+        ]
+      },
+      {
+        "kind": "truc_linh",
+        "count": 5,
+        "rects": [
+          [
+            1350,
+            250,
+            450,
+            400
+          ],
+          [
+            2700,
+            300,
+            1300,
+            1300
+          ]
+        ]
+      },
+      {
+        "kind": "hoang_tho_tinh",
+        "count": 4,
+        "rects": [
+          [
+            150,
+            300,
+            1200,
+            1400
+          ],
+          [
+            300,
+            1950,
+            1900,
+            780
+          ]
+        ]
+      },
+      {
+        "kind": "ngan_nien_thao",
+        "count": 2,
+        "rects": [
+          [
+            2700,
+            300,
+            1300,
+            1300
+          ]
+        ]
+      },
+      {
+        "kind": "linh_mach_tinh",
+        "count": 2,
+        "rects": [
+          [
+            3000,
+            2000,
+            900,
+            600
+          ]
+        ]
+      },
+      {
+        "kind": "co_tu_di_vat",
+        "count": 1,
+        "rects": [
+          [
+            2800,
+            600,
+            500,
+            500
+          ]
+        ]
+      },
+      {
+        "kind": "thiet_tinh",
+        "count": 3,
+        "rects": [
+          [
+            900,
+            2300,
+            800,
+            500
+          ]
+        ],
+        "owner": "kiem_tong"
+      }
+    ],
+    "soi_linh": [
+      {
+        "kind": "truc_linh",
+        "count": 4
+      },
+      {
+        "kind": "thiet_tinh",
+        "count": 3
+      },
+      {
+        "kind": "hoang_tho_tinh",
+        "count": 3
+      }
+    ],
+    "dam_lay": [
+      {
+        "kind": "han_thuy_thach",
+        "count": 5
+      },
+      {
+        "kind": "ngan_nien_thao",
+        "count": 2
+      },
+      {
+        "kind": "truc_linh",
+        "count": 3
+      }
+    ],
+    "tuyet_coc": [
+      {
+        "kind": "han_thuy_thach",
+        "count": 5
+      },
+      {
+        "kind": "thiet_tinh",
+        "count": 3
+      },
+      {
+        "kind": "huyen_thiet",
+        "count": 1
+      }
+    ],
+    "linh_mach_dong": [
+      {
+        "kind": "thiet_tinh",
+        "count": 6
+      },
+      {
+        "kind": "linh_mach_tinh",
+        "count": 3
+      },
+      {
+        "kind": "huyen_thiet",
+        "count": 2
+      },
+      {
+        "kind": "co_tu_di_vat",
+        "count": 1
+      }
+    ],
+    "tieu_gioi": [
+      {
+        "kind": "xich_hoa_thach",
+        "count": 5
+      },
+      {
+        "kind": "hoang_tho_tinh",
+        "count": 4
+      },
+      {
+        "kind": "huyen_thiet",
+        "count": 2
+      },
+      {
+        "kind": "linh_mach_tinh",
+        "count": 2
+      },
+      {
+        "kind": "xich_hoa_thach",
+        "count": 3,
+        "rects": [
+          [
+            1150,
+            700,
+            400,
+            400
+          ]
+        ],
+        "territory": "t_hoa_tinh"
+      },
+      {
+        "kind": "han_thuy_thach",
+        "count": 3,
+        "rects": [
+          [
+            1500,
+            320,
+            400,
+            400
+          ]
+        ],
+        "territory": "t_bang_tuyen"
+      },
+      {
+        "kind": "hoang_tho_tinh",
+        "count": 2,
+        "rects": [
+          [
+            1050,
+            1200,
+            400,
+            400
+          ]
+        ],
+        "territory": "t_dia_hoa"
+      }
+    ]
+  },
+  "permit": {
+    "fee": 25,
+    "days": 3,
+    "caught_chance": 0.45,
+    "fine": 30,
+    "duyen_penalty": 1
+  }
+}

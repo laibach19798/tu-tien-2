@@ -84,12 +84,15 @@ func _build_card() -> void:
 	row.add_child(_time)
 
 
-func update_status(c: Cultivation, meditating: bool, density: float) -> void:
+func update_status(c: Cultivation, meditating: bool, density: float, flying_text := "") -> void:
 	_realm.set_text("%s · Tầng %d" % [Cultivation.REALMS[c.realm], c.layer])
 	_xp.set_value(c.xp, c.xp_needed())
 	_qi.set_value(c.qi, c.qi_max())
 	_medal.set_info(c.realm, c.layer, c.xp / maxf(c.xp_needed(), 1.0), c.ready_breakthrough, meditating)
-	if meditating:
+	if flying_text != "":
+		_state.text = flying_text
+		_state.add_theme_color_override("font_color", Color(0.7, 0.92, 1.0))
+	elif meditating:
 		_state.text = "Đang tu luyện (linh mạch x%.0f)" % density if density > 1.0 else "Đang tu luyện…"
 		_state.add_theme_color_override("font_color", UIKit.JADE)
 	elif c.ready_breakthrough:
@@ -176,6 +179,12 @@ func build_skillbar(skills: Array) -> void:
 		_slots.append(slot)
 
 
+## Cập nhật tên/chi phí các ô chiêu sau khi đổi công thức.
+func refresh_skillbar(skills: Array) -> void:
+	for i in mini(skills.size(), _slots.size()):
+		_slots[i].set_info(skills[i])
+
+
 func update_skills(infos: Array) -> void:
 	for i in mini(infos.size(), _slots.size()):
 		var info: Dictionary = infos[i]
@@ -255,7 +264,7 @@ func _build_hints() -> void:
 	box.modulate = Color(1, 1, 1, 0.82)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(box)
-	for h in [["WASD", "Di chuyển"], ["Shift", "Chạy"], ["F", "Thiền"], ["B", "Đột phá"], ["E", "Tương tác"], ["P", "Nhân vật"], ["Q", "Nhiệm vụ"], ["O", "Sưu tầm"], ["M", "Bản đồ"], ["I", "Túi đồ"], ["C", "Tủ đồ"], ["T", "Tua thời gian"], ["Esc", "Tạm dừng"]]:
+	for h in [["WASD", "Di chuyển"], ["Shift", "Chạy"], ["F", "Thiền"], ["B", "Đột phá"], ["E", "Tương tác"], ["P", "Nhân vật"], ["Y", "Tu luyện"], ["Q", "Nhiệm vụ"], ["H", "Sư môn"], ["O", "Sưu tầm"], ["L", "Nhật ký"], ["M", "Bản đồ"], ["I", "Túi đồ"], ["C", "Tủ đồ"], ["X", "Phi hành"], ["T", "Tua thời gian"], ["Esc", "Tạm dừng"]]:
 		box.add_child(UIKit.KeyCap.new(h[0], h[1], 12))
 
 

@@ -56,11 +56,13 @@ func _process(_delta: float) -> bool:
 	var xp0: float = main.cult.xp
 	var cost: int = main._scripture_cost()
 	main._study_scripture()
+	ok = ok and main.scripture_game.visible and main.inv.stones == 5000 - cost
+	main.scripture_game.test_finish(10)   # mini game Đọc kinh: kết quả hoàn hảo
 	print("tham ngộ: tốn ", 5000 - main.inv.stones, " (dự kiến ", cost, "), tu vi ", xp0, " -> ", main.cult.xp)
 	ok = ok and main.inv.stones == 5000 - cost and main.cult.xp > xp0
 	main.inv.stones = 0
 	main._study_scripture()
-	ok = ok and main.inv.stones == 0
+	ok = ok and main.inv.stones == 0 and not main.scripture_game.visible
 	# 5) Trận Pháp Đường: có lựa chọn truyền tống tới các địa bàn đang giữ
 	var opts: Array = main._menu_options("array_master")
 	var tp := 0

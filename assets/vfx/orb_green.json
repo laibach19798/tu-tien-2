@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "xc-orb-green 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 1.png",
+   "frame": {
+    "x": 103,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 2.png",
+   "frame": {
+    "x": 206,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 3.png",
+   "frame": {
+    "x": 0,
+    "y": 47,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 4.png",
+   "frame": {
+    "x": 103,
+    "y": 47,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 5.png",
+   "frame": {
+    "x": 206,
+    "y": 47,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 6.png",
+   "frame": {
+    "x": 0,
+    "y": 94,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-orb-green 7.png",
+   "frame": {
+    "x": 103,
+    "y": 94,
+    "w": 103,
+    "h": 47
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 103,
+    "h": 47
+   },
+   "sourceSize": {
+    "w": 103,
+    "h": 47
+   },
+   "pivot": {
+    "x": 0.7669902912621359,
+    "y": 0.48936170212765956
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-orb-green.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 309,
+   "h": 141
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 79,
+   "y": 23
+  },
+  "frameTags": [
+   {
+    "name": "xc-orb-green",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

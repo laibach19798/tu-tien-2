@@ -133,6 +133,8 @@ func _fill_detail() -> void:
 	var eff := ""
 	if d.has("qi"):
 		eff = "Hồi %d linh khí" % int(d["qi"])
+	elif d.has("xp_frac"):
+		eff = "Tăng %d%% tu vi của tầng đang tu" % roundi(float(d["xp_frac"]) * 100.0)
 	elif d.has("xp"):
 		eff = "Tăng %d tu vi" % int(d["xp"])
 	elif d.has("hp"):

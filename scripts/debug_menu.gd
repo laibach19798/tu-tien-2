@@ -146,6 +146,44 @@ func _build() -> void:
 		[_t("Hiện FPS/toạ độ", _show_info), func(): _show_info = not _show_info; _build()],
 		["Lưu ô tự động", func(): main.save_to_slot(0)],
 	])
+	_section("Pháp & bí tịch (V1)", [
+		["Nhận mọi bí tịch", func(): _v1_all()],
+		["Xoá hồi chiêu", func(): _v1_reset()],
+		["Trạng thái lên quái", func(): _status_on_monsters()],
+		["Buff lên mình", func(): _buffs_self()],
+	])
+	_section("Xem hiệu ứng chiêu (tung tại chỗ, hướng quái gần nhất)", _fx_buttons())
+	_section("Quái (mọi loài)", _kind_buttons() + [
+		["Tinh anh: Yêu quái", func(): _spawn_elite("goblin")],
+		["Tinh anh: Sói", func(): _spawn_elite("wolf")],
+		["Tinh anh: Cuồng lang", func(): _spawn_elite("wolf_charger")],
+	])
+	_section("NPC tông môn có chiêu (đối địch)", _sect_buttons())
+	_section("NPC có tên: giao đấu thử (bộ pháp V1 thật)", _npc_duel_buttons() + [
+		["In hồ sơ NPC vào console", func(): _print_npc_profiles()],
+	])
+	_section("Thế giới mở (đại vực)", [
+		["Phi hành: mở khoá thử (không cần Trúc Cơ)", func(): main.flight.debug_unlock = true; _toast("Đã mở khoá phi hành (phím X)")],
+		["Phát hiện mọi địa điểm", func(): _world_all(World.DISCOVERED)],
+		["Mọi nơi thành tin đồn", func(): _world_all(World.RUMOR)],
+		["Xoá hết khám phá", func(): _world_reset()],
+		["Thêm một tin đồn", func(): main.province._daily_force()],
+		["Mở bản đồ đại vực (R)", func(): close_menu(); main.journal.open_ui("world")],
+		["Sự kiện: động phủ cổ tu", func(): _event("co_tu_dong_phu")],
+		["Sự kiện: thương đội nạn", func(): _event("thuong_doi_nan")],
+		["Sự kiện: linh thảo quý", func(): _event("linh_thao_quy")],
+		["Sự kiện: yêu thú tinh anh", func(): _event("yeu_thu_tinh_anh")],
+		["Sự kiện: đệ tử xung đột", func(): _event("xung_dot_de_tu")],
+		["Sự kiện: linh mạch động", func(): _event("linh_mach_bien_dong")],
+		["Tua 10 ngày (NPC làm việc)", func(): main.sect_life.day += 10; _toast("Đã tua 10 ngày game")],
+		["Đưa mọi NPC về map này", func(): _npcs_here()],
+		["Tài nguyên mọc lại hết", func(): main.resources.states.clear(); _toast("Mọi điểm khai thác đã mọc lại")],
+		["+1 ngày game", func(): main.sect_life.day += 1; _toast("Đã tua 1 ngày game")],
+	])
+	_section("Cơ duyên & động phủ", [
+		["+10 duyên", func(): main.destiny.duyen = minf(100.0, float(main.destiny.duyen) + 10.0); _toast("Duyên: %d" % int(main.destiny.duyen))],
+		["Gọi cơ duyên ngẫu nhiên", func(): _roll_destiny()],
+	] + _destiny_buttons() + _dong_phu_buttons())
 	var close := Button.new()
 	close.text = "Đóng"
 	close.focus_mode = Control.FOCUS_NONE
@@ -317,3 +355,249 @@ func _reset_quests() -> void:
 	q.meditate_time = 0.0
 	q.changed.emit()
 	_toast("Đã đặt lại nhiệm vụ")
+
+
+# ---------------------------------------------------------------- V1, quái, NPC, cơ duyên
+func _v1_defs() -> Array:
+	var catalog = preload("res://scripts/v1/catalog.gd")
+	var all: Array = catalog.data().books.duplicate()
+	var eq = catalog.data().equipment
+	all.append_array(eq if eq is Array else eq.values())
+	return all
+
+
+func _v1_all() -> void:
+	var rt = main.cultivation_v1
+	var n := 0
+	for d in _v1_defs():
+		var uid: String = rt.state.acquire(str(d["id"]), "debug", "linh")
+		if uid != "":
+			rt.state.learn(uid)
+			n += 1
+	rt.state.changed.emit()
+	_toast("Đã nhận %d bí tịch/trang bị (Y → Bí tịch để trang bị)" % n)
+
+
+func _v1_reset() -> void:
+	var rt = main.cultivation_v1
+	for k in rt.engine.cooldowns:
+		rt.engine.cooldowns[k] = 0.0
+	main.cult.qi = main.cult.qi_max()
+	main.cult.changed.emit()
+	_toast("Đã xoá hồi chiêu, đầy linh khí")
+
+
+func _nearest_monsters(n: int) -> Array:
+	var p: Vector2 = main.player.position
+	var list: Array = []
+	for m in main.monsters:
+		if is_instance_valid(m) and m.alive:
+			list.append(m)
+	list.sort_custom(func(a, b): return a.position.distance_squared_to(p) < b.position.distance_squared_to(p))
+	return list.slice(0, n)
+
+
+func _status_on_monsters() -> void:
+	var rt = main.cultivation_v1
+	var all := ["kiem_an", "hon_an", "bleed", "burn", "slow", "armor_break", "weaken"]
+	var n := 0
+	for m in _nearest_monsters(4):
+		var held := {}
+		for i in all.size():
+			if (i + n) % 2 == 0 or i < 3:
+				held[all[i]] = {"stacks": 1 + (i + n) % 4, "remaining": 12.0, "tick": 999.0, "source": {}}
+		var id := str(m.get_instance_id())
+		rt.engine.statuses[id] = held
+		rt._target_nodes[id] = m
+		n += 1
+	_toast("Đã gắn trạng thái lên %d quái (12 giây)" % n if n > 0 else "Không có quái gần để gắn")
+	close_menu()
+
+
+func _buffs_self() -> void:
+	var rt = main.cultivation_v1
+	var held := {}
+	for sid in ["guard", "surge", "discount", "steadfast"]:
+		held[sid] = {"stacks": 2, "remaining": 15.0, "tick": 999.0, "source": {}}
+	rt.engine.statuses["player"] = held
+	_toast("Đã gắn buff lên người (15 giây)")
+	close_menu()
+
+
+func _fx_buttons() -> Array:
+	var out: Array = []
+	for d in _v1_defs():
+		if d.has("shape"):
+			var def: Dictionary = d
+			out.append([str(def.get("name", def["id"])), func(): _fx(def)])
+	return out
+
+
+func _fx(def: Dictionary) -> void:
+	var near := _nearest_monsters(3)
+	var aim: Vector2 = Dir.to_vector(main.direction)
+	if not near.is_empty():
+		aim = ((near[0].position as Vector2) - main.player.position).normalized()
+	close_menu()
+	SkillFx.cast(main, def, aim, near)
+	SkillFx.body_motion(main, def, aim)
+
+
+func _kind_buttons() -> Array:
+	var out: Array = []
+	for id in Monster.KINDS:
+		var kid := str(id)
+		out.append([str(Monster.KINDS[id].get("name", kid)), func(): _spawn(kid)])
+	return out
+
+
+func _spawn_elite(kind: String) -> void:
+	var m := Monster.new()
+	m.setup(main, kind, main.player.position + Dir.to_vector(main.direction) * 130.0)
+	m.tier = maxi(m.tier, Hell.ELITE_MIN_TIER)
+	var tries := 0
+	while not m.elite and tries < 400:
+		MonsterBehaviors._roll_elite(m)
+		tries += 1
+	main.world.add_child(m)
+	main.monsters.append(m)
+	_toast("Tinh anh: %s" % MonsterBehaviors.elite_name(m) if m.elite else "Không roll được tinh anh")
+	close_menu()
+
+
+func _sect_buttons() -> Array:
+	var out: Array = []
+	for sid in SectWar.SECTS:
+		var s := str(sid)
+		var nm := str(SectWar.SECTS[sid]["name"])
+		for k in [["sect_disciple", "Đệ tử"], ["sect_elder", "Trưởng lão"], ["sect_master", "Tông chủ"]]:
+			var kind := str(k[0])
+			out.append(["%s %s" % [k[1], nm], func(): _sect_npc(s, kind)])
+	return out
+
+
+## Mỗi NPC có tên một nút: gọi họ ra giao đấu ngay trước mặt, mang đúng chiêu và thủ pháp theo hồ sơ V1 (không để lại hậu quả).
+func _npc_duel_buttons() -> Array:
+	var out: Array = []
+	var nw = main.npc_world
+	if nw == null:
+		return out
+	for id in nw.agent_ids():
+		var nid := str(id)
+		var style := str(NpcProfile.STYLES.get(nw.style_of(nid), ""))
+		out.append(["%s · b%d · %s" % [nw.display_name(nid), nw.step_of(nid), style], func(): _duel_npc(nid)])
+	return out
+
+
+func _duel_npc(id: String) -> void:
+	var nw = main.npc_world
+	if nw == null:
+		return
+	nw._duel_tick(0)
+	if nw.start_duel(id, "debug"):
+		_toast("%s ra giao đấu (thử)" % nw.display_name(id))
+		close_menu()
+	else:
+		_toast("Không dựng được trận (đang có trận khác hoặc bản đồ chiến sự)")
+
+
+func _print_npc_profiles() -> void:
+	var nw = main.npc_world
+	if nw == null:
+		return
+	for id in nw.agent_ids():
+		var p = nw.profile_of(str(id))
+		print("NPC %s | bậc %d | %s | %s | %s" % [nw.display_name(str(id)), nw.step_of(str(id)), ", ".join(NpcProfile.trait_words(nw.traits_of(str(id)))), str(NpcProfile.STYLES.get(nw.style_of(str(id)), "")), "; ".join(NpcProfile.loadout_text(p))])
+	_toast("Đã in hồ sơ %d NPC vào console" % nw.agent_ids().size())
+
+
+func _sect_npc(sid: String, kind: String) -> void:
+	var p: Vector2 = main.player.position + Dir.to_vector(main.direction) * 220.0
+	MapBuilder.spawn_one(main, sid, kind, p, "", true)
+	close_menu()
+
+
+func _event(tpl: String) -> void:
+	var e: Dictionary = main.events.spawn(tpl, int(main.sect_life.day))
+	if e.is_empty():
+		_toast("Chưa đủ điều kiện sinh sự kiện này")
+		return
+	_toast("Sự kiện %s ở %s" % [str(main.events.tpl(tpl).get("name", "")), main.province.display_name(str(e["loc"]))])
+
+
+func _npcs_here() -> void:
+	var loc: String = main.province.location_at(str(main.current_map), main.player.position)
+	if loc == "":
+		_toast("Chỗ này chưa thuộc địa điểm nào")
+		return
+	for id in main.npc_world.states:
+		main.npc_world.states[id]["loc"] = loc
+		main.npc_world.states[id]["status"] = "ok"
+	main.npc_world._dirty = true
+	_toast("Các NPC đã tới %s" % main.province.display_name(loc))
+	close_menu()
+
+
+func _world_all(state: String) -> void:
+	var w: World = main.province
+	for id in w.locations():
+		var sid := str(id)
+		if state == World.DISCOVERED:
+			w.discover(sid, "thử nghiệm")
+		elif w.state_of(sid) == World.UNKNOWN:
+			w.add_rumor(sid, "", "thử nghiệm", "medium")
+	_toast("Đã đặt trạng thái khám phá")
+
+
+func _world_reset() -> void:
+	var w: World = main.province
+	w.states.clear()
+	w.rumors.clear()
+	w.log.clear()
+	w._apply_defaults()
+	w.changed.emit()
+	_toast("Đã xoá khám phá (giữ nơi khởi đầu)")
+
+
+func _roll_destiny() -> void:
+	main.destiny._roll(false)
+	close_menu()
+
+
+func _destiny_buttons() -> Array:
+	var out: Array = []
+	for id in main.destiny.encounters():
+		var eid := str(id)
+		var e: Dictionary = main.destiny.encounters()[id]
+		if str(e.get("kind", "")) == "gate":
+			continue
+		out.append(["Cơ duyên: " + str(e.get("name", eid)), func(): _spawn_destiny(eid)])
+	return out
+
+
+func _spawn_destiny(id: String) -> void:
+	var p: Vector2 = main.player.position + Dir.to_vector(main.direction) * 110.0
+	main.destiny._spawn(id, p, true)
+	close_menu()
+
+
+func _dong_phu_buttons() -> Array:
+	var out: Array = []
+	for id in main.destiny.dong_phu():
+		var did := str(id)
+		out.append(["Động phủ: " + str(main.destiny.dong_phu()[id].get("name", did)), func(): _dong_phu(did)])
+	return out
+
+
+## Đủ mảnh bản đồ rồi đưa tới vùng có cổng động phủ (cổng tự hiện khi đủ mảnh).
+func _dong_phu(id: String) -> void:
+	var info: Dictionary = main.destiny.dong_phu().get(id, {})
+	if info.is_empty():
+		return
+	main.destiny.fragments[id] = int(info["fragments"])
+	var region := str(info["region"])
+	if Maps.DEFS.has(region):
+		main.switch_map_now(region, Maps.DEFS[region]["entry"])
+	main.destiny._spawn_gate_if_here()
+	_toast("Đã đủ mảnh: tìm cổng động phủ trong vùng này")
+	close_menu()

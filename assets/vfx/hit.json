@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "xc-hit 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 1.png",
+   "frame": {
+    "x": 95,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 2.png",
+   "frame": {
+    "x": 190,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 3.png",
+   "frame": {
+    "x": 0,
+    "y": 88,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 4.png",
+   "frame": {
+    "x": 95,
+    "y": 88,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 5.png",
+   "frame": {
+    "x": 190,
+    "y": 88,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 6.png",
+   "frame": {
+    "x": 0,
+    "y": 176,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  },
+  {
+   "filename": "xc-hit 7.png",
+   "frame": {
+    "x": 95,
+    "y": 176,
+    "w": 95,
+    "h": 88
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 95,
+    "h": 88
+   },
+   "sourceSize": {
+    "w": 95,
+    "h": 88
+   },
+   "pivot": {
+    "x": 0.4842105263157895,
+    "y": 0.5113636363636364
+   },
+   "duration": 63
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-hit.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 285,
+   "h": 264
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 46,
+   "y": 45
+  },
+  "frameTags": [
+   {
+    "name": "xc-hit",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

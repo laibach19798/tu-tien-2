@@ -27,10 +27,6 @@ const AREAS := [
 	[Vector2(1560, 430), 190.0, "Rừng tre (linh mạch)"],
 	[Vector2(2330, 1250), 190.0, "Góc đông nam (linh mạch)"],
 	[Vector2(340, 1550), 260.0, "Ruộng rau"],
-	[Vector2(330, 760), 280.0, "Vùng sói phía tây"],
-	[Vector2(1450, 1620), 280.0, "Vùng sói phía nam"],
-	[Vector2(2250, 980), 280.0, "Vùng yêu quái phía đông"],
-	[Vector2(520, 430), 280.0, "Vùng yêu quái tây bắc"],
 	[Vector2(1290, 2250), 150.0, "Cổng Kiếm Tông"],
 	[Vector2(1290, 2500), 330.0, "Sân Kiếm Tông"],
 	[Vector2(1290, 2000), 220.0, "Đường lên cổng núi"],
@@ -39,11 +35,10 @@ const AREAS := [
 	[Vector2(3300, 1250), 170.0, "Suối linh (linh mạch)"],
 	[Vector2(3300, 850), 700.0, "Hắc Lâm"],
 	[Vector2(3520, 2350), 320.0, "Hang Linh Mạch"],
-	[Vector2(420, 2330), 280.0, "Vùng sói phía tây nam"],
-	[Vector2(3300, 440), 260.0, "Vùng hắc lang"],
-	[Vector2(3650, 1150), 260.0, "Vùng hắc lang nam"],
-	[Vector2(3050, 1420), 240.0, "Vùng yêu tướng"],
 ]
+
+# dời nhãn cổng khỏi tên vùng gần đó cho khỏi đè chữ
+const GATE_LABEL_SHIFT := {"tieu_gioi": Vector2(-130, 14), "tuyet_coc": Vector2(-30, -36), "linh_mach_dong": Vector2(-20, -40)}
 
 var main: Node
 var _tex: ImageTexture
@@ -54,6 +49,7 @@ var _full_root: Control
 var _full: FullView
 var full_open := false
 var _full_title: UIKit.Banner
+var _legend_monster: Control   # dòng chú giải "Vùng yêu thú": chỉ hiện ở map có quái
 
 
 func _ready() -> void:
@@ -65,7 +61,13 @@ func is_full_open() -> bool:
 
 
 func _areas() -> Array:
-	return AREAS if main.current_map == "overworld" else main.map_def["areas"]
+	if main.current_map != "overworld":
+		return main.map_def["areas"]
+	# Thế giới gốc không còn quái: vùng sói / yêu quái nay là các map phụ, chỉ còn tên các cổng dịch chuyển dẫn tới đó.
+	var out: Array = AREAS.duplicate()
+	for g in Maps.OVERWORLD_GATES:
+		out.append([(g["pos"] as Vector2) + GATE_LABEL_SHIFT.get(str(g["to"]), Vector2.ZERO), 150.0, "Cổng " + str(g["label"])])
+	return out
 
 
 func area_name(p: Vector2) -> String:
@@ -157,6 +159,8 @@ func build() -> void:
 		_local.offset_right = -14.0
 		_local.offset_bottom = -14.0
 		_build_full()
+	if _legend_monster != null:
+		_legend_monster.visible = main.current_map != "overworld"
 	_full_title.set_text("Bản Đồ Làng" if main.current_map == "overworld" else "Bản Đồ %s" % str(main.map_def["name"]))
 	_full.custom_minimum_size = Vector2((_img_w - PAD * 2) * FULL_SCALE, (_img_h - PAD * 2) * FULL_SCALE)
 	_local.queue_redraw()
@@ -241,6 +245,8 @@ func _paint_prop(img: Image, e: Dictionary) -> void:
 func markers(include_monsters: bool, range_from := Vector2.ZERO, range_r := 0.0) -> Array:
 	var out: Array = []
 	for n in main.npcs:
+		if not n.visible:
+			continue
 		var col := Color(0.95, 0.95, 0.85)
 		var mk: String = n._marker.text if n._marker != null and n._marker.visible else ""
 		if mk == "!":
@@ -300,6 +306,8 @@ func _build_full() -> void:
 		row.add_child(sw)
 		row.add_child(UIKit.label(lg[1], 15, UIKit.PAPER))
 		side.add_child(row)
+		if lg[0] == "monster":
+			_legend_monster = row
 	var grow := Control.new()
 	grow.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	side.add_child(grow)
@@ -460,11 +468,11 @@ class FullView extends Control:
 			_ell(c, 170.0 * k, 110.0 * k, Color(UIKit.RED, 0.22))
 		for a in mm._areas():
 			var nm: String = a[2]
-			if main.current_map != "overworld" or nm in ["Quảng trường", "Sân luyện kiếm", "Khu chợ", "Tiệm may", "Ruộng rau", "Ao sen (linh mạch)", "Rừng tre (linh mạch)", "Cổng Kiếm Tông", "Sân Kiếm Tông", "Trại ẩn sĩ", "Hang ổ Hắc Lang Vương", "Hắc Lâm", "Hang Linh Mạch", "Suối linh (linh mạch)"] or nm.begins_with("Vùng"):
+			if main.current_map != "overworld" or nm in ["Quảng trường", "Sân luyện kiếm", "Khu chợ", "Tiệm may", "Ruộng rau", "Ao sen (linh mạch)", "Rừng tre (linh mạch)", "Cổng Kiếm Tông", "Sân Kiếm Tông", "Trại ẩn sĩ", "Hang ổ Hắc Lang Vương", "Hắc Lâm", "Hang Linh Mạch", "Suối linh (linh mạch)"] or nm.begins_with("Cổng ") or nm.begins_with("Vùng"):
 				nm = nm.replace(" (linh mạch)", "")
 				var pos: Vector2 = a[0] * k
 				var tw := f.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
-				var col := UIKit.RED.lightened(0.3) if nm.begins_with("Vùng") else UIKit.PAPER
+				var col := UIKit.RED.lightened(0.3) if nm.begins_with("Vùng") else (Color(0.6, 0.95, 1.0) if nm.begins_with("Cổng ") and nm != "Cổng Kiếm Tông" else UIKit.PAPER)
 				UIKit.shadow_text(self, f, Vector2(clampf(pos.x - tw * 0.5, 2.0, size.x - tw - 2.0), pos.y), nm, 16, col)
 		for m in mm.markers(false):
 			var v: Vector2 = (m["p"] * k).floor()

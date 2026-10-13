@@ -1,0 +1,287 @@
+{
+ "frames": [
+  {
+   "filename": "xc-summon 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 1.png",
+   "frame": {
+    "x": 100,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 2.png",
+   "frame": {
+    "x": 200,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 3.png",
+   "frame": {
+    "x": 300,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 4.png",
+   "frame": {
+    "x": 0,
+    "y": 156,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 5.png",
+   "frame": {
+    "x": 100,
+    "y": 156,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 6.png",
+   "frame": {
+    "x": 200,
+    "y": 156,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 7.png",
+   "frame": {
+    "x": 300,
+    "y": 156,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 8.png",
+   "frame": {
+    "x": 0,
+    "y": 312,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-summon 9.png",
+   "frame": {
+    "x": 100,
+    "y": 312,
+    "w": 100,
+    "h": 156
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 156
+   },
+   "sourceSize": {
+    "w": 100,
+    "h": 156
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.8589743589743589
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-summon.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 400,
+   "h": 468
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 50,
+   "y": 134
+  },
+  "frameTags": [
+   {
+    "name": "xc-summon",
+    "from": 0,
+    "to": 9,
+    "direction": "forward"
+   }
+  ]
+ }
+}

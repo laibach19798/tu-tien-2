@@ -1,0 +1,35 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Failed to read the root certificate store.
+   at: get_system_ca_certificates (platform/windows/os_windows.cpp:2582)
+PASS runtime initialized in real main scene
+PASS fresh game needs origin confirmation
+PASS creation equips exactly 3 books + 3 items
+PASS J active technique damages actual training target
+PASS legacy quest hit adapter still works
+PASS real incoming attack triggers perfect dodge before damage
+PASS real cast: 45→36, pearl not triggered
+PASS dash cannot tunnel through collision at low FPS
+PASS artifact main input creates summon
+PASS summon pays actual upkeep
+PASS summon ends when unable to maintain
+PASS cannot buy remotely
+PASS foreign book acquired through merchant
+PASS foreign book learned and equipped in live game
+PASS inner books respect existing exam gate
+PASS inner exam unlocks library access
+PASS merit buys sect scripture
+PASS NPC grants foreign book once
+PASS ruin produces repeatable fragment without random progression lock
+PASS T13 tooltip shows provenance, costs and effect conditions
+PASS UI page origin
+PASS UI page loadout
+PASS UI page books
+PASS UI page gear
+PASS UI page acquire
+PASS UI page log
+PASS disk save writes V1 schema
+PASS disk save reloads
+PASS disk load preserves every V1 instance and origin
+PASS five rank definitions
+V1 INTEGRATION: 30 checks, 0 failures

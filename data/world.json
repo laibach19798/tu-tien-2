@@ -1,0 +1,717 @@
+{
+  "version": 1,
+  "province": {
+    "name": "Thanh Vân Châu",
+    "intro": "Một châu nhỏ nơi năm đại phái và các vùng hoang dã giao nhau.",
+    "map": [
+      1000,
+      640
+    ]
+  },
+  "balance": {
+    "rumor_chance_per_day": 0.25,
+    "rumor_log_limit": 80,
+    "reliability": {
+      "high": 0.25,
+      "medium": 0.5,
+      "low": 0.25
+    }
+  },
+  "danger_names": [
+    "An toàn",
+    "Thấp",
+    "Vừa",
+    "Cao",
+    "Rất cao",
+    "Chết người"
+  ],
+  "qi_names": [
+    "Cạn kiệt",
+    "Mỏng",
+    "Bình thường",
+    "Dồi dào",
+    "Nồng đậm",
+    "Cực thịnh"
+  ],
+  "element_names": {
+    "kim": "Kim",
+    "moc": "Mộc",
+    "thuy": "Thủy",
+    "hoa": "Hỏa",
+    "tho": "Thổ"
+  },
+  "locations": {
+    "van_khe": {
+      "name": "Làng Vân Khê",
+      "kind": "city",
+      "pos": [
+        400,
+        235
+      ],
+      "map": "overworld",
+      "at": [
+        1280,
+        900
+      ],
+      "r": 650,
+      "doc": "Vân Khê Thành",
+      "role": "Trung tâm dân cư: thương nhân, thợ may, lò luyện đan, NPC và tin tức.",
+      "intro": "Ngôi làng nằm giữa các đường mòn, nơi mọi tin đồn đều ghé qua.",
+      "qi": {
+        "level": 2,
+        "element": "tho"
+      },
+      "danger": 0,
+      "signs": [
+        "Có người canh giữ, không có yêu thú"
+      ],
+      "resources": [
+        "Linh thảo ven ruộng",
+        "Nước suối"
+      ],
+      "start": "discovered",
+      "arrive": [
+        1280,
+        1000
+      ]
+    },
+    "kiem_tong_ngoai": {
+      "name": "Thung lũng Kiếm Tông",
+      "kind": "sect",
+      "pos": [
+        400,
+        440
+      ],
+      "map": "overworld",
+      "at": [
+        1290,
+        2500
+      ],
+      "r": 520,
+      "doc": "Kiếm Tông — Ngoại viện",
+      "role": "Nhập môn, học pháp, nhận nhiệm vụ, công huân và Tàng Kinh Các cấp đầu.",
+      "intro": "Cổng núi dựng giữa sương, tiếng kiếm vang từ sân luyện.",
+      "qi": {
+        "level": 3,
+        "element": "kim"
+      },
+      "danger": 0,
+      "signs": [
+        "Đệ tử tuần tra",
+        "Biển chỉ đường rõ ràng"
+      ],
+      "resources": [
+        "Kiếm thạch",
+        "Linh tuyền"
+      ],
+      "faction": "kiem_tong",
+      "start": "discovered",
+      "arrive": [
+        1290,
+        2000
+      ]
+    },
+    "soi_linh": {
+      "name": "Sói Lĩnh",
+      "kind": "wild",
+      "pos": [
+        150,
+        235
+      ],
+      "map": "soi_linh",
+      "doc": "Thanh Trúc Lâm (khu hoang dã dễ)",
+      "role": "Hoang dã dễ: yêu thú thấp cấp, linh thảo thường, đường tắt nguy hiểm.",
+      "intro": "Sườn đồi rậm cây, tiếng tru vọng từ xa.",
+      "qi": {
+        "level": 2,
+        "element": "moc"
+      },
+      "danger": 1,
+      "signs": [
+        "Dấu chân sói",
+        "Xương thú rải rác"
+      ],
+      "resources": [
+        "Linh thảo",
+        "Nanh sói",
+        "Da yêu"
+      ],
+      "rumor": "Nghe thương nhân kể có một lĩnh đồi phía tây, bầy sói hoang tụ ở đó."
+    },
+    "dam_lay": {
+      "name": "Đầm Lầy Độc",
+      "kind": "wild",
+      "pos": [
+        170,
+        500
+      ],
+      "map": "dam_lay",
+      "doc": "Thanh Trúc Lâm (nhánh đầm độc)",
+      "role": "Hoang dã trung bình: sương độc, yêu quái, tinh anh xuất hiện.",
+      "intro": "Hơi nước xanh bốc lên từ bùn, mặt đất nhão và tối.",
+      "qi": {
+        "level": 2,
+        "element": "thuy"
+      },
+      "danger": 3,
+      "signs": [
+        "Sương độc xanh",
+        "Thi thể thú trôi trên bùn",
+        "Tiếng nổ xa xa"
+      ],
+      "resources": [
+        "Linh thảo độc",
+        "Yêu đan"
+      ],
+      "rumor": "Có người nói phía tây nam là một đầm lầy chết người, ai vào cũng mang vết độc ra."
+    },
+    "tuyet_coc": {
+      "name": "Hắc Lang Cốc",
+      "kind": "wild",
+      "pos": [
+        860,
+        70
+      ],
+      "map": "tuyet_coc",
+      "doc": "Xích Nham Cốc (nguy hiểm rõ ràng)",
+      "role": "Hẻm núi lạnh, lang vương và bầy hắc lang; nguy hiểm báo trước rõ.",
+      "intro": "Gió lạnh thổi dọc hẻm núi, dấu chân to hơn người.",
+      "qi": {
+        "level": 3,
+        "element": "thuy"
+      },
+      "danger": 4,
+      "signs": [
+        "Dấu chân khổng lồ",
+        "Tiếng hú vọng cốc",
+        "Tuyết nhuốm máu"
+      ],
+      "resources": [
+        "Nanh lang vương",
+        "Yêu đan"
+      ],
+      "rumor": "Lữ khách bảo có một hẻm núi phía đông bắc, tiếng sói hú ban đêm khiến cả đoàn thương nhân bỏ chạy."
+    },
+    "hac_lam": {
+      "name": "Hắc Lâm",
+      "kind": "wild",
+      "pos": [
+        730,
+        220
+      ],
+      "map": "overworld",
+      "at": [
+        3300,
+        850
+      ],
+      "r": 760,
+      "doc": "Thanh Trúc Lâm",
+      "role": "Rừng rậm phía đông: trại ẩn sĩ, hang ổ lang vương, đường tắt tới hẻm núi.",
+      "intro": "Cánh rừng đen đặc, ánh sáng chỉ lọt qua kẽ lá.",
+      "qi": {
+        "level": 3,
+        "element": "moc"
+      },
+      "danger": 3,
+      "signs": [
+        "Cây gãy đổ",
+        "Dấu móng",
+        "Tiếng chim bay loạn"
+      ],
+      "resources": [
+        "Linh thảo lâu năm",
+        "Yêu đan"
+      ],
+      "rumor": "Người đi rừng nói phía đông có cánh rừng đen, ẩn sĩ dựng trại ở đó.",
+      "arrive": [
+        2980,
+        900
+      ]
+    },
+    "hang_linh_mach": {
+      "name": "Hang Linh Mạch",
+      "kind": "wild",
+      "pos": [
+        780,
+        440
+      ],
+      "map": "overworld",
+      "at": [
+        3520,
+        2350
+      ],
+      "r": 330,
+      "doc": "Bạch Thạch Sơn (mỏ khoáng, linh mạch)",
+      "role": "Cửa hang đá có linh mạch mạnh, dẫn tới Linh Mạch Động.",
+      "intro": "Vách đá trắng rỉ linh khí, kim loại ánh lên dưới ánh trăng.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 2,
+      "signs": [
+        "Ánh sáng lạnh từ miệng hang",
+        "Khoáng thạch nhô khỏi vách"
+      ],
+      "resources": [
+        "Khoáng thạch",
+        "Linh tuyền"
+      ],
+      "rumor": "Có người thấy ánh sáng lạnh từ một hang đá phía đông nam, nghi là linh mạch.",
+      "arrive": [
+        3340,
+        2420
+      ]
+    },
+    "linh_mach_dong": {
+      "name": "Linh Mạch Động",
+      "kind": "ruin",
+      "pos": [
+        930,
+        510
+      ],
+      "map": "linh_mach_dong",
+      "doc": "Cổ Tu Phế Tích",
+      "role": "Di tích cổ tu: yêu quái, tàn quyển vô chủ, nhiều tinh anh.",
+      "intro": "Hang sâu còn dấu pháp trận, bia vỡ nằm lẫn trong bùn.",
+      "qi": {
+        "level": 5,
+        "element": "kim"
+      },
+      "danger": 4,
+      "signs": [
+        "Bia đá khắc kệ",
+        "Tinh anh canh lối",
+        "Linh áp nặng"
+      ],
+      "resources": [
+        "Tàn quyển vô chủ",
+        "Yêu đan"
+      ],
+      "rumor": "Tin đồn kể rằng dưới hang đá có một di tích cổ tu, tàn quyển còn nằm lại."
+    },
+    "tieu_gioi": {
+      "name": "Tiểu Thế Giới",
+      "kind": "hub",
+      "pos": [
+        560,
+        560
+      ],
+      "map": "tieu_gioi",
+      "doc": "Chiến trường giữa năm đại phái",
+      "role": "Cõi nhỏ tranh giành địa bàn giữa năm tông; có căn cứ từng tông.",
+      "intro": "Một thế giới nhỏ cắm giữa mây, cờ xí các phái phấp phới.",
+      "qi": {
+        "level": 4,
+        "element": "tho"
+      },
+      "danger": 4,
+      "signs": [
+        "Quân các phái giao chiến",
+        "Cờ hiệu khắp nơi"
+      ],
+      "resources": [
+        "Cống phẩm địa bàn"
+      ],
+      "rumor": "Nghe kể về một tiểu thế giới nơi các phái giành nhau địa bàn, cổng đá ở phía nam."
+    },
+    "sect_kiem_tong": {
+      "name": "Kiếm Tông — Tổng bộ",
+      "kind": "sect",
+      "pos": [
+        440,
+        610
+      ],
+      "map": "sect_kiem_tong",
+      "doc": "Kiếm Tông — Ngoại viện",
+      "role": "Tổng bộ Kiếm Tông trong Tiểu Thế Giới: điện các, Tàng Kinh Các, diễn võ đường, đệ tử và Chưởng môn.",
+      "intro": "Cao nguyên nổi giữa biển mây, kiến trúc cổ huyền ảo.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 3,
+      "signs": [
+        "Đệ tử tuần tra",
+        "Trận pháp hộ sơn"
+      ],
+      "resources": [
+        "Công huân",
+        "Bí tịch"
+      ],
+      "faction": "kiem_tong",
+      "start": "discovered"
+    },
+    "sect_xich_viem": {
+      "name": "Đao Môn — Xích Viêm",
+      "kind": "sect",
+      "pos": [
+        640,
+        620
+      ],
+      "map": "sect_xich_viem",
+      "doc": "Đao Môn — Ngoại viện",
+      "role": "Sơn môn nổi giữa mây trong Tiểu Thế Giới: điện các, đệ tử, trưởng lão và Chưởng môn.",
+      "intro": "Cao nguyên nổi giữa biển mây, kiến trúc cổ huyền ảo.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 3,
+      "signs": [
+        "Đệ tử tuần tra",
+        "Trận pháp hộ sơn"
+      ],
+      "resources": [
+        "Công huân",
+        "Bí tịch"
+      ],
+      "faction": "xich_viem",
+      "rumor": "Có tin về một tông môn khác trong Tiểu Thế Giới; chỉ người có cống hiến hoặc lệnh bài mới dễ vào."
+    },
+    "sect_han_bang": {
+      "name": "Hàn Băng Tông",
+      "kind": "sect",
+      "pos": [
+        700,
+        540
+      ],
+      "map": "sect_han_bang",
+      "doc": "Ngũ Hành Pháp Tông — Ngoại viện",
+      "role": "Sơn môn nổi giữa mây trong Tiểu Thế Giới: điện các, đệ tử, trưởng lão và Chưởng môn.",
+      "intro": "Cao nguyên nổi giữa biển mây, kiến trúc cổ huyền ảo.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 3,
+      "signs": [
+        "Đệ tử tuần tra",
+        "Trận pháp hộ sơn"
+      ],
+      "resources": [
+        "Công huân",
+        "Bí tịch"
+      ],
+      "faction": "han_bang",
+      "rumor": "Có tin về một tông môn khác trong Tiểu Thế Giới; chỉ người có cống hiến hoặc lệnh bài mới dễ vào."
+    },
+    "sect_doc_mon": {
+      "name": "Độc Môn",
+      "kind": "sect",
+      "pos": [
+        520,
+        450
+      ],
+      "map": "sect_doc_mon",
+      "doc": "Huyền Thể Tông — Ngoại viện",
+      "role": "Sơn môn nổi giữa mây trong Tiểu Thế Giới: điện các, đệ tử, trưởng lão và Chưởng môn.",
+      "intro": "Cao nguyên nổi giữa biển mây, kiến trúc cổ huyền ảo.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 3,
+      "signs": [
+        "Đệ tử tuần tra",
+        "Trận pháp hộ sơn"
+      ],
+      "resources": [
+        "Công huân",
+        "Bí tịch"
+      ],
+      "faction": "doc_mon",
+      "rumor": "Có tin về một tông môn khác trong Tiểu Thế Giới; chỉ người có cống hiến hoặc lệnh bài mới dễ vào."
+    },
+    "sect_huyen_minh": {
+      "name": "Huyền Minh Tông",
+      "kind": "sect",
+      "pos": [
+        610,
+        470
+      ],
+      "map": "sect_huyen_minh",
+      "doc": "Hồn Đạo Tông — Ngoại viện",
+      "role": "Sơn môn nổi giữa mây trong Tiểu Thế Giới: điện các, đệ tử, trưởng lão và Chưởng môn.",
+      "intro": "Cao nguyên nổi giữa biển mây, kiến trúc cổ huyền ảo.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 3,
+      "signs": [
+        "Đệ tử tuần tra",
+        "Trận pháp hộ sơn"
+      ],
+      "resources": [
+        "Công huân",
+        "Bí tịch"
+      ],
+      "faction": "huyen_minh",
+      "rumor": "Có tin về một tông môn khác trong Tiểu Thế Giới; chỉ người có cống hiến hoặc lệnh bài mới dễ vào."
+    },
+    "dp_vo_danh": {
+      "name": "Vô Danh Thạch Động",
+      "kind": "secret",
+      "pos": [
+        120,
+        360
+      ],
+      "map": "dp_vo_danh",
+      "dong_phu": true,
+      "doc": "Vọng Linh Động Phủ (tàn động)",
+      "role": "Động phủ của một tu sĩ vô danh. Cần ba mảnh bản đồ để phá cấm chế.",
+      "intro": "Cửa động mờ dưới rêu, cấm chế còn sót lại.",
+      "qi": {
+        "level": 3,
+        "element": "kim"
+      },
+      "danger": 2,
+      "signs": [
+        "Cấm chế mờ",
+        "Rune khắc trên đá"
+      ],
+      "resources": [
+        "Tàn quyển",
+        "Hồi Huyết Đan"
+      ],
+      "hidden": true,
+      "rumor": "Một mảnh bản đồ cũ chỉ về một cửa động ẩn ở phía tây."
+    },
+    "dp_kiem_trung": {
+      "name": "Kiếm Trủng Chân Nhân",
+      "kind": "secret",
+      "pos": [
+        960,
+        400
+      ],
+      "map": "dp_kiem_trung",
+      "dong_phu": true,
+      "doc": "Vọng Linh Động Phủ (thạch phủ)",
+      "role": "Kiếm trủng của một chân nhân đạo Kiếm: trận chín kiếm và khảo nghiệm tâm.",
+      "intro": "Giữa vách đá cắm san sát những thanh kiếm gỉ.",
+      "qi": {
+        "level": 4,
+        "element": "kim"
+      },
+      "danger": 3,
+      "signs": [
+        "Kiếm khí quanh cửa động"
+      ],
+      "resources": [
+        "Kiếm Ảnh Bộ"
+      ],
+      "hidden": true,
+      "rumor": "Mảnh bản đồ nhắc đến một trủng kiếm nơi vách đá cắm đầy kiếm gỉ."
+    },
+    "dp_huyet_tri": {
+      "name": "Huyết Trì Cổ Phủ",
+      "kind": "secret",
+      "pos": [
+        470,
+        530
+      ],
+      "map": "dp_huyet_tri",
+      "dong_phu": true,
+      "doc": "Vọng Linh Động Phủ (chân nhân phủ)",
+      "role": "Cổ phủ của thể tu cự linh: huyết trì và khôi lỗi thủ hộ.",
+      "intro": "Hơi máu bốc lên từ vách đá nứt.",
+      "qi": {
+        "level": 4,
+        "element": "tho"
+      },
+      "danger": 4,
+      "signs": [
+        "Hơi máu",
+        "Khôi lỗi đá"
+      ],
+      "resources": [
+        "Bất Hoại Kim Thân Kinh"
+      ],
+      "hidden": true,
+      "rumor": "Có mảnh bản đồ vẽ một hồ máu dưới vách đá nứt trong tiểu thế giới."
+    },
+    "dp_thien_mach": {
+      "name": "Thiên Mạch Tiên Phủ",
+      "kind": "secret",
+      "pos": [
+        560,
+        380
+      ],
+      "map": "dp_thien_mach",
+      "dong_phu": true,
+      "doc": "Vọng Linh Động Phủ (đạo quân phủ)",
+      "role": "Tiên phủ trên đỉnh Thiên Mạch: gương soi bản thân và truyền thừa tiên nhân.",
+      "intro": "Cổng ngọc lơ lửng giữa mây.",
+      "qi": {
+        "level": 5,
+        "element": "kim"
+      },
+      "danger": 5,
+      "signs": [
+        "Cổng ngọc giữa mây",
+        "Linh áp rất nặng"
+      ],
+      "resources": [
+        "Thiên Mạch Chân Quyết"
+      ],
+      "hidden": true,
+      "rumor": "Truyền thuyết nói trên đỉnh cao nhất có một cổng ngọc dẫn vào tiên phủ."
+    }
+  },
+  "routes": [
+    {
+      "a": "van_khe",
+      "b": "kiem_tong_ngoai",
+      "kind": "main",
+      "days": 1,
+      "risk": 0,
+      "note": "Đường lát đá, có đệ tử tuần tra"
+    },
+    {
+      "a": "van_khe",
+      "b": "soi_linh",
+      "kind": "main",
+      "days": 1,
+      "risk": 1,
+      "note": "Đường mòn phía tây, thỉnh thoảng gặp sói lẻ"
+    },
+    {
+      "a": "van_khe",
+      "b": "hac_lam",
+      "kind": "main",
+      "days": 2,
+      "risk": 2,
+      "note": "Đường đông qua rừng rậm, nhiều dấu thú"
+    },
+    {
+      "a": "kiem_tong_ngoai",
+      "b": "tieu_gioi",
+      "kind": "main",
+      "days": 1,
+      "risk": 1,
+      "note": "Cổng đá phía nam, có người canh"
+    },
+    {
+      "a": "soi_linh",
+      "b": "dam_lay",
+      "kind": "main",
+      "days": 2,
+      "risk": 2,
+      "note": "Vòng qua bìa đầm, đường dài nhưng khô ráo"
+    },
+    {
+      "a": "kiem_tong_ngoai",
+      "b": "dam_lay",
+      "kind": "shortcut",
+      "days": 1,
+      "risk": 3,
+      "note": "Lối tắt qua ruộng và bãi lầy, sương độc dày đặc",
+      "opportunity": 0.18,
+      "sign": "Sương độc xanh, tiếng nổ xa xa"
+    },
+    {
+      "a": "hac_lam",
+      "b": "tuyet_coc",
+      "kind": "main",
+      "days": 3,
+      "risk": 2,
+      "note": "Đường vòng quanh sườn núi, chậm nhưng có biển chỉ"
+    },
+    {
+      "a": "hac_lam",
+      "b": "tuyet_coc",
+      "kind": "shortcut",
+      "days": 1,
+      "risk": 3,
+      "note": "Lối tắt trong rừng, hắc lang canh giữ",
+      "opportunity": 0.16,
+      "sign": "Dấu chân khổng lồ, xương thú rải rác"
+    },
+    {
+      "a": "hac_lam",
+      "b": "hang_linh_mach",
+      "kind": "main",
+      "days": 2,
+      "risk": 2,
+      "note": "Đường xuống đông nam theo suối"
+    },
+    {
+      "a": "van_khe",
+      "b": "hang_linh_mach",
+      "kind": "shortcut",
+      "days": 2,
+      "risk": 3,
+      "note": "Đường mòn xuyên ruộng, nhiều yêu thú",
+      "opportunity": 0.2,
+      "sign": "Ánh sáng lạnh từ miệng hang, thú nhỏ bỏ chạy"
+    },
+    {
+      "a": "hang_linh_mach",
+      "b": "linh_mach_dong",
+      "kind": "main",
+      "days": 1,
+      "risk": 2,
+      "note": "Vào hang sâu, linh áp tăng dần"
+    },
+    {
+      "a": "tieu_gioi",
+      "b": "sect_kiem_tong",
+      "kind": "main",
+      "days": 1,
+      "risk": 1,
+      "note": "Cổng căn cứ của tông môn (chỉ vào qua cổng trong Tiểu Thế Giới)"
+    },
+    {
+      "a": "tieu_gioi",
+      "b": "sect_xich_viem",
+      "kind": "main",
+      "days": 1,
+      "risk": 2,
+      "note": "Cổng căn cứ của tông môn (chỉ vào qua cổng trong Tiểu Thế Giới)"
+    },
+    {
+      "a": "tieu_gioi",
+      "b": "sect_han_bang",
+      "kind": "main",
+      "days": 1,
+      "risk": 2,
+      "note": "Cổng căn cứ của tông môn (chỉ vào qua cổng trong Tiểu Thế Giới)"
+    },
+    {
+      "a": "tieu_gioi",
+      "b": "sect_doc_mon",
+      "kind": "main",
+      "days": 1,
+      "risk": 2,
+      "note": "Cổng căn cứ của tông môn (chỉ vào qua cổng trong Tiểu Thế Giới)"
+    },
+    {
+      "a": "tieu_gioi",
+      "b": "sect_huyen_minh",
+      "kind": "main",
+      "days": 1,
+      "risk": 2,
+      "note": "Cổng căn cứ của tông môn (chỉ vào qua cổng trong Tiểu Thế Giới)"
+    }
+  ],
+  "travel": {
+    "excluded_kinds": [
+      "secret",
+      "sect"
+    ],
+    "allow_sect_own": "sect_kiem_tong",
+    "incident_base": {
+      "main": 0.08,
+      "shortcut": 0.18
+    },
+    "incident_per_risk": {
+      "main": 0.06,
+      "shortcut": 0.07
+    },
+    "shortcut_reveal_per_day": 0.1,
+    "pay_off_cost": 30,
+    "retreat_hp_loss": 0.3,
+    "stones_loss": 0.1
+  }
+}

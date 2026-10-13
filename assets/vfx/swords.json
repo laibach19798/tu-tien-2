@@ -1,0 +1,651 @@
+{
+ "frames": [
+  {
+   "filename": "xc-swords 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 1.png",
+   "frame": {
+    "x": 129,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 2.png",
+   "frame": {
+    "x": 258,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 3.png",
+   "frame": {
+    "x": 387,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 4.png",
+   "frame": {
+    "x": 516,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 5.png",
+   "frame": {
+    "x": 0,
+    "y": 72,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 6.png",
+   "frame": {
+    "x": 129,
+    "y": 72,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 7.png",
+   "frame": {
+    "x": 258,
+    "y": 72,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 8.png",
+   "frame": {
+    "x": 387,
+    "y": 72,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 9.png",
+   "frame": {
+    "x": 516,
+    "y": 72,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 10.png",
+   "frame": {
+    "x": 0,
+    "y": 144,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 11.png",
+   "frame": {
+    "x": 129,
+    "y": 144,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 12.png",
+   "frame": {
+    "x": 258,
+    "y": 144,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 13.png",
+   "frame": {
+    "x": 387,
+    "y": 144,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 14.png",
+   "frame": {
+    "x": 516,
+    "y": 144,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 15.png",
+   "frame": {
+    "x": 0,
+    "y": 216,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 16.png",
+   "frame": {
+    "x": 129,
+    "y": 216,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 17.png",
+   "frame": {
+    "x": 258,
+    "y": 216,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 18.png",
+   "frame": {
+    "x": 387,
+    "y": 216,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 19.png",
+   "frame": {
+    "x": 516,
+    "y": 216,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 20.png",
+   "frame": {
+    "x": 0,
+    "y": 288,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 21.png",
+   "frame": {
+    "x": 129,
+    "y": 288,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 22.png",
+   "frame": {
+    "x": 258,
+    "y": 288,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  },
+  {
+   "filename": "xc-swords 23.png",
+   "frame": {
+    "x": 387,
+    "y": 288,
+    "w": 129,
+    "h": 72
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 129,
+    "h": 72
+   },
+   "sourceSize": {
+    "w": 129,
+    "h": 72
+   },
+   "pivot": {
+    "x": 0.49612403100775193,
+    "y": 0.5
+   },
+   "duration": 83
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-swords.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 645,
+   "h": 360
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 64,
+   "y": 36
+  },
+  "frameTags": [
+   {
+    "name": "xc-swords",
+    "from": 0,
+    "to": 23,
+    "direction": "forward"
+   }
+  ]
+ }
+}

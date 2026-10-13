@@ -1,0 +1,339 @@
+{
+ "frames": [
+  {
+   "filename": "xc-impact-ring 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 1.png",
+   "frame": {
+    "x": 170,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 2.png",
+   "frame": {
+    "x": 340,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 3.png",
+   "frame": {
+    "x": 510,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 4.png",
+   "frame": {
+    "x": 0,
+    "y": 92,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 5.png",
+   "frame": {
+    "x": 170,
+    "y": 92,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 6.png",
+   "frame": {
+    "x": 340,
+    "y": 92,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 7.png",
+   "frame": {
+    "x": 510,
+    "y": 92,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 8.png",
+   "frame": {
+    "x": 0,
+    "y": 184,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 9.png",
+   "frame": {
+    "x": 170,
+    "y": 184,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 10.png",
+   "frame": {
+    "x": 340,
+    "y": 184,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-impact-ring 11.png",
+   "frame": {
+    "x": 510,
+    "y": 184,
+    "w": 170,
+    "h": 92
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 170,
+    "h": 92
+   },
+   "sourceSize": {
+    "w": 170,
+    "h": 92
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.3804347826086957
+   },
+   "duration": 71
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-impact-ring.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 680,
+   "h": 276
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 85,
+   "y": 35
+  },
+  "frameTags": [
+   {
+    "name": "xc-impact-ring",
+    "from": 0,
+    "to": 11,
+    "direction": "forward"
+   }
+  ]
+ }
+}

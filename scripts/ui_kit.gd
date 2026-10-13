@@ -393,6 +393,20 @@ const ICONS := {
 		"............",
 		"............",
 	],
+	"scroll": [
+		"............",
+		"..kkkkkkkk..",
+		".kllllllllk.",
+		".kmmmmmmmmk.",
+		"..kmwwwwmk..",
+		"..kmmmmmmk..",
+		"..kmwwwmmk..",
+		"..kmmmmmmk..",
+		"..kmwwwwmk..",
+		".kmmmmmmmmk.",
+		".kdddddddk..",
+		"..kkkkkkkk..",
+	],
 	"lock": [
 		"............",
 		"....kkkk....",
@@ -433,7 +447,11 @@ static func icon_palette(kind: String, tint: Color) -> Dictionary:
 	return {"k": k, "m": tint, "l": tint.lightened(0.4), "d": tint.darkened(0.4), "w": Color.WHITE}
 
 
+const ICON_ALIAS := {"wave": "slash", "ring": "storm", "mist": "qi", "drain": "fly"}   # hình thức công pháp tông dùng chung biểu tượng
+
+
 static func draw_icon(c: CanvasItem, kind: String, tint: Color, origin: Vector2, px: float) -> void:
+	kind = ICON_ALIAS.get(kind, kind)
 	if ICONS.has(kind):
 		bitmap(c, origin, ICONS[kind], icon_palette(kind, tint), px)
 
@@ -442,6 +460,7 @@ static func draw_icon(c: CanvasItem, kind: String, tint: Color, origin: Vector2,
 class Icon extends Control:
 	var kind := "stone"
 	var color := Color.WHITE
+	var art: Texture2D = null   # ảnh pixel-art riêng (vật liệu thế giới mở: assets/resources/<id>.png); có thì vẽ thay cho mẫu chung
 
 	func _init(k := "stone", c := Color.WHITE, px := 36.0) -> void:
 		kind = k
@@ -456,6 +475,11 @@ class Icon extends Control:
 		queue_redraw()
 
 	func _draw() -> void:
+		if art != null:
+			var side := floorf(minf(size.x, size.y))
+			texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			draw_texture_rect(art, Rect2(((size - Vector2(side, side)) * 0.5).floor(), Vector2(side, side)), false)
+			return
 		var scale := maxf(floorf(minf(size.x, size.y) / 12.0), 1.0)
 		var origin := ((size - Vector2(12, 12) * scale) * 0.5).floor()
 		UIKit.draw_icon(self, kind, color, origin, scale)
@@ -463,7 +487,11 @@ class Icon extends Control:
 
 static func item_icon(id: String, px := 36.0) -> Icon:
 	var d: Dictionary = Items.DATA.get(id, {})
-	return Icon.new(str(d.get("icon", "stone")), d.get("tint", Color.WHITE), px)
+	var ic := Icon.new(str(d.get("icon", "stone")), d.get("tint", Color.WHITE), px)
+	var path := "res://assets/resources/%s.png" % id
+	if ResourceLoader.exists(path):
+		ic.art = load(path)
+	return ic
 
 ## Khung bảng: viền đen, viền vàng nâu, đường sáng bên trong và bốn đinh tán ở góc.
 class Frame extends PanelContainer:
@@ -630,8 +658,27 @@ class SkillSlot extends Control:
 
 	func _init(skill: Dictionary) -> void:
 		info = skill
-		custom_minimum_size = Vector2(68, 86)
+		custom_minimum_size = Vector2(112, 86)
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	## Biểu tượng pixel-art 48x48 của chiêu (assets/icons_skill/<id>.png), rơi về mẫu chung rồi về hình vẽ bằng code.
+	static var _art_cache: Dictionary = {}
+
+	static func _art(id: String, fallback: String) -> Texture2D:
+		for name in [id, fallback]:
+			if name == "":
+				continue
+			if not _art_cache.has(name):
+				var path := "res://assets/icons_skill/%s.png" % name
+				_art_cache[name] = load(path) if ResourceLoader.exists(path) else null
+			if _art_cache[name] != null:
+				return _art_cache[name]
+		return null
+
+	## Đổi chiêu hiển thị trong ô (khi người chơi đổi công thức).
+	func set_info(skill: Dictionary) -> void:
+		info = skill
+		queue_redraw()
 
 	func set_state(p_cd: float, p_unlocked: bool, p_afford: bool) -> void:
 		if p_cd <= 0.0 and cd > 0.0 and unlocked:
@@ -649,7 +696,7 @@ class SkillSlot extends Control:
 
 	func _draw() -> void:
 		var f := get_theme_default_font()
-		var box := Rect2(4, 4, 60, 60)
+		var box := Rect2(floorf((custom_minimum_size.x - 60.0) * 0.5), 4, 60, 60)
 		var edge := UIKit.GOLD if unlocked else UIKit.INK_4
 		if unlocked and not afford:
 			edge = UIKit.RED
@@ -660,10 +707,13 @@ class SkillSlot extends Control:
 		var kind := str(info.get("id", "slash"))
 		var tint := Color.WHITE if unlocked else Color(0.35, 0.38, 0.5)
 		var origin := (box.get_center() - Vector2(24, 24)).floor()
-		if unlocked:
+		var art := _art(str(info.get("icon", "")), str(info.get("icon_fallback", "")))
+		if unlocked and art != null:
+			draw_texture(art, origin, Color(1, 1, 1, 1.0 if afford else 0.55))
+		elif unlocked:
 			UIKit.draw_icon(self, kind, Color.WHITE, origin, 4.0)
 		else:
-			UIKit.bitmap(self, origin, UIKit.ICONS[kind], {"k": UIKit.BLACK, "c": tint, "w": tint, "b": tint}, 4.0)
+			UIKit.bitmap(self, origin, UIKit.ICONS[UIKit.ICON_ALIAS.get(kind, kind)], {"k": UIKit.BLACK, "c": tint, "w": tint, "b": tint}, 4.0)
 			UIKit.draw_icon(self, "lock", Color.WHITE, (box.get_center() - Vector2(18, 18)).floor(), 3.0)
 		if unlocked and cd > 0.0:
 			var h := floorf(box.size.y * clampf(cd, 0.0, 1.0) / 4.0) * 4.0
@@ -672,10 +722,12 @@ class SkillSlot extends Control:
 			draw_rect(box.grow(-2), Color(1, 1, 1, _pulse * 1.6))
 		# phím tắt
 		var key := str(info.get("key", ""))
-		draw_rect(Rect2(box.position.x - 2, box.position.y - 2, 18, 18), UIKit.BLACK)
-		draw_rect(Rect2(box.position.x, box.position.y, 14, 14), edge)
-		var kw := f.get_string_size(key, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
-		draw_string(f, Vector2(box.position.x + 7 - kw * 0.5, box.position.y + 12), key, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, UIKit.BLACK)
+		var kfs := 18 if key.length() <= 1 else 14
+		var kw := f.get_string_size(key, HORIZONTAL_ALIGNMENT_LEFT, -1, kfs).x
+		var kbw := maxf(14.0, kw + 6.0)
+		draw_rect(Rect2(box.position.x - 2, box.position.y - 2, kbw + 4, 18), UIKit.BLACK)
+		draw_rect(Rect2(box.position.x, box.position.y, kbw, 14), edge)
+		draw_string(f, Vector2(box.position.x + kbw * 0.5 - kw * 0.5, box.position.y + 12), key, HORIZONTAL_ALIGNMENT_LEFT, -1, kfs, UIKit.BLACK)
 		# tiêu hao linh khí
 		var cost := "%d" % int(info.get("cost", 0))
 		var cw := f.get_string_size(cost, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
@@ -686,8 +738,11 @@ class SkillSlot extends Control:
 		UIKit.shadow_text(self, f, Vector2(cx, box.end.y - 5), cost, 20, cc)
 		# tên
 		var nm := str(info.get("name", ""))
-		var nw := f.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
-		UIKit.shadow_text(self, f, Vector2(floorf(size.x * 0.5 - nw * 0.5), 82), nm, 20, UIKit.PAPER if unlocked else UIKit.MUTED)
+		var nfs := 20
+		while nfs > 13 and f.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, nfs).x > custom_minimum_size.x - 4.0:
+			nfs -= 1
+		var nw := f.get_string_size(nm, HORIZONTAL_ALIGNMENT_LEFT, -1, nfs).x
+		UIKit.shadow_text(self, f, Vector2(floorf(custom_minimum_size.x * 0.5 - nw * 0.5), 82), nm, nfs, UIKit.PAPER if unlocked else UIKit.MUTED)
 
 
 ## Phím tắt dạng keycap.

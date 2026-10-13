@@ -33,13 +33,13 @@ func _ready() -> void:
 	top.add_theme_constant_override("separation", 8)
 	v.add_child(top)
 	var group := ButtonGroup.new()
-	for t in [["char", "Nhân vật  (P)"], ["quest", "Nhiệm vụ  (Q)"], ["collect", "Sưu tầm  (O)"]]:
+	for t in [["char", "Nhân vật  (P)"], ["quest", "Nhiệm vụ  (Q)"], ["collect", "Sưu tầm  (O)"], ["diary", "Nhật ký  (L)"], ["world", "Đại vực  (R)"]]:
 		var b := Button.new()
 		b.text = t[1]
 		b.toggle_mode = true
 		b.button_group = group
 		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size = Vector2(190, 40)
+		b.custom_minimum_size = Vector2(150, 40)
 		b.pressed.connect(_set_tab.bind(t[0]))
 		top.add_child(b)
 		_tabs[t[0]] = b
@@ -96,8 +96,18 @@ func _unhandled_input(event: InputEvent) -> void:
 				close_ui()
 			else:
 				_set_tab("collect")
+		KEY_L:
+			if _tab == "diary":
+				close_ui()
+			else:
+				_set_tab("diary")
+		KEY_R:
+			if _tab == "world":
+				close_ui()
+			else:
+				_set_tab("world")
 		KEY_TAB:
-			var order := ["char", "quest", "collect"]
+			var order := ["char", "quest", "collect", "diary", "world"]
 			_set_tab(order[(order.find(_tab) + 1) % order.size()])
 		KEY_LEFT, KEY_A:
 			_rotate(-1)
@@ -131,8 +141,19 @@ func _build() -> void:
 			_build_char()
 		"quest":
 			_build_quests()
+		"diary":
+			_build_diary()
+		"world":
+			_build_world()
 		_:
 			_build_collect()
+
+
+func _build_world() -> void:
+	var v := WorldMapView.new()
+	v.world = main.province
+	v.main = main
+	_content.add_child(v)
 
 
 func _row(parent: Control, k: String, v: String, vc := UIKit.PAPER) -> void:
@@ -186,7 +207,7 @@ func _build_char() -> void:
 	# --- cột giữa: cảnh giới và chỉ số
 	var mid := VBoxContainer.new()
 	mid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	mid.add_theme_constant_override("separation", 8)
+	mid.add_theme_constant_override("separation", 3)
 	h.add_child(mid)
 	mid.add_child(UIKit.Banner.new("%s · Tầng %d" % [Cultivation.REALMS[cult.realm], cult.layer], 24, UIKit.GOLD, true))
 	var hp := UIKit.FancyBar.new("Khí huyết", UIKit.RED, 24.0)
@@ -204,7 +225,7 @@ func _build_char() -> void:
 	var status := "Nhấn F để thiền, tích tu vi."
 	var sc := UIKit.MUTED
 	if cult.ready_breakthrough:
-		status = "Tu vi viên mãn! Nhấn B để đột phá (thành công %d%%)." % roundi(Cultivation.BREAKTHROUGH_CHANCE * 100.0)
+		status = "Tu vi viên mãn! Nhấn B để đột phá (thành công %d%%)." % roundi(Hell.breakthrough_chance(cult.realm) * 100.0)
 		sc = UIKit.GOLD
 	var sl := UIKit.label(status, 15, sc)
 	sl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -213,14 +234,15 @@ func _build_char() -> void:
 	var stats := VBoxContainer.new()
 	stats.add_theme_constant_override("separation", 3)
 	mid.add_child(stats)
-	var power := 100.0 * 0.12 * cult.step_index()
+	var power := 100.0 * preload("res://scripts/v1/catalog.gd").balance("realm_damage_per_step") * cult.step_index()
 	_row(stats, "Cấp tu luyện", "%d / %d" % [cult.step_index() + 1, (Cultivation.REALMS.size() - 1) * Cultivation.LAYERS])
-	_row(stats, "Sức mạnh kiếm", "+%d%%" % roundi(power), UIKit.JADE)
+	_row(stats, "Sức mạnh cảnh giới", "+%d%%" % roundi(power), UIKit.JADE)
 	_row(stats, "Khí huyết tối đa", "%d" % roundi(main.vitals.max_hp))
 	_row(stats, "Linh khí tối đa", "%d" % roundi(cult.qi_max()))
 	_row(stats, "Linh thạch", "%d" % main.inv.stones, UIKit.STONE_TXT)
+	_row(stats, "Hệ tu luyện", "Y · Công / Tâm / Thân pháp", UIKit.JADE)
 	_row(stats, "Danh hiệu", Wardrobe.title_name(main.wardrobe.title) if main.wardrobe.title != "" else "—", UIKit.GOLD)
-	_row(stats, "Chức vị Kiếm Tông", Sect.rank_name(main.inv.merit_total), UIKit.JADE)
+	_row(stats, "Chức vị tông môn", main.inv.sect_rank_name(), UIKit.JADE)
 	_row(stats, "Cống hiến", "%d  (tổng %d)" % [main.inv.merit, main.inv.merit_total], Color(1.0, 0.82, 0.35))
 	mid.add_child(HSeparator.new())
 	var rec := VBoxContainer.new()
@@ -232,57 +254,108 @@ func _build_char() -> void:
 	_row(rec, "Thời gian chơi", _fmt_time(main.playtime))
 	_row(rec, "Đã thiền", _fmt_time(main.quests.meditate_time))
 	_row(rec, "Yêu thú đã hạ", "%d" % kills)
-	_row(rec, "Số lần trúng đòn (mộc nhân)", "%d" % main.quests.sword_hits)
-	_row(rec, "Đan đã luyện", "%d" % main.quests.crafts)
 	# --- cột phải: chiêu thức
 	var right := VBoxContainer.new()
 	right.custom_minimum_size = Vector2(300, 0)
 	right.add_theme_constant_override("separation", 6)
 	h.add_child(right)
-	right.add_child(UIKit.Banner.new("Kiếm Tông", 20, UIKit.JADE, true))
-	if not main.school.joined:
-		var nl := UIKit.label("Chưa bái sư. Hãy gặp Kiếm sư Lăng Tiêu ở sân luyện kiếm để học bốn chiêu kiếm.", 15, UIKit.MUTED)
-		nl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		right.add_child(nl)
-	for i in SwordSchool.SKILLS.size():
-		right.add_child(_skill_card(i))
+	right.add_child(UIKit.Banner.new("Tu luyện", 20, UIKit.JADE, true))
+	var state = main.cultivation_v1.state
+	var catalog = preload("res://scripts/v1/catalog.gd")
+	for slot in state.equipped:
+		var uid: String = state.equipped[slot]
+		if state.instances.has(uid):
+			var definition: Dictionary = catalog.definition(state.instances[uid].definition)
+			var names = preload("res://scripts/v1/cultivation_ui.gd").SLOT_NAMES
+			_row(right, names[slot], str(definition.get("name", "—")), UIKit.GOLD)
+	# phím tắt theo trang bị thực tế
+	var rt = main.cultivation_v1
+	var keys := [["J", state.primary], ["K", rt.other_slot()], ["U", "cong2"], ["Space", "than"]]
+	right.add_child(UIKit.label("Phím chiêu thức", 15, UIKit.MUTED))
+	for k in keys:
+		var d: Dictionary = state.def_for(str(k[1]))
+		_row(right, "%s · %s" % [k[0], "Công Pháp" if k[1] == "cong" else ("Pháp Bảo" if k[1] == "artifact" else ("Công phụ" if k[1] == "cong2" else "Thân pháp"))],
+			str(d.get("name", "Chưa trang bị")), UIKit.PAPER if not d.is_empty() else UIKit.MUTED)
+	right.add_child(UIKit.label("Y · Bí tịch và trang bị", 15, UIKit.MUTED))
 
 
-func _skill_card(i: int) -> Control:
-	var s: Dictionary = SwordSchool.SKILLS[i]
-	var cult: Cultivation = main.cult
-	var open: bool = main.school.joined and main.school.step_unlocked(i)
-	var pc := PanelContainer.new()
-	pc.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), UIKit.GOLD_DK if open else UIKit.BLACK, 2, 0, Vector2(10, 8)))
-	var hb := HBoxContainer.new()
-	hb.add_theme_constant_override("separation", 10)
-	pc.add_child(hb)
-	var icon := UIKit.Icon.new(str(s["id"]), Color.WHITE, 48.0)
-	icon.modulate = Color.WHITE if open else Color(0.5, 0.5, 0.6)
-	hb.add_child(icon)
+# ---------------------------------------------------------------- tab nhật ký (cơ duyên, động phủ)
+func _build_diary() -> void:
+	var dest: Destiny = main.destiny
+	var data: Dictionary = dest.diary()
+	var h := HBoxContainer.new()
+	h.set_anchors_preset(Control.PRESET_FULL_RECT)
+	h.add_theme_constant_override("separation", 16)
+	_content.add_child(h)
+	# trái: dòng thời gian (mới nhất ở trên)
+	var sc := ScrollContainer.new()
+	sc.custom_minimum_size = Vector2(560, 0)
+	sc.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	h.add_child(sc)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 8)
+	sc.add_child(list)
+	var log: Array = data["log"]
+	if log.is_empty():
+		var none := UIKit.label("Chưa có điều gì đáng ghi lại. Cơ duyên thường tìm đến người chịu đi xa và biết dừng chân.", 16, UIKit.MUTED)
+		none.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		list.add_child(none)
+	for i in range(log.size() - 1, -1, -1):
+		list.add_child(_diary_row(log[i]))
+	# phải: động phủ đã biết, dấu ấn nhân quả, linh cảm
+	var right := PanelContainer.new()
+	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), UIKit.BLACK, 2, 0, Vector2(18, 14)))
+	h.add_child(right)
+	var rs := ScrollContainer.new()
+	rs.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	right.add_child(rs)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	col.add_theme_constant_override("separation", 0)
-	hb.add_child(col)
-	var nrow := HBoxContainer.new()
-	nrow.add_theme_constant_override("separation", 8)
-	nrow.add_child(UIKit.KeyCap.new(str(s["key"]), "", 12))
-	nrow.add_child(UIKit.label(str(s["name"]), 18, UIKit.PAPER if open else UIKit.MUTED))
-	col.add_child(nrow)
-	var dl := UIKit.label(str(s["desc"]), 13, UIKit.MUTED)
-	dl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	dl.custom_minimum_size = Vector2(190, 0)
-	col.add_child(dl)
-	var need := int(s["need"])
-	var info := "Tiêu hao %d linh khí · hồi %.1fs" % [int(s["cost"]), float(s["cd"])]
-	var ic := UIKit.QI_BLUE
-	if not main.school.joined:
-		info = "Cần bái sư"
-		ic = UIKit.RED
-	elif not open:
-		info = "Mở ở %s tầng %d" % [Cultivation.REALMS[1 + need / Cultivation.LAYERS], need % Cultivation.LAYERS + 1]
-		ic = UIKit.RED
-	col.add_child(UIKit.label(info, 14, ic))
+	col.add_theme_constant_override("separation", 8)
+	rs.add_child(col)
+	col.add_child(UIKit.Banner.new("Động phủ", 20, UIKit.JADE, true))
+	var places: Array = data["places"]
+	if places.is_empty():
+		col.add_child(_diary_text("Chưa nghe được manh mối nào về động phủ tiên nhân.", UIKit.MUTED))
+	for p in places:
+		col.add_child(_diary_text(str(p["name"]), UIKit.GOLD, 17))
+		col.add_child(_diary_text(str(p["line"]), UIKit.PAPER))
+	var marks: Array = data["marks"]
+	if not marks.is_empty():
+		col.add_child(HSeparator.new())
+		col.add_child(UIKit.Banner.new("Dấu ấn", 20, UIKit.JADE, true))
+		for m in marks:
+			col.add_child(_diary_text(str(m), UIKit.PAPER))
+	var hunches: Array = data["hunches"]
+	if not hunches.is_empty():
+		col.add_child(HSeparator.new())
+		col.add_child(UIKit.Banner.new("Linh cảm", 20, UIKit.JADE, true))
+		for m in hunches:
+			col.add_child(_diary_text(str(m), UIKit.QI_BLUE))
+
+
+func _diary_text(t: String, color: Color, size := 15) -> Label:
+	var l := UIKit.label(t, size, color)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(300, 0)
+	return l
+
+
+func _diary_row(e: Dictionary) -> Control:
+	var pc := PanelContainer.new()
+	pc.add_theme_stylebox_override("panel", UIKit.box(Color(UIKit.INK_2, 0.9), UIKit.BLACK, 2, 0, Vector2(12, 8)))
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 2)
+	pc.add_child(v)
+	var head := "%s · %s" % [Hell.date_text(int(e["day"])), Maps.map_name(str(e["map"])) if str(e["map"]) != "overworld" else "Thế giới"]
+	v.add_child(UIKit.label(head, 13, UIKit.MUTED))
+	v.add_child(UIKit.label(str(e["title"]), 18, UIKit.GOLD))
+	var t := UIKit.label(str(e["text"]), 15, UIKit.PAPER)
+	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	t.custom_minimum_size = Vector2(500, 0)
+	v.add_child(t)
 	return pc
 
 

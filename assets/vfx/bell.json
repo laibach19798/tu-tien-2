@@ -1,0 +1,235 @@
+{
+ "frames": [
+  {
+   "filename": "xc-bell 0.png",
+   "frame": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 1.png",
+   "frame": {
+    "x": 288,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 2.png",
+   "frame": {
+    "x": 576,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 3.png",
+   "frame": {
+    "x": 0,
+    "y": 114,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 4.png",
+   "frame": {
+    "x": 288,
+    "y": 114,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 5.png",
+   "frame": {
+    "x": 576,
+    "y": 114,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 6.png",
+   "frame": {
+    "x": 0,
+    "y": 228,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  },
+  {
+   "filename": "xc-bell 7.png",
+   "frame": {
+    "x": 288,
+    "y": 228,
+    "w": 288,
+    "h": 114
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 288,
+    "h": 114
+   },
+   "sourceSize": {
+    "w": 288,
+    "h": 114
+   },
+   "pivot": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "duration": 71
+  }
+ ],
+ "meta": {
+  "app": "PixelLab VFX Creator",
+  "image": "xc-bell.png",
+  "format": "RGBA8888",
+  "size": {
+   "w": 864,
+   "h": 342
+  },
+  "scale": "1",
+  "anchor": {
+   "kind": "origin",
+   "x": 144,
+   "y": 57
+  },
+  "frameTags": [
+   {
+    "name": "xc-bell",
+    "from": 0,
+    "to": 7,
+    "direction": "forward"
+   }
+  ]
+ }
+}

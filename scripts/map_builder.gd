@@ -10,6 +10,7 @@ static func build(m: Node, id: String) -> void:
 	var d: Dictionary = Maps.DEFS[id]
 	var xr := RandomNumberGenerator.new()
 	xr.seed = hash(id)
+	m.resources.begin_map(id)
 	_ground(m, d, xr)
 	if not d.has("sect"):
 		_border(m, d, xr)
@@ -32,7 +33,30 @@ static func build(m: Node, id: String) -> void:
 			gate_visual(m, g)
 		_props(m, d, xr)
 	m.map_herbs(xr, int(d.get("herbs", 0)))
+	m.resources.populate(m, id)
 	m.spawn_monster_groups(d["groups"])
+	_maybe_master(m, d)
+
+
+## Thỉnh thoảng (3%) có một Cao nhân tán tu lang thang trong khu: mạnh, rơi đồ ngon hiếm (xem Hell.RARE_MASTER).
+static func _maybe_master(m: Node, d: Dictionary) -> void:
+	if int(d.get("tier", 0)) < Hell.ELITE_MIN_TIER or d.has("sect") or bool(d.get("war", false)) or bool(d.get("dong_phu", false)):
+		return
+	if randf() >= Hell.MASTER_CHANCE:
+		return
+	var size: Vector2 = d["size"]
+	var entry: Vector2 = d["entry"]
+	for i in 60:
+		var p := Vector2(randf_range(400.0, size.x - 300.0), randf_range(300.0, size.y - 250.0))
+		if p.distance_to(entry) < 700.0 or m.is_safe(p) or m._is_blocked(Rect2(p.x - 30, p.y - 30, 60, 50)):
+			continue
+		var mon := Monster.new()
+		mon.setup(m, "rogue_master", p)
+		m.world.add_child(mon)
+		m.monsters.append(mon)
+		if m.hud != null:
+			m.hud.toast("Gió lạ nổi lên… có một cao nhân tán tu đang lang thang trong vùng này.")
+		return
 
 
 # ---------------------------------------------------------------- nền
@@ -678,6 +702,17 @@ static func _paint_sky(img: Image, theme: String, xr: RandomNumberGenerator) -> 
 				img.set_pixel(x, y, sc)
 
 
+## Tên ảnh riêng của tông (<prefix>_<kind>) nếu đã có, không thì ảnh dự phòng. Bản sắc từng tông: SectAmbience.STYLES.
+static func _sect_asset(sid: String, kind: String, fallback: String) -> String:
+	var style: Dictionary = SectAmbience.STYLES.get(sid, SectAmbience.STYLES["kiem_tong"])
+	var own := "%s_%s" % [str(style["prefix"]), kind]
+	return own if ResourceLoader.exists("res://assets/props/%s.png" % own) else fallback
+
+
+static func _sect_glow(sid: String) -> Color:
+	return (SectAmbience.STYLES.get(sid, SectAmbience.STYLES["kiem_tong"]) as Dictionary)["glow"]
+
+
 static func _xt(name: String) -> Texture2D:
 	var path := "res://assets/props/%s.png" % name
 	return load(path) if ResourceLoader.exists(path) else null
@@ -721,8 +756,11 @@ static func _tienfx(m: Node, d: Dictionary, col: Color, theme: String) -> void:
 # ---------------------------------------------------------------- Tông môn (map riêng)
 ## Sân lát đá trước từng điện và quảng trường lớn giữa tông môn.
 static func _paint_compound_plazas(img: Image, d: Dictionary, xr: RandomNumberGenerator) -> void:
-	var tiles := _load_tiles({"tiles": "cobble"})
-	var row: String = SectWar.SECTS[d["sect"]]["pave"]
+	var player_sect: bool = d["sect"] == SectWar.PLAYER
+	var own_tiles: String = str((SectAmbience.STYLES.get(str(d["sect"]), {}) as Dictionary).get("tiles", ""))
+	var themed: bool = own_tiles != "" and ResourceLoader.exists("res://assets/ground/%s_base_0.png" % own_tiles)
+	var tiles := _load_tiles({"tiles": own_tiles if themed else "cobble"})   # sân lát theo bản sắc tông (Kiếm Tông: ngọc bạch)
+	var row: String = "base" if themed else str(SectWar.SECTS[d["sect"]]["pave"])
 	if (tiles[row] as Array).is_empty():
 		return
 	var st := _stamps(tiles[row], [1.0], 0.72)
@@ -745,7 +783,7 @@ static func _recolor(s: Sprite2D, roof: Dictionary) -> void:
 
 
 ## Ao sen giữa tông môn có cầu bắc ngang trục chính.
-static func _pond(m: Node, c: Vector2, rx: float, ry: float, xr: RandomNumberGenerator) -> void:
+static func _pond(m: Node, c: Vector2, rx: float, ry: float, xr: RandomNumberGenerator, pal: Dictionary = {}) -> void:
 	var cell := 4
 	var pad := 56.0
 	var gw := int((rx + pad) * 2.0 / cell)
@@ -757,10 +795,12 @@ static func _pond(m: Node, c: Vector2, rx: float, ry: float, xr: RandomNumberGen
 	ripple.seed = 17
 	ripple.frequency = 0.3
 	var img := Image.create(gw, gh, false, Image.FORMAT_RGBA8)
-	var deep := Color(0.09, 0.40, 0.68)
-	var mid := Color(0.13, 0.49, 0.77)
-	var shallow := Color(0.27, 0.64, 0.88)
-	var shine := Color(0.62, 0.86, 0.97)
+	var deep: Color = pal.get("deep", Color(0.09, 0.40, 0.68))
+	var mid: Color = pal.get("mid", Color(0.13, 0.49, 0.77))
+	var shallow: Color = pal.get("shallow", Color(0.27, 0.64, 0.88))
+	var shine: Color = pal.get("shine", Color(0.62, 0.86, 0.97))
+	var shore: Color = pal.get("shore", Color(0.82, 0.75, 0.6))
+	var rock: Color = pal.get("rock", Color(0.55, 0.52, 0.5))
 	for y in gh:
 		for x in gw:
 			var wp := Vector2((x + 0.5) * cell - (rx + pad), (y + 0.5) * cell - (ry + pad))
@@ -768,12 +808,12 @@ static func _pond(m: Node, c: Vector2, rx: float, ry: float, xr: RandomNumberGen
 			if dd < 1.0:
 				var col := deep if dd < 0.5 else (mid if dd < 0.8 else shallow)
 				if dd > 0.93:
-					col = Color(0.82, 0.75, 0.6)   # bờ cát
+					col = shore   # bờ
 				elif ripple.get_noise_2d(x * 0.6, y * 2.2) > 0.5 and dd < 0.85:
 					col = shine
 				img.set_pixel(x, y, col)
 			elif dd < 1.12:
-				img.set_pixel(x, y, Color(0.55, 0.52, 0.5))   # bờ đá
+				img.set_pixel(x, y, rock)   # bờ đá
 	var spr := Sprite2D.new()
 	spr.texture = ImageTexture.create_from_image(img)
 	spr.centered = false
@@ -788,7 +828,7 @@ static func _pond(m: Node, c: Vector2, rx: float, ry: float, xr: RandomNumberGen
 	bridge.z_index = -1
 	for i in 7:
 		var p := c + Vector2(xr.randf_range(-rx * 0.7, rx * 0.7), xr.randf_range(-ry * 0.5, ry * 0.4))
-		if absf(p.x - c.x) > 80.0:
+		if absf(p.x - c.x) > 80.0 and bool(pal.get("lily", true)):
 			m._prop("lily", p, Vector2.ZERO, 1.0, xr.randf() < 0.5)
 
 
@@ -823,7 +863,7 @@ static func _compound(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void
 		if absf(float(x) - Maps.COMPOUND_GATE.x) < 230.0:
 			continue
 		m._prop("fence_c", Vector2(x, fy), Vector2(98, 14))
-	_pond(m, Vector2(1800, 1650), 360.0, 82.0, xr)
+	_pond(m, Vector2(1800, 1650), 360.0, 82.0, xr, (SectAmbience.STYLES.get(sid, SectAmbience.STYLES["kiem_tong"]) as Dictionary)["pond"])
 	# các điện
 	for hall in Maps.COMPOUND_HALLS:
 		var f: Vector2 = hall["foot"]
@@ -896,15 +936,88 @@ static func _compound(m: Node, d: Dictionary, xr: RandomNumberGenerator) -> void
 		return not m._is_blocked(Rect2(p.x - 50, p.y - 40, 100, 50))
 	_place_theme_props(m, d, xr, str(h["theme"]), Vector2(1800, 1450), 1700.0, 1250.0, lines, 5.0, clear)
 	_tienfx(m, d, col, str(h["theme"]))
+	_sect_ambience(m, col, sid)   # kiếm trận, sương mây, tia sáng, binh khí tuần tra, chim, đảo bay: theo bản sắc từng tông
+	_compound_disciples(m, sid)   # đệ tử luyện kiếm / đả tọa trước Diễn Võ Đường và Linh Tuyền Thiền Viện
 	if sid == SectWar.PLAYER:
 		_compound_npcs(m)
 	else:
 		_compound_hostiles(m, sid)
 
 
+## Đệ tử luyện công: vài cặp luyện kiếm trước Diễn Võ Đường, vài người đả tọa hấp thụ linh khí trước Linh Tuyền Thiền Viện.
+## Thuần trang trí (scripts/disciple_flavor.gd); áp dụng cho mọi tông, không chỉ sân người chơi.
+static func _compound_disciples(m: Node, sid: String) -> void:
+	var halls := {}
+	for hall in Maps.COMPOUND_HALLS:
+		halls[hall["id"]] = hall["foot"]
+	var outfit: Dictionary = SectWar.SECTS[sid]["disciple"]
+	var glow := _sect_glow(sid)
+	var tf: Vector2 = halls.get("training", Vector2.ZERO)
+	# vị trí chọn để không đè lên mộc nhân (sân người chơi) và chỗ đứng của lính canh (tông địch: ±130,120)
+	for pr in [[Vector2(-70, 100), Vector2(70, 100)], [Vector2(-70, 185), Vector2(70, 185)]]:
+		var a: Vector2 = tf + pr[0]
+		var b: Vector2 = tf + pr[1]
+		if m._is_blocked(Rect2(a.x - 20, a.y - 20, 40, 40)) or m._is_blocked(Rect2(b.x - 20, b.y - 20, 40, 40)):
+			continue
+		_spawn_disciple(m, a, outfit, "spar", glow, "east")
+		_spawn_disciple(m, b, outfit, "spar", glow, "west")
+	var mf: Vector2 = halls.get("meditation", Vector2.ZERO)
+	for off in [Vector2(-75, 150), Vector2(75, 150), Vector2(0, 105)]:
+		var p: Vector2 = mf + off
+		if m._is_blocked(Rect2(p.x - 20, p.y - 20, 40, 40)):
+			continue
+		_spawn_disciple(m, p, outfit, "meditate", glow, "south")
+
+
+static func _spawn_disciple(m: Node, p: Vector2, outfit: Dictionary, mode: String, glow: Color, dir: String) -> void:
+	var n := preload("res://scripts/disciple_flavor.gd").new()
+	n.outfit = outfit
+	n.mode = mode
+	n.glow = glow
+	n.facing = dir
+	n.position = p
+	m.world.add_child(n)
+	# ghi lại chỗ đã có đệ tử luyện công để lính canh tông địch không đứng chồng lên
+	var spots: Array = m.get_meta("flavor_spots", [])
+	spots.append(p)
+	m.set_meta("flavor_spots", spots)
+
+
+## Không khí huyền ảo của Kiếm Tông: kiếm trận ở quảng trường, sân chính điện và trước từng điện (xem SectAmbience).
+static func _sect_ambience(m: Node, col: Color, sid: String) -> void:
+	var glow := _sect_glow(sid)
+	var amb := SectAmbience.new()
+	amb.sect = sid
+	amb.plateau = Maps.COMPOUND_PLATEAU
+	amb.map_size = Maps.COMPOUND_SIZE
+	amb.color = col.lerp(glow, 0.5)
+	var sites: Array = [[Vector2(1800, 2200), 330.0], [Vector2(1800, 1100), 400.0]]
+	for hall in Maps.COMPOUND_HALLS:
+		if hall["id"] != "main":
+			sites.append([(hall["foot"] as Vector2) + Vector2(0, 85), 118.0])
+	amb.sites = sites
+	m.layer_ground.add_child(amb)
+	# bệ kiếm trận lớn ở quảng trường sơn môn (nằm dưới chân người, đi lên được)
+	var array_name := _sect_asset(sid, "array", "kt_array")
+	var spire_name := _sect_asset(sid, "spire", "kt_spire")
+	if _xt(array_name) != null:
+		var arr := Sprite2D.new()   # dán lên lớp nền (không bóng, không che người đi lên)
+		arr.texture = _xt(array_name)
+		arr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		arr.position = Vector2(1800, 1110)
+		arr.scale = Vector2.ONE * 1.25
+		m.layer_ground.add_child(arr)
+		m.atmo.add_light(Vector2(1800, 1100), glow, 3.2, 0.9)
+	# bốn trụ linh tinh phát sáng quanh sân chính
+	for sp in [Vector2(1180, 1240), Vector2(2420, 1240), Vector2(1330, 1880), Vector2(2270, 1880)]:
+		_put(m, spire_name, sp, Vector2(30, 14), 1.0, glow)
+
+
 ## Kiến trúc tiên môn: đại môn, nhị môn, tháp chín tầng giữa mây, đỉnh đồng, tiên hạc, kiếm bia, đào tiên, đèn linh, tháp ngọc.
 static func _tien_architecture(m: Node, d: Dictionary, xr: RandomNumberGenerator, col: Color, roof: Dictionary) -> void:
-	var cyan := Color(0.5, 0.9, 1.0)
+	var cyan := _sect_glow(str(d["sect"]))
+	# các vật có ngọn lửa/ánh xanh gốc đổi sang màu ánh sáng của tông (Kiếm Tông giữ nguyên)
+	var dye := {} if str(d["sect"]) == "kiem_tong" else {"hue": cyan.h * 360.0, "sat": 1.0, "val": 1.0}
 	var pl := _xt("xt_pailou")
 	if pl != null:
 		var s: Sprite2D = m._prop("xt_pailou", Vector2(1800, 2400), Vector2.ZERO, 1.25, false)
@@ -921,12 +1034,15 @@ static func _tien_architecture(m: Node, d: Dictionary, xr: RandomNumberGenerator
 		var half2 := ig.get_width() * 1.1 * 0.5
 		m.blockers.append(Rect2(1800 - half2, 2015, half2 - 70.0, 30))
 		m.blockers.append(Rect2(1800 + 70.0, 2015, half2 - 70.0, 30))
-	_put(m, "xt_sky_tower", Vector2(1800, 640), Vector2(120, 50), 1.25, cyan)
+	var tw := Shadow.make(150.0, 38.0, 0.22)
+	tw.position = Vector2(1800, 640)
+	m.layer_ground.add_child(tw)
+	_put(m, _sect_asset(str(d["sect"]), "tower", "xt_sky_tower"), Vector2(1800, 640), Vector2(120, 50), 1.25, cyan)
 	for sx in [-1.0, 1.0]:
-		_put(m, "xt_stupa", Vector2(1800 + sx * 980.0, 1260), Vector2(34, 14), 1.4, cyan)
+		_put(m, "xt_stupa", Vector2(1800 + sx * 980.0, 1260), Vector2(34, 14), 1.4, cyan, dye)
 		_put(m, "xt_huabiao", Vector2(1800 + sx * 330.0, 2330), Vector2(30, 14), 1.3)
 		_put(m, "xt_crane", Vector2(1800 + sx * 560.0, 2290), Vector2(110, 16), 1.2)
-		_put(m, "xt_ding", Vector2(1800 + sx * 250.0, 1210), Vector2(80, 20), 1.1, cyan)
+		_put(m, "xt_ding", Vector2(1800 + sx * 250.0, 1210), Vector2(80, 20), 1.1, cyan, dye)
 		_put(m, "xt_peach", Vector2(1800 + sx * 1480.0, 1010), Vector2(40, 18), 1.2, Color(1.0, 0.6, 0.8))
 		_put(m, "xt_peach", Vector2(1800 + sx * 1120.0, 760), Vector2(40, 18), 1.0, Color(1.0, 0.6, 0.8))
 	_put(m, "xt_sword", Vector2(1300, 2290), Vector2(70, 18), 1.3, cyan)
@@ -936,14 +1052,16 @@ static func _tien_architecture(m: Node, d: Dictionary, xr: RandomNumberGenerator
 			continue
 		var f: Vector2 = hall["foot"]
 		for sx in [-1.0, 1.0]:
-			_put(m, "xt_lamp", f + Vector2(sx * 190.0, 70), Vector2(20, 10), 1.1, cyan)
+			_put(m, "xt_lamp", f + Vector2(sx * 190.0, 70), Vector2(20, 10), 1.1, cyan, dye)
 
 
-static func _put(m: Node, name: String, foot: Vector2, block: Vector2, sc: float, glow := Color(0, 0, 0, 0)) -> void:
+static func _put(m: Node, name: String, foot: Vector2, block: Vector2, sc: float, glow := Color(0, 0, 0, 0), dye := {}) -> void:
 	var tex := _xt(name)
 	if tex == null:
 		return
-	m._prop(name, foot, block, sc, false)
+	var spr: Sprite2D = m._prop(name, foot, block, sc, false)
+	if not dye.is_empty() and spr != null:
+		_recolor(spr, dye)
 	if glow.a > 0.0:
 		m.atmo.add_light(foot + Vector2(0, -tex.get_height() * sc * 0.4), glow, 1.6 + sc, 0.7)
 
@@ -991,6 +1109,12 @@ static func _compound_hostiles(m: Node, sid: String) -> void:
 					continue   # hai điện ngoài cùng gần cổng: chỉ một lính, để người chơi có chỗ lùi
 			var p: Vector2 = f + off
 			if m._is_blocked(Rect2(p.x - 30, p.y - 30, 60, 50)):
+				continue
+			var crowded := false
+			for q in m.get_meta("flavor_spots", []):
+				if p.distance_to(q) < 60.0:
+					crowded = true
+			if crowded:
 				continue
 			spawn_one(m, sid, "sect_disciple", p)
 

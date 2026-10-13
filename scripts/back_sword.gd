@@ -16,7 +16,7 @@ func _process(_delta: float) -> void:
 	visible = not bool(parent.get_meta("sword_drawn", false))
 	var facing := Dir.normalize(str(parent.get("facing")) if parent.get("facing") != null else "south")
 	var pose: Array = SwordSchool.SHEATH_POSE.get(facing, SwordSchool.SHEATH_POSE["south"])
-	position = pose[0]
+	position = (pose[0] as Vector2) + Vector2(0, -float(parent.get_meta("fly_lift", 0.0)))   # nhân vật đang bay: kiếm theo lên cùng thân người
 	rotation = deg_to_rad(float(pose[1]))
 	_order(bool(pose[2]), parent)
 

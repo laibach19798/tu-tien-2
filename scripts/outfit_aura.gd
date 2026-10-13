@@ -157,7 +157,10 @@ func _process(delta: float) -> void:
 	var moved := global_position.distance_to(_last_pos)
 	_last_pos = global_position
 	_speed = lerpf(_speed, moved / maxf(delta, 0.001), 0.2)
-	_trail.emitting = _trail_on and _speed > 25.0
+	_trail.emitting = _trail_on and _speed > 25.0 and not _flying()
+	var calm := not _flying()   # đang bay: tắt hạt linh khí và tia lấp lánh quanh người
+	_rise.emitting = calm
+	_sparks.emitting = calm
 	_find_timer -= delta
 	var st := _night_state()
 	var night: float = st[0]
@@ -166,7 +169,8 @@ func _process(delta: float) -> void:
 	for p in [_rise, _sparks, _trail]:
 		(p as CPUParticles2D).self_modulate = boost
 	_light.color = color
-	_light.energy = (0.35 + 0.9 * night) * (0.85 + 0.15 * sin(_t * 2.6)) * (0.3 + 0.7 * _p) + _burst * 1.5   # đêm: soi sáng cả mặt đất quanh người
+	var fl := 0.0 if _flying() else 1.0   # đang bay: không soi sáng quanh người
+	_light.energy = fl * (0.35 + 0.9 * night) * (0.85 + 0.15 * sin(_t * 2.6)) * (0.3 + 0.7 * _p) + _burst * 1.5   # đêm: soi sáng cả mặt đất quanh người
 	if is_instance_valid(_clothes) and _clothes.material is ShaderMaterial:
 		var m := _clothes.material as ShaderMaterial
 		m.set_shader_parameter("glow_color", Color(color, 0.35 + 0.65 * _p))
@@ -175,12 +179,22 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+## Nhân vật đang ngự không (meta "fly_lift" do Flight đặt): không vẽ hiệu ứng dưới chân.
+func _flying() -> bool:
+	var par := get_parent()
+	return par != null and float(par.get_meta("fly_lift", 0.0)) > 1.0
+
+
 func _draw() -> void:
 	var pulse := 0.5 + 0.5 * sin(_t * 2.6)
+	if _flying():
+		return
 	# quầng sáng mềm sau lưng
 	for i in 5:
 		var r := 30.0 - i * 4.5
 		draw_circle(BODY_CENTER, r, Color(color, (0.035 + 0.01 * pulse) * (0.3 + 0.7 * _p)))
+	if _flying():
+		return   # đang bay: bỏ quầng sáng, vòng pháp trận và vệt dưới chân (chỉ còn hiệu ứng gió của Flight)
 	# vòng pháp trận dưới chân (elip dẹt): cảnh giới càng cao càng nhiều chi tiết
 	draw_set_transform(Vector2(0, -1), 0.0, Vector2(1.0, 0.4))
 	draw_arc(Vector2.ZERO, 17.0 + pulse * 2.0, 0.0, TAU, 40, Color(color, 0.3 + 0.4 * _p), 1.2)
