@@ -10,7 +10,7 @@ const TOON := preload("res://scripts/toon3d.gdshader")
 const INK := preload("res://scripts/toon3d_ink.gdshader")
 
 const FIXED := {
-	"skin": Hero3D.SKIN, "skin_dark": Color("e2b08f"), "sole": Color("e8e0cc"), "ink": Hero3D.EYE_DARK, "white": Color.WHITE,
+	"skin": Hero3D.SKIN, "skin_dark": Color("d2a07e"), "sole": Color("e8e0cc"), "ink": Hero3D.EYE_DARK, "white": Color.WHITE,
 	"blush": Hero3D.BLUSH, "mouth": Hero3D.MOUTH, "gold": Color("e0b13f"), "steel": Color("dfe9f2"),
 	"gourd": Color("c98a3c"), "bamboo": Color("8aa860"),
 }

@@ -7,8 +7,8 @@ class_name Hero3D
 const TOON := preload("res://scripts/toon3d.gdshader")
 const INK := preload("res://scripts/toon3d_ink.gdshader")
 
-const SKIN := Color("f6d3b3")
-const BLUSH := Color("f2a09c")
+const SKIN := Color("e8bd9a")
+const BLUSH := Color("e6a58f")
 const MOUTH := Color("a05a5a")
 const EYE_DARK := Color("1c1520")
 
@@ -24,32 +24,32 @@ const OUTFITS := {
 	"dao_bao": {
 		"ten": "Đạo Bào Thanh Vân", "robe": Color("3f86b5"), "trim": Color("f0ead6"), "ao_trong": Color("e9f2f7"),
 		"dai": "dai", "tay": "rong", "toc": "bui", "toc_mau": Color("2c2231"),
-		"dau": "none", "lung": ["kiem"], "mat": Color("2f6fb0"), "giay": Color("2d3a52"), "phu": ["ngoc"],
+		"dau": "none", "lung": ["kiem"], "mat": Color("3a2a22"), "giay": Color("2d3a52"), "phu": ["ngoc"],
 	},
 	"tien_bao": {
 		"ten": "Tiên Bào Bạch Vân", "robe": Color("f3f0e6"), "trim": Color("e0b13f"), "ao_trong": Color("cfe6f2"),
 		"dai": "dai", "tay": "rong", "toc": "dai", "toc_mau": Color("8e9bd0"),
-		"dau": "mien", "lung": ["ao_choang", "kiem"], "mat": Color("4aa3d8"), "giay": Color("e0b13f"), "phu": ["ngoc", "chuong"],
+		"dau": "mien", "lung": ["ao_choang", "kiem"], "mat": Color("5d7f9e"), "giay": Color("e0b13f"), "phu": ["ngoc", "chuong"],
 	},
 	"ma_y": {
 		"ten": "Huyết Ma Y", "robe": Color("2c2334"), "trim": Color("c4303f"), "ao_trong": Color("6a2430"),
 		"dai": "dai", "tay": "rong", "toc": "gai", "toc_mau": Color("171019"),
-		"dau": "none", "lung": ["ao_choang"], "mat": Color("e6354e"), "giay": Color("181019"), "phu": ["ngoc_do"],
+		"dau": "none", "lung": ["ao_choang"], "mat": Color("8a2f2a"), "giay": Color("181019"), "phu": ["ngoc_do"],
 	},
 	"kiem_tu": {
 		"ten": "Kiếm Tu Hắc Thủy", "robe": Color("2b3447"), "trim": Color("c9d3e0"), "ao_trong": Color("46526b"),
 		"dai": "trung", "tay": "giap", "toc": "duoi", "toc_mau": Color("20202a"),
-		"dau": "dai", "lung": ["kiem"], "mat": Color("3aa6b9"), "giay": Color("1b1f2b"), "phu": ["ho_lo"], "quan": Color("23293a"),
+		"dau": "dai", "lung": ["kiem"], "mat": Color("2e3a3f"), "giay": Color("1b1f2b"), "phu": ["ho_lo"], "quan": Color("23293a"),
 	},
 	"dan_su": {
 		"ten": "Đan Sư Thanh Diệp", "robe": Color("4f9a63"), "trim": Color("f0e6b8"), "ao_trong": Color("d3ebcb"),
 		"dai": "dai", "tay": "rong", "toc": "bui", "toc_mau": Color("4a3326"),
-		"dau": "none", "lung": [], "mat": Color("5b8f3a"), "giay": Color("5a4630"), "phu": ["ho_lo", "tui"],
+		"dau": "none", "lung": [], "mat": Color("4a3b22"), "giay": Color("5a4630"), "phu": ["ho_lo", "tui"],
 	},
 	"hong_nhan": {
 		"ten": "Hồng Nhan Tiên Tử", "robe": Color("e58a9b"), "trim": Color("fff0e0"), "ao_trong": Color("ffe3ea"),
 		"dai": "dai", "tay": "rong", "toc": "song", "toc_mau": Color("5a3a45"),
-		"dau": "none", "lung": ["ao_choang"], "mat": Color("c0508a"), "giay": Color("f0d8dc"), "phu": ["sao", "ngoc"],
+		"dau": "none", "lung": ["ao_choang"], "mat": Color("4a2f2a"), "giay": Color("f0d8dc"), "phu": ["sao", "ngoc"],
 	},
 	"an_si": {
 		"ten": "Ẩn Sĩ Đấu Lạp", "robe": Color("8d927c"), "trim": Color("5f5a48"), "ao_trong": Color("c9c4a8"),

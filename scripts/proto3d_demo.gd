@@ -4,7 +4,7 @@ extends Node
 ## WASD / mũi tên: đi · 1-8: đổi trang phục · Space: vung tay · Z: bật/tắt độ phân giải thấp (pixel hoá)
 
 const USE_MODEL := true          # true: model dựng bằng Blender · false: bản dựng bằng khối nguyên thủy
-const PIXEL_SHRINK := 3          # cảnh 3D render ở 1/3 độ phân giải rồi phóng to bằng nearest -> nhân vật ra "pixel" hợp với sprite
+const PIXEL_SHRINK := 2          # cảnh 3D render ở 1/2 độ phân giải rồi phóng to bằng nearest -> nhân vật ra "pixel" hợp với sprite
 const SPEED := 4.0
 const CAM_OFFSET := Vector3(0, 8.6, 11.0)   # nhìn xuống ~38° (camera chiếu trực giao)
 const CAM_SIZE := 5.0

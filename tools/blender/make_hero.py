@@ -1,82 +1,48 @@
-"""Dựng model nhân vật tu tiên (chibi) bằng Blender -> assets/models/hero.glb.
+"""Dựng model nhân vật tu tiên (tỉ lệ người thật, ~7,5 đầu, cao 1,75 m) bằng Blender -> assets/models/hero.glb.
 
 Chạy (cần module bpy, vd: python -m venv v && v/bin/pip install bpy):
     python tools/blender/make_hero.py [đường dẫn .glb]
 
-Model gồm: thân + đầu + mặt (mắt nhiều lớp, mi, lông mày, má hồng...), tóc, các mảnh trang phục tách rời
-(tên mảnh dạng <nhóm>__<chi tiết>, vd robe_long__skirt) để Godot bật/tắt theo bộ đồ, xương người (có xương phụ cho tóc dài,
-áo choàng, dải đai, ngọc bội) và 3 animation: idle_loop, walk_loop, attack.
+Model gồm: thân (vai, ngực, eo, hông, tay chân có khớp), đầu + mặt (mắt hạnh nhân, mi, lông mày, sống mũi, môi, tai), tóc,
+các mảnh trang phục tách rời (tên mảnh dạng <nhóm>__<chi tiết>, vd robe_long__skirt) để Godot bật/tắt theo bộ đồ,
+xương người (có xương phụ cho tóc dài, áo choàng, dải đai, ngọc bội) và 3 animation: idle_loop, walk_loop, attack.
 Mỗi vật liệu tên m_<vai trò> (m_robe, m_trim, m_hair...) để Godot đổi màu theo trang phục.
-Toạ độ viết theo kiểu Godot (x phải, y lên, z ra trước) rồi đổi sang Blender trong hàm G().
+Toạ độ tính bằng mét, viết theo kiểu Godot (x phải, y lên, z ra trước) rồi đổi sang Blender trong hàm G().
 """
 import math
 import sys
 import bpy   # phải import trước bmesh/mathutils
 import bmesh
-from mathutils import Euler, Matrix, Quaternion, Vector
+from mathutils import Euler, Quaternion, Vector
 
 OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else (sys.argv[1] if len(sys.argv) > 1 else "hero.glb")
 
-HEAD_Y = 1.37   # tâm đầu
-
-
-SH = 0.72   # tỉ lệ đầu so với bản chibi gốc (nhỏ hơn = người cao hơn, bớt chibi)
-# Biến dạng dáng người áp lên MỌI toạ độ (mảnh, xương): chân dài ra, thân dài hơn và thon vai, đầu thu nhỏ đều quanh tâm đầu.
-# Toạ độ viết theo bản chibi gốc (đầu ở y~1.37); hàm này đổi sang dáng mới nên không phải sửa từng mảnh.
-OLD_Y = [0.0, 0.12, 0.55, 1.05, 2.5]
-NEW_Y = [0.0, 0.12, 0.69, 1.2475, 1.2475 + 1.45 * SH]
-
-
-def _interp(v, xs, ys):
-    if v <= xs[0]:
-        return ys[0] + (v - xs[0]) * (ys[1] - ys[0]) / (xs[1] - xs[0])
-    for i in range(1, len(xs)):
-        if v <= xs[i]:
-            t = (v - xs[i - 1]) / (xs[i] - xs[i - 1])
-            return ys[i - 1] + t * (ys[i] - ys[i - 1])
-    return ys[-1] + (v - xs[-1]) * (ys[-1] - ys[-2]) / (xs[-1] - xs[-2])
-
-
-def UY(y_blender_z):
-    """Ngược lại của biến dạng chiều cao: từ cao độ thực (Blender z) về cao độ theo bản gốc (dùng cho ngưỡng trọng số)."""
-    return _interp(y_blender_z, NEW_Y, OLD_Y)
-
-
-def _smoothstep(a, b, v):
-    t = max(0.0, min(1.0, (v - a) / (b - a)))
-    return t * t * (3 - 2 * t)
-
-
-def warp(x, y, z):
-    fx = _interp(y, [0.0, 0.5, 0.6, 1.0, 1.05, 2.5], [1.0, 1.0, 0.94, 0.94, SH, SH])   # vai/eo thon lại, đầu thu nhỏ
-    fz = _interp(y, [0.0, 1.0, 1.05, 2.5], [1.0, 1.0, SH, SH])
-    x = x * fx
-    # kéo tay vào sát thân (vùng |x| lớn, độ cao của tay) để tay không xoè ra như cánh
-    w_arm = _smoothstep(0.4, 0.55, y) * (1.0 - _smoothstep(1.0, 1.08, y))
-    x -= math.copysign(0.055 * _smoothstep(0.16, 0.24, abs(x)) * w_arm, x)
-    return x, _interp(y, OLD_Y, NEW_Y), z * fz
+HY = 1.635   # cao độ tâm đầu
 
 
 def G(x, y=None, z=None):
-    """Toạ độ Godot (x, y lên, z ra trước) -> Blender (x, -z, y), có áp biến dạng dáng người."""
+    """Toạ độ Godot (x, y lên, z ra trước) -> Blender (x, -z, y)."""
     if y is None:
         x, y, z = x
-    x, y, z = warp(x, y, z)
     return Vector((x, -z, y))
 
 
 def H(x, y, z):
-    """Toạ độ cục bộ của đầu -> toạ độ thế giới (kiểu Godot)."""
-    return (x, y + HEAD_Y, z)
+    """Toạ độ cục bộ của đầu (gốc ở tâm đầu) -> toạ độ thế giới (kiểu Godot)."""
+    return (x, y + HY, z)
+
+
+def clamp01(v):
+    return max(0.0, min(1.0, v))
 
 
 # ---------------------------------------------------------------- cảnh, vật liệu
 bpy.ops.wm.read_factory_settings(use_empty=True)
 
 ROLE_COLORS = {
-    "skin": "f6d3b3", "skin_dark": "e2b08f", "hair": "3a2a2c", "robe": "3f86b5", "trim": "f0ead6", "inner": "e9f2f7",
-    "shoe": "2d3a52", "sole": "e8e0cc", "eye": "2f6fb0", "eye_light": "7fb8ee", "ink": "1c1520", "white": "ffffff",
-    "blush": "f2a09c", "mouth": "a05a5a", "gold": "e0b13f", "steel": "dfe9f2", "jade": "6fcf9a", "gem": "e6354e",
+    "skin": "e8bd9a", "skin_dark": "d2a07e", "hair": "3a2a2c", "robe": "3f86b5", "trim": "f0ead6", "inner": "e9f2f7",
+    "shoe": "2d3a52", "sole": "e8e0cc", "eye": "4a3322", "eye_light": "7fb8ee", "ink": "1c1520", "white": "f4efe8",
+    "blush": "f2a09c", "mouth": "b86a68", "gold": "e0b13f", "steel": "dfe9f2", "jade": "6fcf9a", "gem": "e6354e",
     "pants": "23293a", "hat": "c8a96a", "gourd": "c98a3c", "bamboo": "8aa860",
 }
 MATS = {}
@@ -84,36 +50,34 @@ for role, hexcol in ROLE_COLORS.items():
     m = bpy.data.materials.new("m_" + role)
     m.use_nodes = True
     r, g, b = (int(hexcol[i:i + 2], 16) / 255.0 for i in (0, 2, 4))
-    bsdf = m.node_tree.nodes["Principled BSDF"]
-    bsdf.inputs["Base Color"].default_value = (r ** 2.2, g ** 2.2, b ** 2.2, 1.0)
+    m.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (r ** 2.2, g ** 2.2, b ** 2.2, 1.0)
     MATS[role] = m
 
 
-# ---------------------------------------------------------------- xương
-# tên: (đầu, đuôi, cha) theo toạ độ Godot
+# ---------------------------------------------------------------- xương (đầu, đuôi, cha) theo toạ độ Godot
 BONES = {
     "root": ((0, 0, 0), (0, 0.1, 0), None),
-    "hips": ((0, 0.55, 0), (0, 0.62, 0), "root"),
-    "spine": ((0, 0.62, 0), (0, 0.95, 0), "hips"),
-    "neck": ((0, 0.95, 0), (0, 1.10, 0), "spine"),
-    "head": ((0, 1.10, 0), (0, 1.75, 0), "neck"),
-    "hair1": ((0, 1.45, -0.26), (0, 1.2, -0.3), "head"),
-    "hair2": ((0, 1.2, -0.3), (0, 0.95, -0.3), "hair1"),
-    "hair3": ((0, 0.95, -0.3), (0, 0.62, -0.3), "hair2"),
-    "cape1": ((0, 0.98, -0.2), (0, 0.65, -0.22), "spine"),
-    "cape2": ((0, 0.65, -0.22), (0, 0.2, -0.24), "cape1"),
-    "tail_l": ((-0.06, 0.57, -0.2), (-0.06, 0.3, -0.2), "hips"),
-    "tail_r": ((0.06, 0.57, -0.2), (0.06, 0.3, -0.2), "hips"),
-    "pend_l": ((-0.27, 0.55, 0.13), (-0.27, 0.33, 0.13), "hips"),
-    "pend_r": ((0.27, 0.55, 0.13), (0.27, 0.33, 0.13), "hips"),
+    "hips": ((0, 0.95, 0), (0, 1.05, 0), "root"),
+    "spine": ((0, 1.05, 0), (0, 1.4, 0), "hips"),
+    "neck": ((0, 1.4, 0), (0, 1.52, 0), "spine"),
+    "head": ((0, 1.52, 0), (0, 1.78, 0), "neck"),
+    "hair1": ((0, 1.7, -0.1), (0, 1.55, -0.13), "head"),
+    "hair2": ((0, 1.55, -0.13), (0, 1.35, -0.14), "hair1"),
+    "hair3": ((0, 1.35, -0.14), (0, 1.1, -0.12), "hair2"),
+    "cape1": ((0, 1.44, -0.11), (0, 1.05, -0.13), "spine"),
+    "cape2": ((0, 1.05, -0.13), (0, 0.55, -0.14), "cape1"),
+    "tail_l": ((-0.04, 1.06, -0.12), (-0.04, 0.8, -0.12), "hips"),
+    "tail_r": ((0.04, 1.06, -0.12), (0.04, 0.8, -0.12), "hips"),
+    "pend_l": ((-0.19, 1.06, 0.07), (-0.19, 0.86, 0.07), "hips"),
+    "pend_r": ((0.19, 1.06, 0.07), (0.19, 0.86, 0.07), "hips"),
 }
 for side, sx in (("l", -1.0), ("r", 1.0)):
-    BONES[f"arm_{side}_up"] = ((sx * 0.26, 0.95, 0), (sx * 0.30, 0.75, 0), "spine")
-    BONES[f"arm_{side}_lo"] = ((sx * 0.30, 0.75, 0), (sx * 0.315, 0.55, 0.0), f"arm_{side}_up")
-    BONES[f"hand_{side}"] = ((sx * 0.315, 0.55, 0.0), (sx * 0.32, 0.45, 0.02), f"arm_{side}_lo")
-    BONES[f"leg_{side}_up"] = ((sx * 0.1, 0.55, 0), (sx * 0.1, 0.3, 0), "hips")
-    BONES[f"leg_{side}_lo"] = ((sx * 0.1, 0.3, 0), (sx * 0.1, 0.08, 0), f"leg_{side}_up")
-    BONES[f"foot_{side}"] = ((sx * 0.1, 0.08, 0), (sx * 0.1, 0.04, 0.15), f"leg_{side}_lo")
+    BONES[f"arm_{side}_up"] = ((sx * 0.2, 1.42, 0), (sx * 0.225, 1.12, 0), "spine")
+    BONES[f"arm_{side}_lo"] = ((sx * 0.225, 1.12, 0), (sx * 0.235, 0.87, 0.0), f"arm_{side}_up")
+    BONES[f"hand_{side}"] = ((sx * 0.235, 0.87, 0.0), (sx * 0.24, 0.7, 0.01), f"arm_{side}_lo")
+    BONES[f"leg_{side}_up"] = ((sx * 0.09, 0.95, 0), (sx * 0.095, 0.5, 0), "hips")
+    BONES[f"leg_{side}_lo"] = ((sx * 0.095, 0.5, 0), (sx * 0.09, 0.08, 0), f"leg_{side}_up")
+    BONES[f"foot_{side}"] = ((sx * 0.09, 0.08, 0), (sx * 0.09, 0.03, 0.14), f"leg_{side}_lo")
 
 arm_data = bpy.data.armatures.new("Armature")
 ARM = bpy.data.objects.new("Armature", arm_data)
@@ -205,8 +169,8 @@ def rings_to_bm(rings, cap_start=True, cap_end=True):
     return bm
 
 
-def lathe(profile, segs=28, sx=1.0, sz=1.0, cx=0.0, cz=0.0, caps=True):
-    """Mặt tròn xoay quanh trục đứng. profile = [(bán kính, y)] kiểu Godot, sx/sz = độ dẹt, (cx, cz) = tâm."""
+def lathe(profile, segs=32, sx=1.0, sz=1.0, cx=0.0, cz=0.0, caps=True):
+    """Mặt tròn xoay quanh trục đứng. profile = [(bán kính, y)], sx/sz = độ dẹt, (cx, cz) = tâm."""
     rings = []
     for r, y in profile:
         rings.append([G(cx + math.cos(2 * math.pi * k / segs) * r * sx, y, cz + math.sin(2 * math.pi * k / segs) * r * sz)
@@ -215,7 +179,7 @@ def lathe(profile, segs=28, sx=1.0, sz=1.0, cx=0.0, cz=0.0, caps=True):
 
 
 def tube(path, radii, segs=14, ellip=(1.0, 1.0), caps=True):
-    """Ống đi theo đường path (toạ độ Godot), bán kính thay đổi dần; ellip = độ dẹt (u, v) của tiết diện."""
+    """Ống đi theo đường path, bán kính thay đổi dần; ellip = độ dẹt (u, v) của tiết diện."""
     pts = [Vector(p) for p in path]
     rings = []
     for i, p in enumerate(pts):
@@ -230,7 +194,7 @@ def tube(path, radii, segs=14, ellip=(1.0, 1.0), caps=True):
 
 
 def ellipsoid(center, radii, rot=(0, 0, 0), seg=20, ring=12, shape=None):
-    """Mặt cầu dẹt. center/radii kiểu Godot; rot = góc Euler (độ) quanh các trục Godot; shape(v) chỉnh hình ở toạ độ cục bộ."""
+    """Mặt cầu dẹt. center/radii kiểu Godot; rot = góc Euler (độ) quanh các trục Godot; shape(p) chỉnh hình ở toạ độ cục bộ."""
     bm = bmesh.new()
     bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=ring, radius=1.0)
     rot_m = Euler([math.radians(a) for a in rot], "XYZ").to_matrix()
@@ -238,25 +202,23 @@ def ellipsoid(center, radii, rot=(0, 0, 0), seg=20, ring=12, shape=None):
         p = Vector((v.co.x * radii[0], v.co.z * radii[1], v.co.y * radii[2]))   # cầu đơn vị: z là trục dọc của uvsphere
         if shape:
             p = shape(p)
-        p = rot_m @ p + Vector(center)
-        v.co = G(p)
+        v.co = G(rot_m @ p + Vector(center))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     return bm
 
 
 def torus(center, big, small, rot=(0, 0, 0), segs=20, tsegs=8):
     rot_m = Euler([math.radians(a) for a in rot], "XYZ").to_matrix()
-    rings = []
+    bm = bmesh.new()
+    vr = []
     for i in range(segs):
         a = 2 * math.pi * i / segs
         ring = []
         for j in range(tsegs):
             b = 2 * math.pi * j / tsegs
             p = Vector(((big + small * math.cos(b)) * math.cos(a), small * math.sin(b), (big + small * math.cos(b)) * math.sin(a)))
-            ring.append(G(rot_m @ p + Vector(center)))
-        rings.append(ring)
-    bm = bmesh.new()
-    vr = [[bm.verts.new(p) for p in ring] for ring in rings]
+            ring.append(bm.verts.new(G(rot_m @ p + Vector(center))))
+        vr.append(ring)
     for i in range(segs):
         for j in range(tsegs):
             bm.faces.new((vr[i][j], vr[(i + 1) % segs][j], vr[(i + 1) % segs][(j + 1) % tsegs], vr[i][(j + 1) % tsegs]))
@@ -274,149 +236,182 @@ def slab(center, size, cuts=0, rot=(0, 0, 0)):
     rot_m = Euler([math.radians(a) for a in rot], "XYZ").to_matrix()
     for v in bm.verts:
         p = Vector((v.co.x * size[0], v.co.z * size[1], v.co.y * size[2]))
-        # bo tròn mép nhẹ: kéo đỉnh về phía tâm để pháp tuyến mượt khi shade smooth
         v.co = G(rot_m @ p + Vector(center))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     return bm
 
 
-# ---------------------------------------------------------------- THÂN
-TORSO_PROFILE = [(0.001, 0.50), (0.10, 0.51), (0.162, 0.56), (0.17, 0.70), (0.195, 0.86), (0.185, 0.97), (0.11, 1.03), (0.07, 1.06), (0.001, 1.07)]
-finish("body__torso", lathe(TORSO_PROFILE, sz=0.9), "skin", lambda p: smooth_w(p, ["hips", "spine", "neck"], 0.2))
-finish("body__neck", tube([(0, 1.0, 0), (0, 1.12, 0)], [0.065, 0.062]), "skin", "neck")
+# ================================================================ THÂN
+# Thân: tiết diện elip (x = nửa rộng, z = nửa sâu = 0.68 * x). Hông rộng, eo thon, ngực nở, vai.
+TORSO = [(0.001, 0.86), (0.11, 0.88), (0.16, 0.93), (0.172, 1.0), (0.155, 1.08), (0.143, 1.13), (0.15, 1.2), (0.163, 1.29),
+         (0.172, 1.37), (0.165, 1.43), (0.1, 1.47), (0.058, 1.5), (0.001, 1.52)]
+TORSO_SZ = 0.68
+torso_w = lambda p: smooth_w(p, ["hips", "spine", "neck"], 0.25)
+finish("body__torso", lathe(TORSO, sz=TORSO_SZ), "skin", torso_w)
+finish("body__neck", tube([(0, 1.47, 0), (0, 1.56, 0.005)], [0.056, 0.052]), "skin", "neck")
+for sx in (-1.0, 1.0):
+    finish(f"body__delt{int(sx)}", ellipsoid((sx * 0.192, 1.388, 0), (0.05, 0.058, 0.05)), "skin", "spine")
 
 
 def head_shape(p):
-    s = max(0.0, min(1.0, (p.y + 0.05) / -0.27))
-    k = 1.0 - 0.17 * s * s
-    return Vector((p.x * k, p.y, p.z * k * (1.0 - 0.02 * s)))
+    """Đầu: hàm dưới thon lại, cằm nhô ra trước một chút."""
+    s = clamp01((-p.y - 0.03) / 0.09)
+    k = 1.0 - 0.3 * s * s
+    return Vector((p.x * k, p.y, p.z * k + 0.012 * s))
 
 
-finish("body__head", ellipsoid(H(0, 0, 0), (0.34, 0.31, 0.32), seg=40, ring=26, shape=head_shape), "skin", "head")
+finish("body__head", ellipsoid(H(0, 0, 0), (0.078, 0.117, 0.097), seg=44, ring=30, shape=head_shape), "skin", "head")
 for sx in (-1, 1):
-    finish(f"body__ear{sx}", ellipsoid(H(sx * 0.325, -0.03, -0.01), (0.026, 0.05, 0.04)), "skin", "head")
+    finish(f"body__ear{sx}", ellipsoid(H(sx * 0.077, -0.005, -0.005), (0.009, 0.027, 0.018), rot=(0, sx * 12, 0)), "skin", "head")
 
-LIMBS = {
-    "l": {"arm": [(-0.26, 0.95, 0), (-0.295, 0.80, 0), (-0.305, 0.75, 0), (-0.315, 0.60, 0.0)], "ar": [0.062, 0.055, 0.052, 0.045]},
-    "r": {"arm": [(0.26, 0.95, 0), (0.295, 0.80, 0), (0.305, 0.75, 0), (0.315, 0.60, 0.0)], "ar": [0.062, 0.055, 0.052, 0.045]},
-}
 for side, sx in (("l", -1.0), ("r", 1.0)):
-    arm_b = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}", "spine"]
-    finish(f"body__arm_{side}", tube(LIMBS[side]["arm"], LIMBS[side]["ar"]), "skin", lambda p, b=arm_b: smooth_w(p, b[:3], 0.1))
-    hand_b = f"hand_{side}"
-    finish(f"body__hand_{side}", ellipsoid((sx * 0.318, 0.515, 0.012), (0.04, 0.056, 0.032)), "skin", hand_b)
-    finish(f"body__thumb_{side}", ellipsoid((sx * 0.28, 0.53, 0.035), (0.014, 0.032, 0.016), rot=(0, 0, sx * 30)), "skin", hand_b)
+    arm_b = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}"]
+    arm_path = [(sx * 0.2, 1.41, 0), (sx * 0.212, 1.27, 0), (sx * 0.222, 1.14, 0), (sx * 0.229, 1.0, 0), (sx * 0.235, 0.88, 0)]
+    finish(f"body__arm_{side}", tube(arm_path, [0.054, 0.048, 0.042, 0.038, 0.029]), "skin", lambda p, b=arm_b: smooth_w(p, b, 0.12))
+    hb = f"hand_{side}"
+    finish(f"body__palm_{side}", ellipsoid((sx * 0.239, 0.815, 0.004), (0.037, 0.058, 0.017)), "skin", hb)
+    finish(f"body__fingers_{side}", tube([(sx * 0.24, 0.78, 0.01), (sx * 0.242, 0.72, 0.014)], [0.031, 0.022], 10, (1.0, 0.55)), "skin", hb)
+    finish(f"body__thumb_{side}", tube([(sx * 0.212, 0.84, 0.02), (sx * 0.208, 0.79, 0.034), (sx * 0.214, 0.75, 0.04)], [0.012, 0.01, 0.007], 8), "skin", hb)
     leg_b = [f"leg_{side}_up", f"leg_{side}_lo", f"foot_{side}"]
-    finish(f"body__leg_{side}", tube([(sx * 0.1, 0.56, 0), (sx * 0.1, 0.32, 0), (sx * 0.1, 0.28, 0), (sx * 0.1, 0.08, 0)],
-                                     [0.085, 0.07, 0.068, 0.052]), "skin", lambda p, b=leg_b: smooth_w(p, b[:2], 0.1))
+    leg_path = [(sx * 0.09, 0.97, 0), (sx * 0.094, 0.72, 0.004), (sx * 0.095, 0.5, 0.008), (sx * 0.094, 0.34, 0), (sx * 0.09, 0.1, 0)]
+    finish(f"body__leg_{side}", tube(leg_path, [0.088, 0.073, 0.054, 0.053, 0.035]), "skin", lambda p, b=leg_b: smooth_w(p, b, 0.15))
 
 # ---------------------------------------------------------------- GIÀY
 for side, sx in (("l", -1.0), ("r", 1.0)):
     fb = f"foot_{side}"
-    finish(f"shoes__boot_{side}", ellipsoid((sx * 0.1, 0.075, 0.04), (0.075, 0.075, 0.135)), "shoe", fb)
-    finish(f"shoes__cuff_{side}", tube([(sx * 0.1, 0.17, 0), (sx * 0.1, 0.1, 0)], [0.068, 0.07]), "shoe", fb)
-    finish(f"shoes__sole_{side}", ellipsoid((sx * 0.1, 0.022, 0.045), (0.08, 0.022, 0.15)), "sole", fb)
-    finish(f"shoes__toe_{side}", ellipsoid((sx * 0.1, 0.09, 0.15), (0.04, 0.035, 0.04)), "sole", fb)
+    finish(f"shoes__boot_{side}", ellipsoid((sx * 0.09, 0.05, 0.045), (0.046, 0.05, 0.125)), "shoe", fb)
+    finish(f"shoes__cuff_{side}", tube([(sx * 0.09, 0.22, 0), (sx * 0.09, 0.08, 0)], [0.047, 0.044], 14), "shoe", fb)
+    finish(f"shoes__sole_{side}", ellipsoid((sx * 0.09, 0.012, 0.05), (0.05, 0.012, 0.135)), "sole", fb)
+    finish(f"shoes__toe_{side}", ellipsoid((sx * 0.09, 0.055, 0.14), (0.034, 0.03, 0.03)), "sole", fb)
 
-# ---------------------------------------------------------------- MẶT (cứng theo xương đầu)
-for sx in (-1.0, 1.0):
-    ex = sx * 0.125
-    tag = "l" if sx < 0 else "r"
-    finish(f"face__eye_base_{tag}", ellipsoid(H(ex, -0.035, 0.281), (0.06, 0.084, 0.027)), "ink", "head")
-    finish(f"face__iris_{tag}", ellipsoid(H(ex, -0.05, 0.296), (0.043, 0.056, 0.016)), "eye", "head")
-    finish(f"face__glow_{tag}", ellipsoid(H(ex, -0.088, 0.30), (0.033, 0.02, 0.012)), "eye_light", "head")
-    finish(f"face__pupil_{tag}", ellipsoid(H(ex, -0.046, 0.304), (0.017, 0.03, 0.01)), "ink", "head")
-    finish(f"face__hl1_{tag}", ellipsoid(H(ex + sx * 0.021, -0.001, 0.309), (0.017, 0.017, 0.008)), "white", "head")
-    finish(f"face__hl2_{tag}", ellipsoid(H(ex - sx * 0.018, -0.085, 0.306), (0.009, 0.009, 0.006)), "white", "head")
-    finish(f"face__lash_{tag}", tube([H(ex - sx * 0.055, 0.035, 0.30), H(ex, 0.049, 0.304), H(ex + sx * 0.058, 0.03, 0.296)],
-                                     [0.009, 0.011, 0.007], 8, (1.0, 0.7)), "ink", "head")
-    finish(f"face__brow_{tag}", tube([H(ex - sx * 0.05, 0.097 + 0.01 * sx * -1 * 0, 0.288), H(ex + sx * 0.05, 0.105, 0.286)],
-                                     [0.011, 0.009], 8, (1.0, 0.8)), "hair", "head")
-    finish(f"face__blush_{tag}", ellipsoid(H(sx * 0.2, -0.1, 0.235), (0.045, 0.028, 0.012), rot=(0, sx * 38, 0)), "blush", "head")
-finish("face__nose", ellipsoid(H(0, -0.077, 0.316), (0.013, 0.013, 0.012)), "skin_dark", "head")
-finish("face__mouth", tube([H(-0.025, -0.125, 0.3), H(0, -0.131, 0.302), H(0.025, -0.125, 0.3)], [0.006, 0.007, 0.006], 8), "mouth", "head")
-
-# ---------------------------------------------------------------- TÓC
-finish("hair_base__cap", ellipsoid(H(0, 0.055, -0.055), (0.358, 0.335, 0.345), seg=36, ring=22), "hair", "head")
-for i, x in enumerate([-0.24, -0.16, -0.08, 0.0, 0.08, 0.16, 0.24]):
-    h = [0.2, 0.24, 0.22, 0.2, 0.22, 0.24, 0.2][i]
-    yc = math.sqrt(0.335 ** 2 - x * x) * 0.93 - h * 0.5
-    zc = math.sqrt(max(0.335 ** 2 - x * x - yc * yc, 0.0))
-    top = H(x, yc + h * 0.5, zc - 0.01)
-    tip = H(x * 1.05, yc - h * 0.5, zc + 0.045)
-    finish(f"hair_base__bang{i}", tube([top, ((top[0] + tip[0]) / 2, (top[1] + tip[1]) / 2, (top[2] + tip[2]) / 2 + 0.015), tip],
-                                       [0.06, 0.045, 0.002], 10), "hair", "head")
+# ================================================================ MẶT (cứng theo xương đầu)
+# mặt cục bộ: mắt ở y ≈ +0.012, mũi y ≈ -0.025, miệng y ≈ -0.065. Bề mặt trước ở z ≈ 0.085-0.097.
 for sx in (-1.0, 1.0):
     tag = "l" if sx < 0 else "r"
-    finish(f"hair_base__lock_{tag}", tube([H(sx * 0.3, 0.12, 0.04), H(sx * 0.31, -0.05, 0.05), H(sx * 0.3, -0.2, 0.07)], [0.05, 0.052, 0.012], 10),
-           "hair", "head")
-    finish(f"hair_base__lockf_{tag}", tube([H(sx * 0.26, 0.1, 0.15), H(sx * 0.27, -0.06, 0.16), H(sx * 0.265, -0.2, 0.18)], [0.032, 0.034, 0.006], 8),
-           "hair", "head")
-finish("hair_short__tuft", tube([H(0.03, 0.34, 0.08), H(0.05, 0.43, 0.12), H(0.08, 0.47, 0.17)], [0.03, 0.02, 0.003], 8), "hair", "head")
+    ex = sx * 0.036
+    finish(f"face__sclera_{tag}", ellipsoid(H(ex, 0.012, 0.081), (0.0175, 0.0092, 0.0075)), "white", "head")
+    finish(f"face__iris_{tag}", ellipsoid(H(ex, 0.012, 0.0875), (0.0085, 0.0085, 0.004)), "eye", "head")
+    finish(f"face__pupil_{tag}", ellipsoid(H(ex, 0.012, 0.0905), (0.0038, 0.0038, 0.002)), "ink", "head")
+    finish(f"face__hl_{tag}", ellipsoid(H(ex + sx * 0.003, 0.0155, 0.0925), (0.0018, 0.0018, 0.001)), "white", "head")
+    finish(f"face__lid_{tag}", tube([H(ex - sx * 0.019, 0.016, 0.0815), H(ex - sx * 0.008, 0.0225, 0.0885), H(ex + sx * 0.008, 0.023, 0.0885),
+                                      H(ex + sx * 0.02, 0.0165, 0.081)], [0.0018, 0.0026, 0.0026, 0.0018], 8), "ink", "head")
+    finish(f"face__lash_{tag}", tube([H(ex - sx * 0.018, 0.006, 0.082), H(ex, 0.0035, 0.088), H(ex + sx * 0.018, 0.007, 0.0825)],
+                                      [0.0012, 0.0016, 0.0012], 6), "ink", "head")
+    finish(f"face__brow_{tag}", tube([H(sx * 0.014, 0.040, 0.0875), H(sx * 0.036, 0.0485, 0.0855), H(sx * 0.06, 0.0455, 0.0745)],
+                                      [0.0042, 0.0048, 0.0032], 8, (1.0, 0.8)), "hair", "head")
+    finish(f"face__nostril_{tag}", ellipsoid(H(sx * 0.0115, -0.0265, 0.0985), (0.0065, 0.0055, 0.0055)), "skin_dark", "head")
+    finish(f"face__cheek_{tag}", ellipsoid(H(sx * 0.054, -0.032, 0.066), (0.02, 0.013, 0.006), rot=(0, sx * 30, 0)), "blush", "head")
+finish("face__nose", tube([H(0, 0.012, 0.09), H(0, -0.012, 0.099), H(0, -0.027, 0.107)], [0.0065, 0.0085, 0.0105], 10), "skin", "head")
+finish("face__nosetip", ellipsoid(H(0, -0.0275, 0.1045), (0.0105, 0.0085, 0.0085)), "skin", "head")
+finish("face__lip_up", tube([H(-0.018, -0.0635, 0.083), H(-0.006, -0.0585, 0.0905), H(0, -0.0605, 0.0915), H(0.006, -0.0585, 0.0905), H(0.018, -0.0635, 0.083)],
+                             [0.0028, 0.0036, 0.0034, 0.0036, 0.0028], 8, (1.0, 0.8)), "mouth", "head")
+finish("face__lip_lo", tube([H(-0.015, -0.0705, 0.083), H(0, -0.0745, 0.0885), H(0.015, -0.0705, 0.083)], [0.0033, 0.0042, 0.0033], 8, (1.0, 0.85)), "mouth", "head")
+finish("face__mouthline", tube([H(-0.019, -0.0655, 0.0825), H(0, -0.0665, 0.089), H(0.019, -0.0655, 0.0825)], [0.0011, 0.0014, 0.0011], 6), "ink", "head")
+
+# ================================================================ TÓC
+finish("hair_base__cap", ellipsoid(H(0, 0.015, -0.012), (0.0865, 0.1195, 0.1), seg=40, ring=26), "hair", "head")
+# mái rẽ ngôi lệch: mỗi bên một lọn lớn vuốt ra thái dương
+for sx, ln in ((-1.0, 1.0), (1.0, 0.85)):
+    tag = "l" if sx < 0 else "r"
+    finish(f"hair_base__bang_{tag}", tube([H(sx * 0.004, 0.112, 0.03), H(sx * 0.038, 0.098, 0.062), H(sx * 0.07, 0.066, 0.064), H(sx * 0.082, 0.03 * ln, 0.05),
+                                           H(sx * 0.084, -0.015 * ln, 0.036)], [0.014, 0.016, 0.014, 0.01, 0.003], 10, (1.0, 0.7)), "hair", "head")
+    finish(f"hair_base__bang2_{tag}", tube([H(sx * 0.03, 0.115, 0.02), H(sx * 0.05, 0.1, 0.05), H(sx * 0.068, 0.082, 0.062), H(sx * 0.076, 0.05, 0.058)],
+                                            [0.011, 0.012, 0.01, 0.003], 8, (1.0, 0.7)), "hair", "head")
+    finish(f"hair_base__sideburn_{tag}", tube([H(sx * 0.082, 0.04, 0.02), H(sx * 0.083, 0.0, 0.025), H(sx * 0.081, -0.04, 0.03)], [0.008, 0.007, 0.002], 6), "hair", "head")
+
+# tóc ngắn: gáy
+finish("hair_short__nape", tube([H(0, 0.0, -0.09), H(0, -0.06, -0.085), H(0, -0.1, -0.06)], [0.07, 0.065, 0.045], 14, (1.0, 0.7)), "hair", "head")
 # búi tóc
-finish("hair_bun__bun", ellipsoid(H(0, 0.4, -0.06), (0.14, 0.12, 0.14)), "hair", "head")
-finish("hair_bun__band", tube([H(0, 0.29, -0.06), H(0, 0.33, -0.06)], [0.105, 0.105], 20), "trim", "head")
-finish("hair_bun__pin", tube([H(-0.19, 0.4, -0.06), H(0.19, 0.4, -0.06)], [0.012, 0.012], 8), "gold", "head")
-finish("hair_bun__tuft", tube([H(0.03, 0.5, 0.08), H(0.05, 0.57, 0.11), H(0.08, 0.6, 0.15)], [0.03, 0.02, 0.003], 8), "hair", "head")
-# tóc dài: ôm sau đầu và rủ theo chuỗi xương hair1..3
-HAIR_PATH = [H(0, 0.1, -0.18), (0, 1.25, -0.27), (0, 1.0, -0.29), (0, 0.75, -0.28), (0, 0.55, -0.27)]
+finish("hair_bun__bun", ellipsoid(H(0, 0.145, -0.035), (0.05, 0.044, 0.05)), "hair", "head")
+finish("hair_bun__band", tube([H(0, 0.103, -0.03), H(0, 0.118, -0.03)], [0.047, 0.047], 18), "trim", "head")
+finish("hair_bun__pin", tube([H(-0.085, 0.145, -0.035), H(0.085, 0.145, -0.035)], [0.004, 0.004], 8), "gold", "head")
+finish("hair_bun__nape", tube([H(0, 0.0, -0.09), H(0, -0.05, -0.08)], [0.06, 0.055], 14, (1.0, 0.7)), "hair", "head")
 
-
+# tóc dài: rủ sau lưng theo chuỗi xương hair1..3 + hai lọn trước vai
 def hair_w(p):
-    y = UY(p.z)   # Blender z -> cao độ theo bản gốc
-    if y > 1.25:
+    y = p.z
+    if y > 1.58:
         return {"head": 1.0}
-    if y > 1.0:
-        t = (1.25 - y) / 0.25
+    if y > 1.4:
+        t = (1.58 - y) / 0.18
         return {"hair1": 1.0 - 0.5 * t, "hair2": 0.5 * t}
-    if y > 0.75:
-        t = (1.0 - y) / 0.25
+    if y > 1.2:
+        t = (1.4 - y) / 0.2
         return {"hair2": 1.0 - 0.5 * t, "hair3": 0.5 * t}
     return {"hair3": 1.0}
 
 
-finish("hair_long__back", tube(HAIR_PATH, [0.2, 0.21, 0.2, 0.17, 0.1], 18, (1.15, 0.7)), "hair", hair_w)
-for k, (x, l) in enumerate([(-0.1, 0.2), (0.0, 0.27), (0.1, 0.2)]):
-    finish(f"hair_long__tip{k}", tube([(x, 0.58, -0.27), (x, 0.58 - l * 0.5, -0.27), (x, 0.58 - l, -0.27)], [0.07, 0.045, 0.002], 8), "hair", "hair3")
-finish("hair_long__tie", tube([(0, 1.13, -0.27), (0, 1.07, -0.27)], [0.115, 0.115], 20, (1.1, 0.8)), "trim", hair_w)
-# tóc gai
-for i in range(6):
-    a = 2 * math.pi * i / 6
-    base = H(math.sin(a) * 0.2, 0.3, math.cos(a) * 0.2 - 0.06)
-    tip = H(math.sin(a) * 0.3, 0.55, math.cos(a) * 0.3 - 0.06)
-    finish(f"hair_spike__s{i}", tube([base, tip], [0.07, 0.002], 8), "hair", "head")
-finish("hair_spike__top", tube([H(0, 0.38, -0.06), H(0, 0.82, -0.06)], [0.09, 0.002], 8), "hair", "head")
-# phụ kiện đầu
-finish("head_band__band", tube([H(0, 0.12, 0), H(0, 0.18, 0)], [0.338, 0.338], 36, (1.07, 1.04)), "trim", "head")
-finish("head_crown__base", tube([H(0, 0.34, -0.03), H(0, 0.44, -0.03)], [0.14, 0.1], 20), "trim", "head")
-finish("head_crown__pin", tube([H(-0.22, 0.4, -0.03), H(0.22, 0.4, -0.03)], [0.014, 0.014], 8), "trim", "head")
-finish("head_crown__gem", ellipsoid(H(0, 0.2, 0.29), (0.032, 0.032, 0.02)), "gem", "head")
-
-# ---------------------------------------------------------------- ÁO
-torso_w = lambda p: smooth_w(p, ["hips", "spine", "neck"], 0.2)
-finish("robe_top__chest", lathe([(r + 0.012, y) for r, y in TORSO_PROFILE[1:-1]], sz=0.9), "robe", torso_w)
-# giao lĩnh: vạt trái đè lên vạt phải, chéo từ cổ trái xuống eo phải (bất đối xứng như áo thật)
-finish("robe_top__lapel_in", tube([(0.09, 1.0, 0.15), (0.06, 0.93, 0.168), (0.025, 0.86, 0.184)], [0.03, 0.03, 0.028], 10, (1.0, 0.3)),
-       "inner", torso_w)
-finish("robe_top__lapel_out", tube([(-0.09, 1.0, 0.155), (-0.04, 0.88, 0.19), (0.04, 0.76, 0.205), (0.12, 0.66, 0.21)], [0.033, 0.033, 0.033, 0.03], 10, (1.0, 0.3)),
-       "trim", torso_w)
-finish("robe_top__collar_in", tube([(0, 1.02, 0), (0, 1.075, 0)], [0.118, 0.12], 24), "inner", "neck")
-finish("robe_top__collar", tube([(0, 1.0, 0), (0, 1.07, 0)], [0.108, 0.112], 24), "trim", "neck")
-finish("robe_top__sash", lathe([(0.195, 0.55), (0.215, 0.55), (0.215, 0.64), (0.195, 0.64)], sz=0.92, caps=False), "trim", "hips")
-finish("robe_top__knot", ellipsoid((0, 0.6, 0.2), (0.05, 0.05, 0.035)), "trim", "hips")
-finish("robe_top__bow", ellipsoid((0, 0.6, -0.2), (0.04, 0.04, 0.03)), "trim", "hips")
+HAIR_PATH = [(0, 1.67, -0.085), (0, 1.55, -0.125), (0, 1.38, -0.138), (0, 1.2, -0.125), (0, 1.02, -0.1)]
+finish("hair_long__back", tube(HAIR_PATH, [0.085, 0.092, 0.094, 0.085, 0.05], 18, (1.0, 0.55)), "hair", hair_w)
+for k, (x, l) in enumerate([(-0.04, 0.06), (0.0, 0.1), (0.04, 0.06)]):
+    finish(f"hair_long__tip{k}", tube([(x, 1.04, -0.1), (x, 1.04 - l * 0.5, -0.1), (x, 1.04 - l, -0.1)], [0.022, 0.014, 0.002], 8), "hair", "hair3")
 for sx in (-1.0, 1.0):
     tag = "l" if sx < 0 else "r"
-    finish(f"robe_top__loop_{tag}", ellipsoid((sx * 0.075, 0.61, -0.2), (0.07, 0.04, 0.02), rot=(0, 0, sx * 22)), "trim", "hips")
-    finish(f"robe_top__tail_{tag}", tube([(sx * 0.06, 0.6, -0.205), (sx * 0.06, 0.45, -0.205), (sx * 0.06, 0.3, -0.205)], [0.027, 0.027, 0.02], 8, (1.0, 0.3)),
-           "trim", lambda p, n=f"tail_{tag}": {"hips": 0.0001, n: 1.0} if UY(p.z) < 0.55 else {"hips": 1.0})
+    finish(f"hair_long__front_{tag}", tube([H(sx * 0.082, 0.02, 0.02), (sx * 0.09, 1.52, 0.04), (sx * 0.1, 1.38, 0.07), (sx * 0.1, 1.22, 0.075)],
+                                            [0.016, 0.02, 0.019, 0.004], 10, (1.0, 0.6)), "hair", hair_w)
+finish("hair_long__tie", tube([(0, 1.36, -0.13), (0, 1.33, -0.13)], [0.052, 0.052], 18, (1.0, 0.7)), "trim", hair_w)
+# tóc đuôi ngựa
+finish("hair_ponytail__tie", tube([H(0, 0.075, -0.1), H(0, 0.095, -0.108)], [0.034, 0.034], 14), "trim", "head")
+finish("hair_ponytail__tail", tube([H(0, 0.085, -0.104), (0, 1.7, -0.16), (0, 1.58, -0.22), (0, 1.4, -0.235), (0, 1.22, -0.2), (0, 1.08, -0.16)],
+                                    [0.03, 0.04, 0.042, 0.036, 0.022, 0.004], 14, (1.0, 0.8)), "hair", hair_w)
+finish("hair_ponytail__nape", tube([H(0, 0.0, -0.09), H(0, -0.05, -0.08)], [0.06, 0.055], 14, (1.0, 0.7)), "hair", "head")
+# hai búi hai bên
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"hair_twin__bun_{tag}", ellipsoid(H(sx * 0.068, 0.1, -0.012), (0.04, 0.04, 0.04)), "hair", "head")
+    finish(f"hair_twin__ring_{tag}", torus(H(sx * 0.066, 0.088, -0.012), 0.028, 0.006, rot=(0, 0, sx * 70)), "trim", "head")
+    finish(f"hair_twin__ribbon_{tag}", tube([H(sx * 0.075, 0.085, -0.02), H(sx * 0.098, 0.0, -0.03), H(sx * 0.105, -0.1, -0.035)], [0.011, 0.012, 0.007], 8, (1.0, 0.4)), "trim", "head")
+finish("hair_twin__nape", tube([H(0, 0.0, -0.09), H(0, -0.1, -0.075)], [0.062, 0.05], 14, (1.0, 0.7)), "hair", "head")
+# tóc dựng ngược ra sau (kiểu hung dữ)
+for i in range(7):
+    a = math.pi * 2 * i / 7
+    bx, bz = math.sin(a) * 0.05, math.cos(a) * 0.05 - 0.02
+    finish(f"hair_spike__s{i}", tube([H(bx, 0.11, bz), H(bx * 1.6, 0.17, bz * 1.3 - 0.06), H(bx * 2.4, 0.2, bz * 1.6 - 0.14)], [0.026, 0.02, 0.002], 8), "hair", "head")
+finish("hair_spike__nape", tube([H(0, 0.0, -0.09), H(0, -0.07, -0.08)], [0.066, 0.058], 14, (1.0, 0.7)), "hair", "head")
+
+# phụ kiện đầu
+finish("head_band__band", tube([H(0, 0.06, -0.004), H(0, 0.082, -0.004)], [0.075, 0.075], 36, (1.0, 1.17)), "trim", "head")
+finish("head_crown__base", tube([H(0, 0.118, -0.02), H(0, 0.16, -0.02)], [0.036, 0.026], 20), "trim", "head")
+finish("head_crown__pin", tube([H(-0.07, 0.14, -0.02), H(0.07, 0.14, -0.02)], [0.004, 0.004], 8), "trim", "head")
+finish("head_crown__gem", ellipsoid(H(0, 0.088, 0.066), (0.008, 0.008, 0.005)), "gem", "head")
+finish("head_khan__band", tube([H(0, 0.056, -0.004), H(0, 0.082, -0.004)], [0.076, 0.076], 36, (1.0, 1.17)), "trim", "head")
+finish("head_khan__knot", ellipsoid(H(0, 0.065, -0.1), (0.022, 0.018, 0.016)), "trim", "head")
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"head_khan__tail_{tag}", tube([H(sx * 0.01, 0.062, -0.105), (sx * 0.025, 1.6, -0.16), (sx * 0.035, 1.42, -0.17), (sx * 0.04, 1.24, -0.15)],
+                                         [0.011, 0.013, 0.012, 0.004], 8, (1.0, 0.3)), "trim", hair_w)
+finish("head_non__hat", lathe([(0.001, 1.95), (0.04, 1.935), (0.11, 1.9), (0.19, 1.855), (0.265, 1.815), (0.255, 1.806), (0.1, 1.84), (0.001, 1.85)], segs=40), "hat", "head")
+finish("head_non__rim", tube([(0, 1.808, 0), (0, 1.82, 0)], [0.262, 0.26], 40), "trim", "head")
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"head_non__strap_{tag}", tube([H(sx * 0.082, 0.04, 0.0), H(sx * 0.07, -0.04, 0.04), H(sx * 0.03, -0.1, 0.07)], [0.004, 0.004, 0.004], 6), "trim", "head")
+
+# ================================================================ ÁO
+finish("robe_top__chest", lathe([(r + 0.012, y) for r, y in TORSO[2:-1]], sz=TORSO_SZ), "robe", torso_w)
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"robe_top__shoulder_{tag}", ellipsoid((sx * 0.194, 1.395, 0), (0.063, 0.07, 0.063)), "robe", lambda p, n=f"arm_{tag}_up": {n: 0.5, "spine": 0.5})
+# giao lĩnh: vạt trái đè lên vạt phải, chéo từ cổ trái xuống eo phải
+finish("robe_top__lapel_in", tube([(0.04, 1.5, 0.05), (0.03, 1.45, 0.113), (0.015, 1.4, 0.126)], [0.014, 0.014, 0.013], 10, (1.0, 0.3)), "inner", torso_w)
+finish("robe_top__lapel_out", tube([(-0.045, 1.5, 0.052), (-0.03, 1.44, 0.117), (0.0, 1.34, 0.13), (0.05, 1.22, 0.123), (0.09, 1.11, 0.117)],
+                                    [0.016, 0.017, 0.017, 0.016, 0.015], 10, (1.0, 0.3)), "trim", torso_w)
+finish("robe_top__collar_in", tube([(0, 1.485, 0.002), (0, 1.535, 0.004)], [0.06, 0.058], 24), "inner", "neck")
+finish("robe_top__collar", tube([(0, 1.475, 0.002), (0, 1.52, 0.004)], [0.068, 0.064], 24), "trim", "neck")
+finish("robe_top__sash", lathe([(0.15, 1.03), (0.168, 1.03), (0.168, 1.11), (0.15, 1.11)], sz=0.74, caps=False), "trim", "hips")
+finish("robe_top__knot", ellipsoid((0.0, 1.07, 0.12), (0.03, 0.035, 0.02)), "trim", "hips")
+finish("robe_top__bow", ellipsoid((0, 1.07, -0.115), (0.022, 0.025, 0.018)), "trim", "hips")
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"robe_top__loop_{tag}", ellipsoid((sx * 0.045, 1.075, -0.115), (0.045, 0.025, 0.012), rot=(0, 0, sx * 22)), "trim", "hips")
+    finish(f"robe_top__tail_{tag}", tube([(sx * 0.04, 1.06, -0.12), (sx * 0.04, 0.93, -0.12), (sx * 0.04, 0.8, -0.12)], [0.016, 0.016, 0.012], 8, (1.0, 0.3)),
+           "trim", lambda p, n=f"tail_{tag}": {n: 1.0} if p.z < 1.0 else {"hips": 1.0})
 
 
 def skirt_w(p):
     """Váy: phần trên theo hông, phần dưới theo hai đùi; pha trộn mượt theo x để mép váy tách ra khi bước mà không bị rách ở giữa."""
-    t = max(0.0, min(1.0, (0.58 - UY(p.z)) / 0.45))
-    a = max(0.0, min(1.0, 0.5 + p.x / 0.16))   # nghiêng về chân phải (+x)
-    k = 0.8 * t
+    t = clamp01((1.04 - p.z) / 0.8)
+    a = clamp01(0.5 + p.x / 0.2)   # nghiêng về chân phải (+x)
+    k = 0.75 * t
     ws = {"hips": 1.0 - k}
     if k * (1 - a) > 0.001:
         ws["leg_l_up"] = k * (1 - a)
@@ -425,106 +420,87 @@ def skirt_w(p):
     return ws
 
 
-finish("robe_long__skirt", lathe([(0.18, 0.58), (0.2, 0.46), (0.225, 0.3), (0.25, 0.15), (0.265, 0.06), (0.265, 0.04)], caps=False), "robe", skirt_w)
-finish("robe_long__petti", lathe([(0.255, 0.07), (0.275, 0.065), (0.278, 0.03), (0.252, 0.03)], caps=False), "inner", skirt_w)
-finish("robe_long__hem", lathe([(0.243, 0.15), (0.268, 0.14), (0.272, 0.09), (0.247, 0.09)], caps=False), "trim", skirt_w)
-finish("robe_long__panel", tube([(0, 0.57, 0.185), (0, 0.4, 0.215), (0, 0.17, 0.256)], [0.06, 0.06, 0.064], 10, (1.0, 0.22)), "inner", skirt_w)
+finish("robe_long__skirt", lathe([(0.158, 1.05), (0.172, 0.95), (0.2, 0.75), (0.228, 0.5), (0.25, 0.28), (0.265, 0.1), (0.267, 0.06)], sz=0.95, caps=False), "robe", skirt_w)
+finish("robe_long__petti", lathe([(0.262, 0.1), (0.272, 0.09), (0.274, 0.05), (0.262, 0.05)], sz=0.95, caps=False), "inner", skirt_w)
+finish("robe_long__hem", lathe([(0.254, 0.22), (0.264, 0.21), (0.267, 0.16), (0.256, 0.16)], sz=0.95, caps=False), "trim", skirt_w)
+finish("robe_long__panel", tube([(0, 1.04, 0.158), (0, 0.8, 0.185), (0, 0.5, 0.215), (0, 0.15, 0.255)], [0.045, 0.045, 0.048, 0.05], 10, (1.0, 0.18)), "inner", skirt_w)
 for sx in (-1.0, 1.0):
     tag = "l" if sx < 0 else "r"
-    finish(f"robe_long__cloud_{tag}", ellipsoid((sx * 0.14, 0.3, 0.178), (0.034, 0.034, 0.01), rot=(0, sx * 38, 0)), "trim", skirt_w)
-    finish(f"robe_long__cloud2_{tag}", ellipsoid((sx * 0.165, 0.265, 0.165), (0.024, 0.024, 0.008), rot=(0, sx * 55, 0)), "trim", skirt_w)
-finish("robe_short__skirt", lathe([(0.18, 0.6), (0.2, 0.5), (0.23, 0.4), (0.235, 0.38)], caps=False), "robe", skirt_w)
-finish("robe_short__hem", lathe([(0.222, 0.43), (0.237, 0.41), (0.239, 0.37), (0.222, 0.37)], caps=False), "trim", skirt_w)
+    finish(f"robe_long__cloud_{tag}", ellipsoid((sx * 0.1, 0.55, 0.19), (0.024, 0.024, 0.006), rot=(0, sx * 28, 0)), "trim", skirt_w)
+    finish(f"robe_long__cloud2_{tag}", ellipsoid((sx * 0.13, 0.46, 0.18), (0.017, 0.017, 0.005), rot=(0, sx * 38, 0)), "trim", skirt_w)
+finish("robe_mid__skirt", lathe([(0.158, 1.05), (0.172, 0.95), (0.198, 0.78), (0.218, 0.6), (0.225, 0.52)], sz=0.95, caps=False), "robe", skirt_w)
+finish("robe_mid__hem", lathe([(0.214, 0.6), (0.226, 0.58), (0.228, 0.5), (0.215, 0.5)], sz=0.95, caps=False), "trim", skirt_w)
+finish("robe_mid__panel", tube([(0, 1.04, 0.158), (0, 0.8, 0.18), (0, 0.55, 0.206)], [0.04, 0.04, 0.042], 10, (1.0, 0.18)), "inner", skirt_w)
+finish("robe_short__skirt", lathe([(0.158, 1.05), (0.175, 0.95), (0.198, 0.82), (0.206, 0.74)], sz=0.95, caps=False), "robe", skirt_w)
+finish("robe_short__hem", lathe([(0.196, 0.8), (0.206, 0.78), (0.208, 0.72), (0.197, 0.72)], sz=0.95, caps=False), "trim", skirt_w)
+
+# quần ôm chân, hộ tay
+for side, sx in (("l", -1.0), ("r", 1.0)):
+    lb = [f"leg_{side}_up", f"leg_{side}_lo", f"foot_{side}"]
+    ab = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}"]
+    finish(f"pants__leg_{side}", tube([(sx * 0.09, 0.98, 0), (sx * 0.094, 0.72, 0.004), (sx * 0.095, 0.5, 0.008), (sx * 0.094, 0.34, 0), (sx * 0.09, 0.14, 0)],
+                                      [0.094, 0.078, 0.059, 0.058, 0.042], 14), "pants", lambda p, b=lb: smooth_w(p, b, 0.15))
+    finish(f"sleeve_guard__bracer_{side}", tube([(sx * 0.226, 1.06, 0), (sx * 0.232, 0.95, 0), (sx * 0.236, 0.865, 0)], [0.045, 0.041, 0.034], 14), "shoe",
+           lambda p, b=ab: smooth_w(p, b[:2], 0.12))
+    finish(f"sleeve_guard__strap_{side}", tube([(sx * 0.228, 1.03, 0), (sx * 0.23, 1.01, 0)], [0.047, 0.047], 14), "gold", lambda p, b=ab: smooth_w(p, b[:2], 0.12))
 
 # tay áo
 for side, sx in (("l", -1.0), ("r", 1.0)):
     ab = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}"]
-    wide = [(sx * 0.26, 0.96, 0), (sx * 0.295, 0.8, 0), (sx * 0.31, 0.68, 0), (sx * 0.32, 0.56, 0), (sx * 0.325, 0.5, 0)]
-    finish(f"sleeve_wide__sleeve_{side}", tube(wide, [0.078, 0.088, 0.108, 0.126, 0.13], 20), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    finish(f"sleeve_wide__cuff_{side}", tube([(sx * 0.322, 0.535, 0), (sx * 0.325, 0.495, 0)], [0.132, 0.132], 20), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    finish(f"sleeve_wide__lining_{side}", tube([(sx * 0.325, 0.502, 0), (sx * 0.326, 0.49, 0)], [0.108, 0.108], 20), "inner", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    nar = [(sx * 0.26, 0.96, 0), (sx * 0.295, 0.8, 0), (sx * 0.305, 0.74, 0), (sx * 0.31, 0.66, 0)]
-    finish(f"sleeve_narrow__sleeve_{side}", tube(nar, [0.074, 0.07, 0.07, 0.07], 16), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    finish(f"sleeve_narrow__cuff_{side}", tube([(sx * 0.309, 0.68, 0), (sx * 0.312, 0.645, 0)], [0.076, 0.076], 16), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
+    wide = [(sx * 0.2, 1.43, 0), (sx * 0.212, 1.27, 0), (sx * 0.222, 1.12, 0), (sx * 0.23, 0.96, 0), (sx * 0.236, 0.84, 0), (sx * 0.238, 0.8, 0)]
+    finish(f"sleeve_wide__sleeve_{side}", tube(wide, [0.062, 0.066, 0.078, 0.092, 0.1, 0.1], 20), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.12))
+    finish(f"sleeve_wide__cuff_{side}", tube([(sx * 0.237, 0.835, 0), (sx * 0.238, 0.79, 0)], [0.102, 0.102], 20), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.12))
+    finish(f"sleeve_wide__lining_{side}", tube([(sx * 0.238, 0.792, 0), (sx * 0.238, 0.784, 0)], [0.086, 0.086], 20), "inner", lambda p, b=ab: smooth_w(p, b[:2], 0.12))
+    nar = [(sx * 0.2, 1.43, 0), (sx * 0.212, 1.27, 0), (sx * 0.222, 1.12, 0), (sx * 0.23, 0.99, 0), (sx * 0.235, 0.9, 0)]
+    finish(f"sleeve_narrow__sleeve_{side}", tube(nar, [0.059, 0.053, 0.047, 0.043, 0.04], 16), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.12))
+    finish(f"sleeve_narrow__cuff_{side}", tube([(sx * 0.234, 0.915, 0), (sx * 0.236, 0.885, 0)], [0.043, 0.043], 16), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.12))
 
-# ---------------------------------------------------------------- ĐỒ SAU LƯNG
+
+# ================================================================ ĐỒ SAU LƯNG
 def cape_w(p):
-    y = UY(p.z)
-    t = max(0.0, min(1.0, (0.98 - y) / 0.5))
+    t = clamp01((1.38 - p.z) / 0.83)
     return {"cape1": 1.0 - t, "cape2": t} if 0.01 < t < 0.99 else ({"cape1": 1.0} if t <= 0.01 else {"cape2": 1.0})
 
 
-finish("back_cape__lining", slab((0, 0.58, -0.21), (0.5, 0.85, 0.028), cuts=6), "trim", cape_w)
-finish("back_cape__outer", slab((0, 0.58, -0.232), (0.45, 0.8, 0.028), cuts=6), "robe", cape_w)
-finish("back_sword__blade", slab((0, 0.82, -0.31), (0.05, 0.85, 0.02), rot=(0, 0, 38)), "steel", "spine")
-finish("back_sword__guard", slab((-0.09, 0.51, -0.31), (0.2, 0.04, 0.04), rot=(0, 0, 38)), "gold", "spine")
-finish("back_sword__grip", slab((-0.13, 0.4, -0.31), (0.05, 0.2, 0.05), rot=(0, 0, 38)), "trim", "spine")
-for k in (0, 1):
-    pass
+finish("back_cape__lining", slab((0, 0.93, -0.13), (0.38, 0.9, 0.012), cuts=8), "trim", cape_w)
+finish("back_cape__outer", slab((0, 0.93, -0.142), (0.35, 0.87, 0.012), cuts=8), "robe", cape_w)
+# kiếm đeo chéo sau lưng, chuôi nhô qua vai phải
+SW_ROT = (0, 0, -36)
+sd = Vector((math.sin(math.radians(36)), math.cos(math.radians(36))))   # hướng lưỡi kiếm (x, y)
+sc = Vector((0.0, 1.1))
+sz_ = -0.135
 
-# ---------------------------------------------------------------- PHỤ KIỆN HÔNG (mỗi bên 1 bộ; Godot chọn bên nào hiện)
+
+def sword_at(t):
+    return (sc.x + sd.x * t, sc.y + sd.y * t, sz_)
+
+
+finish("back_sword__blade", slab(sword_at(0.0), (0.034, 0.8, 0.012), rot=SW_ROT), "steel", "spine")
+finish("back_sword__guard", slab(sword_at(0.41), (0.1, 0.018, 0.02), rot=SW_ROT), "gold", "spine")
+finish("back_sword__grip", slab(sword_at(0.5), (0.024, 0.14, 0.024), rot=SW_ROT), "trim", "spine")
+finish("back_sword__pommel", ellipsoid(sword_at(0.58), (0.016, 0.016, 0.016)), "gold", "spine")
+
+# ================================================================ PHỤ KIỆN HÔNG (mỗi bên 1 bộ; Godot chọn bên nào hiện)
 for side, sx in (("l", -1.0), ("r", 1.0)):
     pb = f"pend_{side}"
-    finish(f"acc_pouch_{side}__bag", ellipsoid((sx * 0.27, 0.45, 0.13), (0.055, 0.06, 0.035)), "skin_dark", pb)
-    finish(f"acc_pouch_{side}__flap", ellipsoid((sx * 0.27, 0.5, 0.135), (0.058, 0.025, 0.04)), "shoe", pb)
-    finish(f"acc_jade_{side}__rope", tube([(sx * 0.27, 0.55, 0.13), (sx * 0.27, 0.43, 0.13)], [0.006, 0.006], 6), "trim", pb)
-    finish(f"acc_jade_{side}__ring", torus((sx * 0.27, 0.4, 0.13), 0.028, 0.012, rot=(90, 0, 0)), "jade", pb)
-    for k, dx in enumerate((-0.014, 0, 0.014)):
-        finish(f"acc_jade_{side}__tassel{k}", tube([(sx * 0.27 + dx, 0.37, 0.13), (sx * 0.27 + dx, 0.27, 0.13)], [0.008, 0.005], 6), "trim", pb)
-    finish(f"acc_bell_{side}__rope", tube([(sx * 0.27, 0.55, 0.13), (sx * 0.27, 0.46, 0.13)], [0.005, 0.005], 6), "trim", pb)
-    finish(f"acc_bell_{side}__bell", ellipsoid((sx * 0.27, 0.42, 0.13), (0.035, 0.035, 0.035)), "gold", pb)
+    x = sx * 0.19
+    finish(f"acc_pouch_{side}__bag", ellipsoid((x, 0.94, 0.075), (0.04, 0.045, 0.026)), "skin_dark", pb)
+    finish(f"acc_pouch_{side}__flap", ellipsoid((x, 0.975, 0.078), (0.043, 0.02, 0.029)), "shoe", pb)
+    finish(f"acc_jade_{side}__rope", tube([(x, 1.06, 0.075), (x, 0.95, 0.075)], [0.003, 0.003], 6), "trim", pb)
+    finish(f"acc_jade_{side}__ring", torus((x, 0.92, 0.075), 0.02, 0.008, rot=(90, 0, 0)), "jade", pb)
+    for k, dx in enumerate((-0.009, 0, 0.009)):
+        finish(f"acc_jade_{side}__tassel{k}", tube([(x + dx, 0.9, 0.075), (x + dx, 0.78, 0.075)], [0.005, 0.003], 6), "trim", pb)
+    finish(f"acc_bell_{side}__rope", tube([(x, 1.06, 0.075), (x, 0.97, 0.075)], [0.003, 0.003], 6), "trim", pb)
+    finish(f"acc_bell_{side}__bell", ellipsoid((x, 0.94, 0.075), (0.022, 0.022, 0.022)), "gold", pb)
+    finish(f"acc_gourd_{side}__rope", tube([(x, 1.06, 0.075), (x, 0.98, 0.075)], [0.003, 0.003], 6), "trim", pb)
+    finish(f"acc_gourd_{side}__top", ellipsoid((x, 0.955, 0.075), (0.02, 0.022, 0.02)), "gourd", pb)
+    finish(f"acc_gourd_{side}__bottom", ellipsoid((x, 0.9, 0.075), (0.034, 0.04, 0.034)), "gourd", pb)
+    finish(f"acc_gourd_{side}__cork", ellipsoid((x, 0.98, 0.075), (0.008, 0.009, 0.008)), "shoe", pb)
+    finish(f"acc_gourd_{side}__tassel", tube([(x, 0.86, 0.075), (x, 0.78, 0.075)], [0.007, 0.004], 6), "trim", pb)
+    finish(f"acc_flute_{side}__flute", tube([(sx * 0.05, 1.1, 0.125), (sx * 0.2, 0.94, 0.095)], [0.01, 0.01], 8), "bamboo", "hips")
+    finish(f"acc_flute_{side}__tassel", tube([(sx * 0.195, 0.945, 0.095), (sx * 0.2, 0.86, 0.095)], [0.006, 0.004], 6), "trim", pb)
 
-# ---------------------------------------------------------------- MẢNH MỚI (bộ đồ bổ sung)
-# áo dài đến gối
-finish("robe_mid__skirt", lathe([(0.18, 0.58), (0.2, 0.5), (0.225, 0.4), (0.24, 0.3), (0.243, 0.27)], caps=False), "robe", skirt_w)
-finish("robe_mid__hem", lathe([(0.232, 0.33), (0.246, 0.31), (0.248, 0.26), (0.236, 0.26)], caps=False), "trim", skirt_w)
-finish("robe_mid__panel", tube([(0, 0.57, 0.185), (0, 0.42, 0.205), (0, 0.28, 0.23)], [0.055, 0.055, 0.058], 10, (1.0, 0.22)), "inner", skirt_w)
-# quần ôm chân
-for side, sx in (("l", -1.0), ("r", 1.0)):
-    lb = [f"leg_{side}_up", f"leg_{side}_lo", f"foot_{side}"]
-    finish(f"pants__leg_{side}", tube([(sx * 0.1, 0.57, 0), (sx * 0.1, 0.32, 0), (sx * 0.1, 0.28, 0), (sx * 0.1, 0.12, 0)],
-                                      [0.093, 0.078, 0.076, 0.062], 14), "pants", lambda p, b=lb: smooth_w(p, b[:2], 0.1))
-    ab = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}"]
-    finish(f"sleeve_guard__bracer_{side}", tube([(sx * 0.303, 0.72, 0), (sx * 0.31, 0.64, 0), (sx * 0.314, 0.575, 0)], [0.07, 0.066, 0.06], 14),
-           "shoe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    finish(f"sleeve_guard__strap_{side}", tube([(sx * 0.306, 0.68, 0), (sx * 0.309, 0.665, 0)], [0.073, 0.073], 14), "gold", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-# tóc đuôi ngựa
-finish("hair_ponytail__tie", tube([H(0, 0.27, -0.2), H(0, 0.33, -0.22)], [0.085, 0.085], 16), "trim", "head")
-finish("hair_ponytail__tail", tube([H(0, 0.3, -0.21), (0, 1.62, -0.34), (0, 1.42, -0.42), (0, 1.15, -0.4), (0, 0.9, -0.34), (0, 0.78, -0.3)],
-                                    [0.075, 0.09, 0.085, 0.07, 0.035, 0.004], 14, (1.0, 0.85)), "hair", hair_w)
-# hai búi tóc hai bên
-for sx in (-1.0, 1.0):
-    tag = "l" if sx < 0 else "r"
-    finish(f"hair_twin__bun_{tag}", ellipsoid(H(sx * 0.23, 0.33, -0.02), (0.12, 0.115, 0.115)), "hair", "head")
-    finish(f"hair_twin__ring_{tag}", torus(H(sx * 0.23, 0.26, -0.02), 0.085, 0.017, rot=(0, 0, sx * 70)), "trim", "head")
-    finish(f"hair_twin__ribbon_{tag}", tube([H(sx * 0.27, 0.26, -0.03), H(sx * 0.33, 0.0, -0.05), H(sx * 0.34, -0.3, -0.04)], [0.032, 0.036, 0.02], 10, (1.0, 0.45)),
-           "trim", "head")
-finish("hair_twin__pin", tube([H(-0.3, 0.33, -0.02), H(0.3, 0.33, -0.02)], [0.012, 0.012], 8), "gold", "head")
-# khăn quấn đầu có dải rủ
-finish("head_khan__band", tube([H(0, 0.1, 0), H(0, 0.19, 0)], [0.34, 0.34], 36, (1.07, 1.04)), "trim", "head")
-finish("head_khan__knot", ellipsoid(H(0, 0.14, -0.36), (0.07, 0.06, 0.05)), "trim", "head")
-for sx in (-1.0, 1.0):
-    tag = "l" if sx < 0 else "r"
-    finish(f"head_khan__tail_{tag}", tube([H(sx * 0.03, 0.12, -0.38), (sx * 0.07, 1.25, -0.42), (sx * 0.1, 1.0, -0.43), (sx * 0.12, 0.8, -0.42)],
-                                         [0.03, 0.034, 0.03, 0.012], 8, (1.0, 0.3)), "trim", hair_w)
-# đấu lạp
-finish("head_non__hat", lathe([(0.001, 2.02), (0.1, 1.94), (0.26, 1.82), (0.42, 1.72), (0.5, 1.675), (0.46, 1.665), (0.2, 1.7), (0.001, 1.71)]), "hat", "head")
-finish("head_non__rim", tube([(0, 1.668, 0), (0, 1.69, 0)], [0.5, 0.495], 40), "trim", "head")
-for sx in (-1.0, 1.0):
-    tag = "l" if sx < 0 else "r"
-    finish(f"head_non__strap_{tag}", tube([H(sx * 0.33, 0.12, 0.0), H(sx * 0.27, -0.12, 0.12), H(sx * 0.1, -0.3, 0.2)], [0.012, 0.012, 0.012], 6), "trim", "head")
-# hồ lô, sáo (đeo hông)
-for side, sx in (("l", -1.0), ("r", 1.0)):
-    pb = f"pend_{side}"
-    finish(f"acc_gourd_{side}__rope", tube([(sx * 0.27, 0.56, 0.13), (sx * 0.27, 0.46, 0.13)], [0.006, 0.006], 6), "trim", pb)
-    finish(f"acc_gourd_{side}__top", ellipsoid((sx * 0.27, 0.44, 0.13), (0.034, 0.036, 0.034)), "gourd", pb)
-    finish(f"acc_gourd_{side}__bottom", ellipsoid((sx * 0.27, 0.36, 0.13), (0.056, 0.062, 0.056)), "gourd", pb)
-    finish(f"acc_gourd_{side}__cork", ellipsoid((sx * 0.27, 0.475, 0.13), (0.014, 0.016, 0.014)), "shoe", pb)
-    finish(f"acc_gourd_{side}__tassel", tube([(sx * 0.27, 0.3, 0.13), (sx * 0.27, 0.2, 0.13)], [0.012, 0.007], 6), "trim", pb)
-    finish(f"acc_flute_{side}__flute", tube([(sx * 0.1, 0.64, 0.215), (sx * 0.31, 0.5, 0.17)], [0.016, 0.016], 8), "bamboo", "hips")
-    finish(f"acc_flute_{side}__tassel", tube([(sx * 0.3, 0.505, 0.17), (sx * 0.31, 0.4, 0.17)], [0.01, 0.006], 6), "trim", pb)
-
-# ---------------------------------------------------------------- ANIMATION
+# ================================================================ ANIMATION
 FPS = 30
 bpy.context.scene.render.fps = FPS
 ARM.animation_data_create()
@@ -536,7 +512,7 @@ for pb in ARM.pose.bones:
 
 def world_axis_rot(bone, axis, deg):
     """Quaternion cục bộ của xương tương ứng xoay `deg` độ quanh trục thế giới (kiểu Godot: 'x', 'y', 'z')."""
-    ax = {"x": Vector((1, 0, 0)), "y": Vector((0, 0, 1)), "z": Vector((0, -1, 0))}[axis]   # Godot x,y,z -> Blender
+    ax = {"x": Vector((1, 0, 0)), "y": Vector((0, 0, 1)), "z": Vector((0, -1, 0))}[axis]
     q_world = Quaternion(ax, math.radians(deg))
     q = rest_q[bone]
     return q.inverted() @ q_world @ q
@@ -577,33 +553,33 @@ def idle(f):
     t = f / 60.0 * 2 * math.pi
     s = math.sin(t)
     return ({
-        "spine": [("x", -1.2 * s)], "head": [("x", 0.8 * s), ("z", 1.2 * math.sin(t * 0.5))],
-        "arm_l_up": [("z", -8 + 1.5 * s)], "arm_r_up": [("z", 8 - 1.5 * s)],
-        "arm_l_lo": [("x", -6)], "arm_r_lo": [("x", -6)],
-        "hair1": [("x", 3 + 2 * s)], "hair2": [("x", 4 + 3 * math.sin(t - 0.6))], "hair3": [("x", 5 + 4 * math.sin(t - 1.2))],
-        "cape1": [("x", 3 + 1.5 * s)], "cape2": [("x", 5 + 3 * math.sin(t - 0.8))],
-        "tail_l": [("x", 6 + 3 * math.sin(t - 0.4))], "tail_r": [("x", 6 + 3 * math.sin(t - 0.7))],
-        "pend_l": [("x", 2 * math.sin(t))], "pend_r": [("x", 2 * math.sin(t - 0.5))],
-    }, {"hips": (0, 0.006 * s, 0)})
+        "spine": [("x", -0.8 * s)], "head": [("x", 0.6 * s), ("z", 0.8 * math.sin(t * 0.5))],
+        "arm_l_up": [("z", -3 + 0.8 * s)], "arm_r_up": [("z", 3 - 0.8 * s)],
+        "arm_l_lo": [("x", -5)], "arm_r_lo": [("x", -5)],
+        "hair1": [("x", 1.5 + s)], "hair2": [("x", 2 + 1.5 * math.sin(t - 0.6))], "hair3": [("x", 3 + 2 * math.sin(t - 1.2))],
+        "cape1": [("x", 2 + s)], "cape2": [("x", 3 + 2 * math.sin(t - 0.8))],
+        "tail_l": [("x", 4 + 2 * math.sin(t - 0.4))], "tail_r": [("x", 4 + 2 * math.sin(t - 0.7))],
+        "pend_l": [("x", 1.5 * math.sin(t))], "pend_r": [("x", 1.5 * math.sin(t - 0.5))],
+    }, {"hips": (0, 0.003 * s, 0)})
 
 
 def walk(f):
     t = f / 30.0 * 2 * math.pi
-    s, c = math.sin(t), math.cos(t)
-    bob = abs(math.sin(t)) * 0.045
-    knee_l = max(0.0, math.sin(t + math.pi * 0.5)) * 45
-    knee_r = max(0.0, math.sin(t - math.pi * 0.5)) * 45
+    s = math.sin(t)
+    bob = abs(math.sin(t)) * 0.03
+    knee_l = max(0.0, math.sin(t + math.pi * 0.5)) * 42
+    knee_r = max(0.0, math.sin(t - math.pi * 0.5)) * 42
     return ({
-        "leg_l_up": [("x", -38 * s)], "leg_r_up": [("x", 38 * s)],
-        "leg_l_lo": [("x", knee_l * 0.9)], "leg_r_lo": [("x", knee_r * 0.9)],
-        "foot_l": [("x", -8 * s)], "foot_r": [("x", 8 * s)],
-        "arm_l_up": [("x", 32 * s), ("z", -6)], "arm_r_up": [("x", -32 * s), ("z", 6)],
-        "arm_l_lo": [("x", -18 - 10 * max(0.0, s))], "arm_r_lo": [("x", -18 - 10 * max(0.0, -s))],
-        "spine": [("y", 7 * s), ("x", -4)], "hips": [("y", -5 * s)], "head": [("y", -4 * s), ("x", 3)],
-        "hair1": [("x", 6 + 2 * math.sin(2 * t))], "hair2": [("x", 8 + 3 * math.sin(2 * t - 0.8))], "hair3": [("x", 10 + 4 * math.sin(2 * t - 1.6))],
-        "cape1": [("x", 8 + 2 * math.sin(2 * t - 0.4))], "cape2": [("x", 12 + 4 * math.sin(2 * t - 1.1))],
-        "tail_l": [("x", 20 + 6 * math.sin(2 * t))], "tail_r": [("x", 20 + 6 * math.sin(2 * t - 0.5))],
-        "pend_l": [("x", -10 + 8 * math.sin(2 * t))], "pend_r": [("x", -10 + 8 * math.sin(2 * t - 0.6))],
+        "leg_l_up": [("x", -28 * s)], "leg_r_up": [("x", 28 * s)],
+        "leg_l_lo": [("x", knee_l)], "leg_r_lo": [("x", knee_r)],
+        "foot_l": [("x", -6 * s)], "foot_r": [("x", 6 * s)],
+        "arm_l_up": [("x", 24 * s), ("z", -3)], "arm_r_up": [("x", -24 * s), ("z", 3)],
+        "arm_l_lo": [("x", -14 - 8 * max(0.0, s))], "arm_r_lo": [("x", -14 - 8 * max(0.0, -s))],
+        "spine": [("y", 5 * s), ("x", -3)], "hips": [("y", -4 * s)], "head": [("y", -3 * s), ("x", 2)],
+        "hair1": [("x", 5 + 2 * math.sin(2 * t))], "hair2": [("x", 7 + 3 * math.sin(2 * t - 0.8))], "hair3": [("x", 9 + 4 * math.sin(2 * t - 1.6))],
+        "cape1": [("x", 6 + 2 * math.sin(2 * t - 0.4))], "cape2": [("x", 10 + 4 * math.sin(2 * t - 1.1))],
+        "tail_l": [("x", 16 + 6 * math.sin(2 * t))], "tail_r": [("x", 16 + 6 * math.sin(2 * t - 0.5))],
+        "pend_l": [("x", -8 + 7 * math.sin(2 * t))], "pend_r": [("x", -8 + 7 * math.sin(2 * t - 0.6))],
     }, {"hips": (0, bob, 0)})
 
 
@@ -611,38 +587,33 @@ def attack(f):
     u = f / 18.0
     if u < 0.3:
         k = u / 0.3
-        up, lo, tw = -170 * k, -50 * k, -18 * k
+        up, lo, tw = -160 * k, -45 * k, -16 * k
     elif u < 0.6:
         k = (u - 0.3) / 0.3
-        up, lo, tw = -170 + 235 * k, -50 + 45 * k, -18 + 36 * k
+        up, lo, tw = -160 + 215 * k, -45 + 40 * k, -16 + 32 * k
     else:
         k = (u - 0.6) / 0.4
-        up, lo, tw = 65 * (1 - k), -5 * (1 - k), 18 * (1 - k)
+        up, lo, tw = 55 * (1 - k), -5 * (1 - k), 16 * (1 - k)
     return ({
-        "arm_r_up": [("x", up), ("z", 10)], "arm_r_lo": [("x", lo)], "spine": [("y", tw), ("x", -5 * math.sin(u * math.pi))],
-        "arm_l_up": [("z", -14), ("x", 10 * math.sin(u * math.pi))], "head": [("y", -tw * 0.4)],
-        "hair1": [("x", 4)], "hair2": [("x", 6 + 6 * math.sin(u * math.pi))], "hair3": [("x", 8 + 8 * math.sin(u * math.pi))],
-        "cape2": [("x", 8 + 10 * math.sin(u * math.pi))],
+        "arm_r_up": [("x", up), ("z", 8)], "arm_r_lo": [("x", lo)], "spine": [("y", tw), ("x", -4 * math.sin(u * math.pi))],
+        "arm_l_up": [("z", -10), ("x", 8 * math.sin(u * math.pi))], "head": [("y", -tw * 0.4)],
+        "hair1": [("x", 3)], "hair2": [("x", 5 + 5 * math.sin(u * math.pi))], "hair3": [("x", 6 + 7 * math.sin(u * math.pi))],
+        "cape2": [("x", 6 + 8 * math.sin(u * math.pi))],
     }, {})
 
 
 make_action("idle_loop", list(range(0, 61, 5)), idle)
 make_action("walk_loop", list(range(0, 31, 2)), walk)
 make_action("attack", list(range(0, 19, 2)), attack)
-# khung cuối trùng khung đầu để vòng lặp liền mạch
 pose(0, *idle(0))   # đưa về tư thế nghỉ (không giữ khoá)
-
-for bone_name in list(BONES):
-    pass
-
 bpy.context.scene.frame_start, bpy.context.scene.frame_end = 0, 60
 
-# ---------------------------------------------------------------- XUẤT
+# ================================================================ XUẤT
 bpy.ops.object.select_all(action="SELECT")
 bpy.ops.export_scene.gltf(
     filepath=OUT, export_format="GLB", export_yup=True, export_apply=False, export_skins=True,
     export_animations=True, export_animation_mode="NLA_TRACKS", export_materials="EXPORT",
     export_image_format="NONE", export_cameras=False, export_lights=False, export_extras=False,
 )
-print("lật pháp tuyến:", len(FLIPPED), FLIPPED[:12])
+print("lật pháp tuyến:", len(FLIPPED), FLIPPED[:8])
 print("OK ->", OUT, "| objects:", len([o for o in bpy.data.objects if o.type == "MESH"]))
