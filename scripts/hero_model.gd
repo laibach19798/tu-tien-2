@@ -12,11 +12,13 @@ const INK := preload("res://scripts/toon3d_ink.gdshader")
 const FIXED := {
 	"skin": Hero3D.SKIN, "skin_dark": Color("e2b08f"), "sole": Color("e8e0cc"), "ink": Hero3D.EYE_DARK, "white": Color.WHITE,
 	"blush": Hero3D.BLUSH, "mouth": Hero3D.MOUTH, "gold": Color("e0b13f"), "steel": Color("dfe9f2"),
+	"gourd": Color("c98a3c"), "bamboo": Color("8aa860"),
 }
-const HAIR_GROUP := {"ngan": "hair_short", "bui": "hair_bun", "dai": "hair_long", "gai": "hair_spike"}
-const HEAD_GROUP := {"dai": "head_band", "mien": "head_crown"}
+const ROBE_GROUP := {"dai": "robe_long", "trung": "robe_mid", "ngan": "robe_short"}
+const HAIR_GROUP := {"ngan": "hair_short", "bui": "hair_bun", "dai": "hair_long", "gai": "hair_spike", "duoi": "hair_ponytail", "song": "hair_twin"}
+const HEAD_GROUP := {"dai": "head_band", "mien": "head_crown", "khan": "head_khan", "non": "head_non"}
 const BACK_GROUP := {"ao_choang": "back_cape", "kiem": "back_sword"}
-const ACC_GROUP := {"tui": "acc_pouch", "ngoc": "acc_jade", "ngoc_do": "acc_jade", "chuong": "acc_bell"}
+const ACC_GROUP := {"tui": "acc_pouch", "ngoc": "acc_jade", "ngoc_do": "acc_jade", "chuong": "acc_bell", "ho_lo": "acc_gourd", "sao": "acc_flute"}
 
 var outfit_id := ""
 var move_amount := 0.0   # 0 = đứng yên, 1 = chạy hết tốc độ
@@ -80,8 +82,12 @@ func set_outfit(id: String) -> void:
 
 func _visible_groups(o: Dictionary) -> Array:
 	var g := ["body", "face", "hair_base", "shoes", "robe_top"]
-	g.append("robe_long" if o["dai"] == "dai" else "robe_short")
+	g.append(ROBE_GROUP[o["dai"]])
 	g.append("sleeve_wide" if o["tay"] == "rong" else "sleeve_narrow")
+	if o["tay"] == "giap":
+		g.append("sleeve_guard")   # hộ tay
+	if o.has("quan"):
+		g.append("pants")
 	g.append(HAIR_GROUP[o["toc"]])
 	if HEAD_GROUP.has(o["dau"]):
 		g.append(HEAD_GROUP[o["dau"]])
@@ -105,6 +111,8 @@ func _role_color(role: String, o: Dictionary) -> Color:
 		"eye_light": return (o["mat"] as Color).lightened(0.4)
 		"jade": return Color("e0455a") if "ngoc_do" in o["phu"] else Color("6fcf9a")
 		"gem": return Color("e6354e")
+		"pants": return o.get("quan", o["robe"])
+		"hat": return o.get("non", o["trim"])
 	return FIXED.get(role, Color.MAGENTA)
 
 

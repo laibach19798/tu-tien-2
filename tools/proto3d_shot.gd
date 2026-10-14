@@ -1,7 +1,7 @@
 extends SceneTree
 ## Chụp ảnh prototype 3D (cần màn hình ảo nếu chạy trên máy chủ, không dùng --headless vì headless không vẽ):
 ##   xvfb-run -a Godot --path . --rendering-driver opengl3 --resolution 1280x720 --script res://tools/proto3d_shot.gd -- <thư mục ra>
-## Ra: lineup.png (4 trang phục cạnh nhau), walk.png (đang đi), pixel_off.png (tắt pixel hoá).
+## Ra: lineup.png + lineup2.png (4 bộ cạnh nhau, 2 nhóm), walk.png (đang đi), pixel_off.png (tắt pixel hoá), detail_*/back_*/face_* (cận cảnh).
 
 var demo: Node
 var out_dir := "/tmp"
@@ -9,10 +9,11 @@ var frame := 0
 var extras: Array[Node3D] = []
 ## [bộ, góc xoay độ, độ cao tâm khung, cỡ khung, tên file]
 const DETAILS := [
-	["tien_bao", 0, 0.8, 2.3, "detail_tien_bao.png"], ["dao_bao", 0, 0.8, 2.3, "detail_dao_bao.png"],
-	["ma_y", 0, 0.8, 2.3, "detail_ma_y.png"], ["ao_vai", 0, 0.8, 2.3, "detail_ao_vai.png"],
-	["tien_bao", 180, 0.8, 2.3, "back_tien_bao.png"], ["dao_bao", 180, 0.8, 2.3, "back_dao_bao.png"],
-	["tien_bao", 0, 1.2, 1.1, "face_tien_bao.png"], ["dao_bao", 0, 1.2, 1.1, "face_dao_bao.png"],
+	["tien_bao", 0, 0.9, 2.5, "detail_tien_bao.png"], ["dao_bao", 0, 0.9, 2.5, "detail_dao_bao.png"],
+	["kiem_tu", 0, 0.9, 2.5, "detail_kiem_tu.png"], ["dan_su", 0, 0.9, 2.5, "detail_dan_su.png"],
+	["hong_nhan", 0, 0.9, 2.5, "detail_hong_nhan.png"], ["an_si", 0, 0.9, 2.5, "detail_an_si.png"],
+	["kiem_tu", 180, 0.9, 2.5, "back_kiem_tu.png"], ["hong_nhan", 180, 0.9, 2.5, "back_hong_nhan.png"],
+	["kiem_tu", 0, 1.3, 1.2, "face_kiem_tu.png"], ["hong_nhan", 0, 1.3, 1.2, "face_hong_nhan.png"],
 ]
 
 
@@ -43,6 +44,13 @@ func _process(_delta: float) -> bool:
 			demo.cam.position = demo.CAM_OFFSET * 0.55 + Vector3(0, 0.2, 0)
 		20: _save("lineup.png")
 		21:
+			# nhóm bộ thứ hai
+			var ids2 := ["kiem_tu", "dan_su", "hong_nhan", "an_si"]
+			demo.hero.set_outfit(ids2[0])
+			for i in extras.size():
+				extras[i].set_outfit(ids2[i + 1])
+		23: _save("lineup2.png")
+		24:
 			for h in extras:
 				h.queue_free()
 			extras.clear()
@@ -60,16 +68,16 @@ func _process(_delta: float) -> bool:
 			demo.hero.rotation.y = 0.0
 			demo.cam.size = 3.2
 			demo.cam.position = demo.CAM_OFFSET * 0.5
-		60: _save("pixel_off.png")
-	if frame > 60:
+		63: _save("pixel_off.png")
+	if frame > 63:
 		_detail_shots()
 	return false
 
 
 ## Cận cảnh từng bộ (mặt trước + mặt sau) ở độ phân giải đầy đủ để xem chi tiết.
 func _detail_shots() -> void:
-	var k := (frame - 61) / 3
-	var step := (frame - 61) % 3
+	var k := (frame - 64) / 3
+	var step := (frame - 64) % 3
 	if k >= DETAILS.size():
 		quit(0)
 		return

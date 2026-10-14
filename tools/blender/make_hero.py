@@ -20,10 +20,39 @@ OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else (sys.argv[1] i
 HEAD_Y = 1.37   # tâm đầu
 
 
+SH = 0.74   # tỉ lệ đầu so với bản chibi gốc (nhỏ hơn = người cao hơn, bớt chibi)
+# Biến dạng dáng người áp lên MỌI toạ độ (mảnh, xương): chân dài ra, thân dài hơn và thon vai, đầu thu nhỏ đều quanh tâm đầu.
+# Toạ độ viết theo bản chibi gốc (đầu ở y~1.37); hàm này đổi sang dáng mới nên không phải sửa từng mảnh.
+OLD_Y = [0.0, 0.12, 0.55, 1.05, 2.5]
+NEW_Y = [0.0, 0.12, 0.69, 1.2475, 1.2475 + 1.45 * SH]
+
+
+def _interp(v, xs, ys):
+    if v <= xs[0]:
+        return ys[0] + (v - xs[0]) * (ys[1] - ys[0]) / (xs[1] - xs[0])
+    for i in range(1, len(xs)):
+        if v <= xs[i]:
+            t = (v - xs[i - 1]) / (xs[i] - xs[i - 1])
+            return ys[i - 1] + t * (ys[i] - ys[i - 1])
+    return ys[-1] + (v - xs[-1]) * (ys[-1] - ys[-2]) / (xs[-1] - xs[-2])
+
+
+def UY(y_blender_z):
+    """Ngược lại của biến dạng chiều cao: từ cao độ thực (Blender z) về cao độ theo bản gốc (dùng cho ngưỡng trọng số)."""
+    return _interp(y_blender_z, NEW_Y, OLD_Y)
+
+
+def warp(x, y, z):
+    fx = _interp(y, [0.0, 0.5, 0.6, 1.0, 1.05, 2.5], [1.0, 1.0, 0.94, 0.94, SH, SH])   # vai/eo thon lại, đầu thu nhỏ
+    fz = _interp(y, [0.0, 1.0, 1.05, 2.5], [1.0, 1.0, SH, SH])
+    return x * fx, _interp(y, OLD_Y, NEW_Y), z * fz
+
+
 def G(x, y=None, z=None):
-    """Toạ độ Godot (x, y lên, z ra trước) -> Blender (x, -z, y)."""
+    """Toạ độ Godot (x, y lên, z ra trước) -> Blender (x, -z, y), có áp biến dạng dáng người."""
     if y is None:
         x, y, z = x
+    x, y, z = warp(x, y, z)
     return Vector((x, -z, y))
 
 
@@ -39,6 +68,7 @@ ROLE_COLORS = {
     "skin": "f6d3b3", "skin_dark": "e2b08f", "hair": "3a2a2c", "robe": "3f86b5", "trim": "f0ead6", "inner": "e9f2f7",
     "shoe": "2d3a52", "sole": "e8e0cc", "eye": "2f6fb0", "eye_light": "7fb8ee", "ink": "1c1520", "white": "ffffff",
     "blush": "f2a09c", "mouth": "a05a5a", "gold": "e0b13f", "steel": "dfe9f2", "jade": "6fcf9a", "gem": "e6354e",
+    "pants": "23293a", "hat": "c8a96a", "gourd": "c98a3c", "bamboo": "8aa860",
 }
 MATS = {}
 for role, hexcol in ROLE_COLORS.items():
@@ -324,7 +354,7 @@ HAIR_PATH = [H(0, 0.1, -0.18), (0, 1.25, -0.27), (0, 1.0, -0.29), (0, 0.75, -0.2
 
 
 def hair_w(p):
-    y = p.z   # Blender z = Godot y
+    y = UY(p.z)   # Blender z -> cao độ theo bản gốc
     if y > 1.25:
         return {"head": 1.0}
     if y > 1.0:
@@ -369,12 +399,12 @@ for sx in (-1.0, 1.0):
     tag = "l" if sx < 0 else "r"
     finish(f"robe_top__loop_{tag}", ellipsoid((sx * 0.075, 0.61, -0.2), (0.07, 0.04, 0.02), rot=(0, 0, sx * 22)), "trim", "hips")
     finish(f"robe_top__tail_{tag}", tube([(sx * 0.06, 0.6, -0.205), (sx * 0.06, 0.45, -0.205), (sx * 0.06, 0.3, -0.205)], [0.027, 0.027, 0.02], 8, (1.0, 0.3)),
-           "trim", lambda p, n=f"tail_{tag}": {"hips": 0.0001, n: 1.0} if p.z < 0.55 else {"hips": 1.0})
+           "trim", lambda p, n=f"tail_{tag}": {"hips": 0.0001, n: 1.0} if UY(p.z) < 0.55 else {"hips": 1.0})
 
 
 def skirt_w(p):
     """Váy: phần trên theo hông, phần dưới theo hai đùi (trái/phải) để váy ôm chân khi bước."""
-    t = max(0.0, min(1.0, (0.58 - p.z) / 0.45))
+    t = max(0.0, min(1.0, (0.58 - UY(p.z)) / 0.45))
     side = "leg_l_up" if p.x < 0 else "leg_r_up"
     wx = max(0.0, min(1.0, abs(p.x) / 0.2))
     return {"hips": 1.0 - 0.7 * t * wx, side: 0.7 * t * wx} if t * wx > 0.01 else {"hips": 1.0}
@@ -404,7 +434,7 @@ for side, sx in (("l", -1.0), ("r", 1.0)):
 
 # ---------------------------------------------------------------- ĐỒ SAU LƯNG
 def cape_w(p):
-    y = p.z
+    y = UY(p.z)
     t = max(0.0, min(1.0, (0.98 - y) / 0.5))
     return {"cape1": 1.0 - t, "cape2": t} if 0.01 < t < 0.99 else ({"cape1": 1.0} if t <= 0.01 else {"cape2": 1.0})
 
@@ -428,6 +458,56 @@ for side, sx in (("l", -1.0), ("r", 1.0)):
         finish(f"acc_jade_{side}__tassel{k}", tube([(sx * 0.27 + dx, 0.37, 0.13), (sx * 0.27 + dx, 0.27, 0.13)], [0.008, 0.005], 6), "trim", pb)
     finish(f"acc_bell_{side}__rope", tube([(sx * 0.27, 0.55, 0.13), (sx * 0.27, 0.46, 0.13)], [0.005, 0.005], 6), "trim", pb)
     finish(f"acc_bell_{side}__bell", ellipsoid((sx * 0.27, 0.42, 0.13), (0.035, 0.035, 0.035)), "gold", pb)
+
+# ---------------------------------------------------------------- MẢNH MỚI (bộ đồ bổ sung)
+# áo dài đến gối
+finish("robe_mid__skirt", lathe([(0.205, 0.58), (0.23, 0.5), (0.265, 0.4), (0.29, 0.3), (0.295, 0.27)], caps=False), "robe", skirt_w)
+finish("robe_mid__hem", lathe([(0.282, 0.33), (0.298, 0.31), (0.3, 0.26), (0.285, 0.26)], caps=False), "trim", skirt_w)
+finish("robe_mid__panel", tube([(0, 0.57, 0.205), (0, 0.42, 0.25), (0, 0.28, 0.29)], [0.06, 0.06, 0.064], 10, (1.0, 0.22)), "inner", skirt_w)
+# quần ôm chân
+for side, sx in (("l", -1.0), ("r", 1.0)):
+    lb = [f"leg_{side}_up", f"leg_{side}_lo", f"foot_{side}"]
+    finish(f"pants__leg_{side}", tube([(sx * 0.1, 0.57, 0), (sx * 0.1, 0.32, 0), (sx * 0.1, 0.28, 0), (sx * 0.1, 0.12, 0)],
+                                      [0.093, 0.078, 0.076, 0.062], 14), "pants", lambda p, b=lb: smooth_w(p, b[:2], 0.1))
+    ab = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}"]
+    finish(f"sleeve_guard__bracer_{side}", tube([(sx * 0.303, 0.72, 0), (sx * 0.31, 0.64, 0), (sx * 0.314, 0.575, 0)], [0.07, 0.066, 0.06], 14),
+           "shoe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
+    finish(f"sleeve_guard__strap_{side}", tube([(sx * 0.306, 0.68, 0), (sx * 0.309, 0.665, 0)], [0.073, 0.073], 14), "gold", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
+# tóc đuôi ngựa
+finish("hair_ponytail__tie", tube([H(0, 0.27, -0.2), H(0, 0.33, -0.22)], [0.085, 0.085], 16), "trim", "head")
+finish("hair_ponytail__tail", tube([H(0, 0.3, -0.21), (0, 1.62, -0.34), (0, 1.42, -0.42), (0, 1.15, -0.4), (0, 0.9, -0.34), (0, 0.78, -0.3)],
+                                    [0.075, 0.09, 0.085, 0.07, 0.035, 0.004], 14, (1.0, 0.85)), "hair", hair_w)
+# hai búi tóc hai bên
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"hair_twin__bun_{tag}", ellipsoid(H(sx * 0.23, 0.33, -0.02), (0.12, 0.115, 0.115)), "hair", "head")
+    finish(f"hair_twin__ring_{tag}", torus(H(sx * 0.23, 0.26, -0.02), 0.085, 0.017, rot=(0, 0, sx * 70)), "trim", "head")
+    finish(f"hair_twin__ribbon_{tag}", tube([H(sx * 0.27, 0.26, -0.03), H(sx * 0.33, 0.0, -0.05), H(sx * 0.34, -0.3, -0.04)], [0.032, 0.036, 0.02], 10, (1.0, 0.45)),
+           "trim", "head")
+finish("hair_twin__pin", tube([H(-0.3, 0.33, -0.02), H(0.3, 0.33, -0.02)], [0.012, 0.012], 8), "gold", "head")
+# khăn quấn đầu có dải rủ
+finish("head_khan__band", tube([H(0, 0.1, 0), H(0, 0.19, 0)], [0.34, 0.34], 36, (1.07, 1.04)), "trim", "head")
+finish("head_khan__knot", ellipsoid(H(0, 0.14, -0.36), (0.07, 0.06, 0.05)), "trim", "head")
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"head_khan__tail_{tag}", tube([H(sx * 0.03, 0.12, -0.38), (sx * 0.07, 1.25, -0.42), (sx * 0.1, 1.0, -0.43), (sx * 0.12, 0.8, -0.42)],
+                                         [0.03, 0.034, 0.03, 0.012], 8, (1.0, 0.3)), "trim", hair_w)
+# đấu lạp
+finish("head_non__hat", lathe([(0.001, 2.02), (0.1, 1.94), (0.26, 1.82), (0.42, 1.72), (0.5, 1.675), (0.46, 1.665), (0.2, 1.7), (0.001, 1.71)]), "hat", "head")
+finish("head_non__rim", tube([(0, 1.668, 0), (0, 1.69, 0)], [0.5, 0.495], 40), "trim", "head")
+for sx in (-1.0, 1.0):
+    tag = "l" if sx < 0 else "r"
+    finish(f"head_non__strap_{tag}", tube([H(sx * 0.33, 0.12, 0.0), H(sx * 0.27, -0.12, 0.12), H(sx * 0.1, -0.3, 0.2)], [0.012, 0.012, 0.012], 6), "trim", "head")
+# hồ lô, sáo (đeo hông)
+for side, sx in (("l", -1.0), ("r", 1.0)):
+    pb = f"pend_{side}"
+    finish(f"acc_gourd_{side}__rope", tube([(sx * 0.27, 0.56, 0.13), (sx * 0.27, 0.46, 0.13)], [0.006, 0.006], 6), "trim", pb)
+    finish(f"acc_gourd_{side}__top", ellipsoid((sx * 0.27, 0.44, 0.13), (0.034, 0.036, 0.034)), "gourd", pb)
+    finish(f"acc_gourd_{side}__bottom", ellipsoid((sx * 0.27, 0.36, 0.13), (0.056, 0.062, 0.056)), "gourd", pb)
+    finish(f"acc_gourd_{side}__cork", ellipsoid((sx * 0.27, 0.475, 0.13), (0.014, 0.016, 0.014)), "shoe", pb)
+    finish(f"acc_gourd_{side}__tassel", tube([(sx * 0.27, 0.3, 0.13), (sx * 0.27, 0.2, 0.13)], [0.012, 0.007], 6), "trim", pb)
+    finish(f"acc_flute_{side}__flute", tube([(sx * 0.1, 0.64, 0.215), (sx * 0.31, 0.5, 0.17)], [0.016, 0.016], 8), "bamboo", "hips")
+    finish(f"acc_flute_{side}__tassel", tube([(sx * 0.3, 0.505, 0.17), (sx * 0.31, 0.4, 0.17)], [0.01, 0.006], 6), "trim", pb)
 
 # ---------------------------------------------------------------- ANIMATION
 FPS = 30

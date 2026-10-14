@@ -1,7 +1,7 @@
 extends Node
 ## Prototype 2.5D: nhân vật 3D low-poly (Hero3D) + camera nghiêng nhìn từ trên xuống + sprite pixel dựng đứng (billboard).
 ## Chạy: Godot --path . res://scenes/proto3d.tscn
-## WASD / mũi tên: đi · 1-4: đổi trang phục · Space: vung tay · Z: bật/tắt độ phân giải thấp (pixel hoá)
+## WASD / mũi tên: đi · 1-8: đổi trang phục · Space: vung tay · Z: bật/tắt độ phân giải thấp (pixel hoá)
 
 const USE_MODEL := true          # true: model dựng bằng Blender · false: bản dựng bằng khối nguyên thủy
 const PIXEL_SHRINK := 3          # cảnh 3D render ở 1/3 độ phân giải rồi phóng to bằng nearest -> nhân vật ra "pixel" hợp với sprite
@@ -115,8 +115,9 @@ func _build_hud(layer: CanvasLayer) -> void:
 	label.add_theme_color_override("font_outline_color", Color(0.05, 0.04, 0.08))
 	label.add_theme_constant_override("outline_size", 6)
 	layer.add_child(label)
-	var row := HBoxContainer.new()
-	row.position = Vector2(16, 660)
+	var row := GridContainer.new()   # 8 nút, xếp 4 cột x 2 hàng
+	row.columns = 4
+	row.position = Vector2(16, 620)
 	layer.add_child(row)
 	for i in Hero3D.ORDER.size():
 		var b := Button.new()
@@ -134,7 +135,7 @@ func set_outfit_index(i: int) -> void:
 
 func _refresh_label() -> void:
 	var o: Dictionary = Hero3D.OUTFITS[Hero3D.ORDER[outfit_idx]]
-	label.text = "Prototype 2.5D · %s\nWASD đi · 1-4 đổi bộ · Space vung tay · Z pixel hoá (%s)" % [
+	label.text = "Prototype 2.5D · %s\nWASD đi · 1-8 đổi bộ · Space vung tay · Z pixel hoá (%s)" % [
 		o["ten"], "bật" if container.stretch_shrink > 1 else "tắt"]
 
 
@@ -158,7 +159,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
 	match event.physical_keycode:
-		KEY_1, KEY_2, KEY_3, KEY_4:
+		KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8:
 			set_outfit_index(event.physical_keycode - KEY_1)
 		KEY_SPACE:
 			hero.swing()

@@ -36,8 +36,28 @@ const OUTFITS := {
 		"dai": "dai", "tay": "rong", "toc": "gai", "toc_mau": Color("171019"),
 		"dau": "none", "lung": ["ao_choang"], "mat": Color("e6354e"), "giay": Color("181019"), "phu": ["ngoc_do"],
 	},
+	"kiem_tu": {
+		"ten": "Kiếm Tu Hắc Thủy", "robe": Color("2b3447"), "trim": Color("c9d3e0"), "ao_trong": Color("46526b"),
+		"dai": "trung", "tay": "giap", "toc": "duoi", "toc_mau": Color("20202a"),
+		"dau": "dai", "lung": ["kiem"], "mat": Color("3aa6b9"), "giay": Color("1b1f2b"), "phu": ["ho_lo"], "quan": Color("23293a"),
+	},
+	"dan_su": {
+		"ten": "Đan Sư Thanh Diệp", "robe": Color("4f9a63"), "trim": Color("f0e6b8"), "ao_trong": Color("d3ebcb"),
+		"dai": "dai", "tay": "rong", "toc": "bui", "toc_mau": Color("4a3326"),
+		"dau": "none", "lung": [], "mat": Color("5b8f3a"), "giay": Color("5a4630"), "phu": ["ho_lo", "tui"],
+	},
+	"hong_nhan": {
+		"ten": "Hồng Nhan Tiên Tử", "robe": Color("e58a9b"), "trim": Color("fff0e0"), "ao_trong": Color("ffe3ea"),
+		"dai": "dai", "tay": "rong", "toc": "song", "toc_mau": Color("5a3a45"),
+		"dau": "none", "lung": ["ao_choang"], "mat": Color("c0508a"), "giay": Color("f0d8dc"), "phu": ["sao", "ngoc"],
+	},
+	"an_si": {
+		"ten": "Ẩn Sĩ Đấu Lạp", "robe": Color("8d927c"), "trim": Color("5f5a48"), "ao_trong": Color("c9c4a8"),
+		"dai": "trung", "tay": "hep", "toc": "duoi", "toc_mau": Color("3d3028"),
+		"dau": "non", "lung": [], "mat": Color("6b4a2f"), "giay": Color("4a3b2a"), "phu": ["ho_lo"], "quan": Color("6d705f"), "non": Color("c8a96a"),
+	},
 }
-const ORDER := ["ao_vai", "dao_bao", "tien_bao", "ma_y"]
+const ORDER := ["ao_vai", "dao_bao", "tien_bao", "ma_y", "kiem_tu", "dan_su", "hong_nhan", "an_si"]
 const SLOT_NAMES := ["mat", "toc", "ao", "dau", "lung", "phu", "tay_l", "tay_r", "giay_l", "giay_r"]
 
 var outfit_id := ""
