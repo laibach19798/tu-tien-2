@@ -6,7 +6,7 @@ extends Node
 const PIXEL_SHRINK := 3          # cảnh 3D render ở 1/3 độ phân giải rồi phóng to bằng nearest -> nhân vật ra "pixel" hợp với sprite
 const SPEED := 4.0
 const CAM_OFFSET := Vector3(0, 8.6, 11.0)   # nhìn xuống ~38° (camera chiếu trực giao)
-const CAM_SIZE := 6.0
+const CAM_SIZE := 5.0
 const WORLD_LIMIT := 28.0
 ## Prop sprite pixel có sẵn của game, đặt đứng bằng Sprite3D billboard (kiểu HD-2D).
 const PROPS := [
