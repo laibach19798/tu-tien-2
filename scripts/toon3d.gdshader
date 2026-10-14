@@ -5,10 +5,16 @@ render_mode cull_back;
 uniform vec4 albedo : source_color = vec4(1.0);
 uniform float cut : hint_range(0.0, 1.0) = 0.38;   // ngưỡng giữa vùng sáng và vùng tối
 uniform float rim_strength : hint_range(0.0, 1.0) = 0.1;
+uniform float shine : hint_range(0.0, 1.0) = 0.0;   // vòng sáng trên tóc (angel ring); 0 = tắt
 
 void fragment() {
 	float rim = pow(1.0 - clamp(dot(normalize(NORMAL), normalize(VIEW)), 0.0, 1.0), 3.0);
-	ALBEDO = albedo.rgb + vec3(rim * rim_strength);
+	float ring = 0.0;
+	if (shine > 0.0) {
+		float h = dot(normalize(NORMAL), normalize(vec3(0.0, 0.5, 0.86)));
+		ring = smoothstep(0.84, 0.88, h) * (1.0 - smoothstep(0.93, 0.97, h));
+	}
+	ALBEDO = albedo.rgb + vec3(rim * rim_strength) + (vec3(1.0) - albedo.rgb) * ring * shine;
 	ROUGHNESS = 1.0;
 	SPECULAR = 0.0;
 }

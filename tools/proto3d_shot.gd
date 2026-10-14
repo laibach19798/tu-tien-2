@@ -7,6 +7,13 @@ var demo: Node
 var out_dir := "/tmp"
 var frame := 0
 var extras: Array[Hero3D] = []
+## [bộ, góc xoay độ, độ cao tâm khung, cỡ khung, tên file]
+const DETAILS := [
+	["tien_bao", 0, 0.8, 2.3, "detail_tien_bao.png"], ["dao_bao", 0, 0.8, 2.3, "detail_dao_bao.png"],
+	["ma_y", 0, 0.8, 2.3, "detail_ma_y.png"], ["ao_vai", 0, 0.8, 2.3, "detail_ao_vai.png"],
+	["tien_bao", 180, 0.8, 2.3, "back_tien_bao.png"], ["dao_bao", 180, 0.8, 2.3, "back_dao_bao.png"],
+	["tien_bao", 0, 1.2, 1.1, "face_tien_bao.png"], ["dao_bao", 0, 1.2, 1.1, "face_dao_bao.png"],
+]
 
 
 func _initialize() -> void:
@@ -53,10 +60,29 @@ func _process(_delta: float) -> bool:
 			demo.hero.rotation.y = 0.0
 			demo.cam.size = 3.2
 			demo.cam.position = demo.CAM_OFFSET * 0.5
-		60:
-			_save("pixel_off.png")
-			quit(0)
+		60: _save("pixel_off.png")
+	if frame > 60:
+		_detail_shots()
 	return false
+
+
+## Cận cảnh từng bộ (mặt trước + mặt sau) ở độ phân giải đầy đủ để xem chi tiết.
+func _detail_shots() -> void:
+	var k := (frame - 61) / 3
+	var step := (frame - 61) % 3
+	if k >= DETAILS.size():
+		quit(0)
+		return
+	var d: Array = DETAILS[k]
+	if step == 0:
+		demo.hero.set_outfit(d[0])
+		demo.hero.rotation.y = deg_to_rad(d[1])
+		demo.hero.set_move(0.0)
+		demo.hero.position = Vector3.ZERO
+		demo.cam.size = d[3]
+		demo.cam.position = Vector3(0, d[2], 0) + demo.CAM_OFFSET
+	elif step == 2:
+		_save(d[4])
 
 
 func _save(name: String) -> void:
