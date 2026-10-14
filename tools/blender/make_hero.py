@@ -20,7 +20,7 @@ OUT = sys.argv[sys.argv.index("--") + 1] if "--" in sys.argv else (sys.argv[1] i
 HEAD_Y = 1.37   # tâm đầu
 
 
-SH = 0.74   # tỉ lệ đầu so với bản chibi gốc (nhỏ hơn = người cao hơn, bớt chibi)
+SH = 0.72   # tỉ lệ đầu so với bản chibi gốc (nhỏ hơn = người cao hơn, bớt chibi)
 # Biến dạng dáng người áp lên MỌI toạ độ (mảnh, xương): chân dài ra, thân dài hơn và thon vai, đầu thu nhỏ đều quanh tâm đầu.
 # Toạ độ viết theo bản chibi gốc (đầu ở y~1.37); hàm này đổi sang dáng mới nên không phải sửa từng mảnh.
 OLD_Y = [0.0, 0.12, 0.55, 1.05, 2.5]
@@ -42,10 +42,19 @@ def UY(y_blender_z):
     return _interp(y_blender_z, NEW_Y, OLD_Y)
 
 
+def _smoothstep(a, b, v):
+    t = max(0.0, min(1.0, (v - a) / (b - a)))
+    return t * t * (3 - 2 * t)
+
+
 def warp(x, y, z):
     fx = _interp(y, [0.0, 0.5, 0.6, 1.0, 1.05, 2.5], [1.0, 1.0, 0.94, 0.94, SH, SH])   # vai/eo thon lại, đầu thu nhỏ
     fz = _interp(y, [0.0, 1.0, 1.05, 2.5], [1.0, 1.0, SH, SH])
-    return x * fx, _interp(y, OLD_Y, NEW_Y), z * fz
+    x = x * fx
+    # kéo tay vào sát thân (vùng |x| lớn, độ cao của tay) để tay không xoè ra như cánh
+    w_arm = _smoothstep(0.4, 0.55, y) * (1.0 - _smoothstep(1.0, 1.08, y))
+    x -= math.copysign(0.055 * _smoothstep(0.16, 0.24, abs(x)) * w_arm, x)
+    return x, _interp(y, OLD_Y, NEW_Y), z * fz
 
 
 def G(x, y=None, z=None):
@@ -295,8 +304,8 @@ for side, sx in (("l", -1.0), ("r", 1.0)):
     arm_b = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}", "spine"]
     finish(f"body__arm_{side}", tube(LIMBS[side]["arm"], LIMBS[side]["ar"]), "skin", lambda p, b=arm_b: smooth_w(p, b[:3], 0.1))
     hand_b = f"hand_{side}"
-    finish(f"body__hand_{side}", ellipsoid((sx * 0.318, 0.51, 0.012), (0.052, 0.07, 0.04)), "skin", hand_b)
-    finish(f"body__thumb_{side}", ellipsoid((sx * 0.268, 0.53, 0.04), (0.018, 0.04, 0.02), rot=(0, 0, sx * 30)), "skin", hand_b)
+    finish(f"body__hand_{side}", ellipsoid((sx * 0.318, 0.515, 0.012), (0.04, 0.056, 0.032)), "skin", hand_b)
+    finish(f"body__thumb_{side}", ellipsoid((sx * 0.28, 0.53, 0.035), (0.014, 0.032, 0.016), rot=(0, 0, sx * 30)), "skin", hand_b)
     leg_b = [f"leg_{side}_up", f"leg_{side}_lo", f"foot_{side}"]
     finish(f"body__leg_{side}", tube([(sx * 0.1, 0.56, 0), (sx * 0.1, 0.32, 0), (sx * 0.1, 0.28, 0), (sx * 0.1, 0.08, 0)],
                                      [0.085, 0.07, 0.068, 0.052]), "skin", lambda p, b=leg_b: smooth_w(p, b[:2], 0.1))
@@ -386,10 +395,11 @@ finish("head_crown__gem", ellipsoid(H(0, 0.2, 0.29), (0.032, 0.032, 0.02)), "gem
 # ---------------------------------------------------------------- ÁO
 torso_w = lambda p: smooth_w(p, ["hips", "spine", "neck"], 0.2)
 finish("robe_top__chest", lathe([(r + 0.012, y) for r, y in TORSO_PROFILE[1:-1]], sz=0.9), "robe", torso_w)
-for sx in (-1.0, 1.0):
-    tag = "l" if sx < 0 else "r"
-    finish(f"robe_top__lapel_{tag}", tube([(sx * 0.1, 1.0, 0.15), (sx * 0.06, 0.9, 0.185), (sx * 0.02, 0.8, 0.2), (0, 0.7, 0.205)], [0.03, 0.03, 0.028, 0.026], 10, (1.0, 0.3)),
-           "trim", torso_w)
+# giao lĩnh: vạt trái đè lên vạt phải, chéo từ cổ trái xuống eo phải (bất đối xứng như áo thật)
+finish("robe_top__lapel_in", tube([(0.09, 1.0, 0.15), (0.06, 0.93, 0.168), (0.025, 0.86, 0.184)], [0.03, 0.03, 0.028], 10, (1.0, 0.3)),
+       "inner", torso_w)
+finish("robe_top__lapel_out", tube([(-0.09, 1.0, 0.155), (-0.04, 0.88, 0.19), (0.04, 0.76, 0.205), (0.12, 0.66, 0.21)], [0.033, 0.033, 0.033, 0.03], 10, (1.0, 0.3)),
+       "trim", torso_w)
 finish("robe_top__collar_in", tube([(0, 1.02, 0), (0, 1.075, 0)], [0.118, 0.12], 24), "inner", "neck")
 finish("robe_top__collar", tube([(0, 1.0, 0), (0, 1.07, 0)], [0.108, 0.112], 24), "trim", "neck")
 finish("robe_top__sash", lathe([(0.195, 0.55), (0.215, 0.55), (0.215, 0.64), (0.195, 0.64)], sz=0.92, caps=False), "trim", "hips")
@@ -403,31 +413,36 @@ for sx in (-1.0, 1.0):
 
 
 def skirt_w(p):
-    """Váy: phần trên theo hông, phần dưới theo hai đùi (trái/phải) để váy ôm chân khi bước."""
+    """Váy: phần trên theo hông, phần dưới theo hai đùi; pha trộn mượt theo x để mép váy tách ra khi bước mà không bị rách ở giữa."""
     t = max(0.0, min(1.0, (0.58 - UY(p.z)) / 0.45))
-    side = "leg_l_up" if p.x < 0 else "leg_r_up"
-    wx = max(0.0, min(1.0, abs(p.x) / 0.2))
-    return {"hips": 1.0 - 0.7 * t * wx, side: 0.7 * t * wx} if t * wx > 0.01 else {"hips": 1.0}
+    a = max(0.0, min(1.0, 0.5 + p.x / 0.16))   # nghiêng về chân phải (+x)
+    k = 0.8 * t
+    ws = {"hips": 1.0 - k}
+    if k * (1 - a) > 0.001:
+        ws["leg_l_up"] = k * (1 - a)
+    if k * a > 0.001:
+        ws["leg_r_up"] = k * a
+    return ws
 
 
-finish("robe_long__skirt", lathe([(0.205, 0.58), (0.23, 0.46), (0.27, 0.3), (0.32, 0.17), (0.36, 0.08), (0.36, 0.05)], sz=1.0, caps=False), "robe", skirt_w)
-finish("robe_long__petti", lathe([(0.34, 0.08), (0.385, 0.07), (0.39, 0.035), (0.35, 0.03)], caps=False), "inner", skirt_w)
-finish("robe_long__hem", lathe([(0.325, 0.16), (0.362, 0.15), (0.368, 0.1), (0.33, 0.1)], caps=False), "trim", skirt_w)
-finish("robe_long__panel", tube([(0, 0.57, 0.205), (0, 0.4, 0.26), (0, 0.17, 0.33)], [0.07, 0.07, 0.075], 10, (1.0, 0.22)), "inner", skirt_w)
+finish("robe_long__skirt", lathe([(0.18, 0.58), (0.2, 0.46), (0.225, 0.3), (0.25, 0.15), (0.265, 0.06), (0.265, 0.04)], caps=False), "robe", skirt_w)
+finish("robe_long__petti", lathe([(0.255, 0.07), (0.275, 0.065), (0.278, 0.03), (0.252, 0.03)], caps=False), "inner", skirt_w)
+finish("robe_long__hem", lathe([(0.243, 0.15), (0.268, 0.14), (0.272, 0.09), (0.247, 0.09)], caps=False), "trim", skirt_w)
+finish("robe_long__panel", tube([(0, 0.57, 0.185), (0, 0.4, 0.215), (0, 0.17, 0.256)], [0.06, 0.06, 0.064], 10, (1.0, 0.22)), "inner", skirt_w)
 for sx in (-1.0, 1.0):
     tag = "l" if sx < 0 else "r"
-    finish(f"robe_long__cloud_{tag}", ellipsoid((sx * 0.17, 0.3, 0.255), (0.045, 0.045, 0.012), rot=(0, sx * 33, 0)), "trim", skirt_w)
-    finish(f"robe_long__cloud2_{tag}", ellipsoid((sx * 0.215, 0.27, 0.215), (0.03, 0.03, 0.01), rot=(0, sx * 45, 0)), "trim", skirt_w)
-finish("robe_short__skirt", lathe([(0.205, 0.6), (0.23, 0.5), (0.28, 0.4), (0.285, 0.38)], caps=False), "robe", skirt_w)
-finish("robe_short__hem", lathe([(0.268, 0.43), (0.285, 0.41), (0.287, 0.37), (0.268, 0.37)], caps=False), "trim", skirt_w)
+    finish(f"robe_long__cloud_{tag}", ellipsoid((sx * 0.14, 0.3, 0.178), (0.034, 0.034, 0.01), rot=(0, sx * 38, 0)), "trim", skirt_w)
+    finish(f"robe_long__cloud2_{tag}", ellipsoid((sx * 0.165, 0.265, 0.165), (0.024, 0.024, 0.008), rot=(0, sx * 55, 0)), "trim", skirt_w)
+finish("robe_short__skirt", lathe([(0.18, 0.6), (0.2, 0.5), (0.23, 0.4), (0.235, 0.38)], caps=False), "robe", skirt_w)
+finish("robe_short__hem", lathe([(0.222, 0.43), (0.237, 0.41), (0.239, 0.37), (0.222, 0.37)], caps=False), "trim", skirt_w)
 
 # tay áo
 for side, sx in (("l", -1.0), ("r", 1.0)):
     ab = [f"arm_{side}_up", f"arm_{side}_lo", f"hand_{side}"]
-    wide = [(sx * 0.26, 0.96, 0), (sx * 0.295, 0.8, 0), (sx * 0.31, 0.7, 0), (sx * 0.32, 0.6, 0), (sx * 0.325, 0.55, 0)]
-    finish(f"sleeve_wide__sleeve_{side}", tube(wide, [0.082, 0.1, 0.135, 0.165, 0.165], 20), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    finish(f"sleeve_wide__cuff_{side}", tube([(sx * 0.32, 0.585, 0), (sx * 0.325, 0.545, 0)], [0.168, 0.168], 20), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
-    finish(f"sleeve_wide__lining_{side}", tube([(sx * 0.325, 0.552, 0), (sx * 0.326, 0.54, 0)], [0.14, 0.14], 20), "inner", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
+    wide = [(sx * 0.26, 0.96, 0), (sx * 0.295, 0.8, 0), (sx * 0.31, 0.68, 0), (sx * 0.32, 0.56, 0), (sx * 0.325, 0.5, 0)]
+    finish(f"sleeve_wide__sleeve_{side}", tube(wide, [0.078, 0.088, 0.108, 0.126, 0.13], 20), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
+    finish(f"sleeve_wide__cuff_{side}", tube([(sx * 0.322, 0.535, 0), (sx * 0.325, 0.495, 0)], [0.132, 0.132], 20), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
+    finish(f"sleeve_wide__lining_{side}", tube([(sx * 0.325, 0.502, 0), (sx * 0.326, 0.49, 0)], [0.108, 0.108], 20), "inner", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
     nar = [(sx * 0.26, 0.96, 0), (sx * 0.295, 0.8, 0), (sx * 0.305, 0.74, 0), (sx * 0.31, 0.66, 0)]
     finish(f"sleeve_narrow__sleeve_{side}", tube(nar, [0.074, 0.07, 0.07, 0.07], 16), "robe", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
     finish(f"sleeve_narrow__cuff_{side}", tube([(sx * 0.309, 0.68, 0), (sx * 0.312, 0.645, 0)], [0.076, 0.076], 16), "trim", lambda p, b=ab: smooth_w(p, b[:2], 0.1))
@@ -461,9 +476,9 @@ for side, sx in (("l", -1.0), ("r", 1.0)):
 
 # ---------------------------------------------------------------- MẢNH MỚI (bộ đồ bổ sung)
 # áo dài đến gối
-finish("robe_mid__skirt", lathe([(0.205, 0.58), (0.23, 0.5), (0.265, 0.4), (0.29, 0.3), (0.295, 0.27)], caps=False), "robe", skirt_w)
-finish("robe_mid__hem", lathe([(0.282, 0.33), (0.298, 0.31), (0.3, 0.26), (0.285, 0.26)], caps=False), "trim", skirt_w)
-finish("robe_mid__panel", tube([(0, 0.57, 0.205), (0, 0.42, 0.25), (0, 0.28, 0.29)], [0.06, 0.06, 0.064], 10, (1.0, 0.22)), "inner", skirt_w)
+finish("robe_mid__skirt", lathe([(0.18, 0.58), (0.2, 0.5), (0.225, 0.4), (0.24, 0.3), (0.243, 0.27)], caps=False), "robe", skirt_w)
+finish("robe_mid__hem", lathe([(0.232, 0.33), (0.246, 0.31), (0.248, 0.26), (0.236, 0.26)], caps=False), "trim", skirt_w)
+finish("robe_mid__panel", tube([(0, 0.57, 0.185), (0, 0.42, 0.205), (0, 0.28, 0.23)], [0.055, 0.055, 0.058], 10, (1.0, 0.22)), "inner", skirt_w)
 # quần ôm chân
 for side, sx in (("l", -1.0), ("r", 1.0)):
     lb = [f"leg_{side}_up", f"leg_{side}_lo", f"foot_{side}"]

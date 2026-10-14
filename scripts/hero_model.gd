@@ -126,7 +126,7 @@ func _material(role: String, o: Dictionary, no_ink: bool, no_shine := false) -> 
 	if role == "skin":
 		m.set_shader_parameter("cut", -0.25)   # da chỉ tối ở mặt hướng hẳn xuống
 	elif role == "hair" and not no_ink and not no_shine:
-		m.set_shader_parameter("shine", 0.3)    # vòng sáng trên tóc (chỉ mũ tóc/tóc dài, lọn mái nhỏ thì tắt)
+		m.set_shader_parameter("shine", 0.16)    # vòng sáng trên tóc (chỉ mũ tóc/tóc dài, lọn mái nhỏ thì tắt)
 	if not no_ink:
 		var ink := ShaderMaterial.new()
 		ink.shader = INK
