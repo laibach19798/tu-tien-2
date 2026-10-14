@@ -6,7 +6,7 @@ extends SceneTree
 var demo: Node
 var out_dir := "/tmp"
 var frame := 0
-var extras: Array[Hero3D] = []
+var extras: Array[Node3D] = []
 ## [bộ, góc xoay độ, độ cao tâm khung, cỡ khung, tên file]
 const DETAILS := [
 	["tien_bao", 0, 0.8, 2.3, "detail_tien_bao.png"], ["dao_bao", 0, 0.8, 2.3, "detail_dao_bao.png"],
@@ -34,7 +34,7 @@ func _process(_delta: float) -> bool:
 			demo.hero.set_outfit("ao_vai")
 			var ids := ["dao_bao", "tien_bao", "ma_y"]
 			for i in ids.size():
-				var h := Hero3D.new()
+				var h: Node3D = demo.make_hero()
 				demo.world.add_child(h)
 				h.position = Vector3(-0.5 + i, 0, 0)
 				h.set_outfit(ids[i])

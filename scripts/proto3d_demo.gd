@@ -3,6 +3,7 @@ extends Node
 ## Chạy: Godot --path . res://scenes/proto3d.tscn
 ## WASD / mũi tên: đi · 1-4: đổi trang phục · Space: vung tay · Z: bật/tắt độ phân giải thấp (pixel hoá)
 
+const USE_MODEL := true          # true: model dựng bằng Blender · false: bản dựng bằng khối nguyên thủy
 const PIXEL_SHRINK := 3          # cảnh 3D render ở 1/3 độ phân giải rồi phóng to bằng nearest -> nhân vật ra "pixel" hợp với sprite
 const SPEED := 4.0
 const CAM_OFFSET := Vector3(0, 8.6, 11.0)   # nhìn xuống ~38° (camera chiếu trực giao)
@@ -17,7 +18,7 @@ const PROPS := [
 
 var world: Node3D
 var cam: Camera3D
-var hero: Hero3D
+var hero: Node3D   # HeroModel (model Blender) hoặc Hero3D (khối nguyên thủy)
 var container: SubViewportContainer
 var label: Label
 var outfit_idx := 0
@@ -74,7 +75,7 @@ func _build_world() -> void:
 	for p in PROPS:
 		_add_prop(p[0], p[1])
 
-	hero = Hero3D.new()
+	hero = make_hero()
 	world.add_child(hero)
 
 	cam = Camera3D.new()
@@ -85,6 +86,10 @@ func _build_world() -> void:
 	cam.rotation_degrees = Vector3(-38, 0, 0)
 	cam.position = CAM_OFFSET
 	world.add_child(cam)
+
+
+func make_hero() -> Node3D:
+	return HeroModel.new() if USE_MODEL else Hero3D.new()
 
 
 func _add_prop(name: String, pos: Vector3) -> void:
